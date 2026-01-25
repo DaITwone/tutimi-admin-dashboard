@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRightFromBracket, faBell, faChevronDown } from '@fortawesome/free-solid-svg-icons';
+import { supabase } from '../lib/supabase';
 
 const getPageTitle = (pathname: string) => {
   if (pathname.startsWith('/dashboard')) return 'Admin Dashboard';
@@ -23,10 +24,9 @@ export default function Header() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  const handleLogout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('user');
-    router.push('/login');
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.replace('/login');
   };
 
   // click outside để đóng menu
