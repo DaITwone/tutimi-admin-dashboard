@@ -6,14 +6,13 @@ import { supabase } from '@/app/lib/supabase';
 /* ===================== TYPES ===================== */
 type User = {
   id: string;
-  email: string;
   username: string | null;
   full_name: string | null;
   phone: string | null;
   address: string | null;
   avatar_url: string | null;
+  role?: string | null;
 };
-
 
 /* ===================== PAGE ===================== */
 export default function UsersPage() {
@@ -28,27 +27,28 @@ export default function UsersPage() {
     setLoading(true);
 
     const { data, error } = await supabase
-      .from('users')
-      .select(`
+      .from('profiles')
+      .select(
+        `
         id,
-        email,
         username,
         full_name,
         phone,
         address,
-        avatar_url
-      `)
-      .neq('email', 'admin@gmail.com')
-      .order('email', { ascending: true });
+        avatar_url,
+        role
+      `
+      )
+      .neq('role', 'admin')
+      .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Fetch users error:', error.message);
+      console.error('Fetch profiles error:', error.message);
+      setLoading(false);
+      return;
     }
 
-    if (data) {
-      setUsers(data);
-    }
-
+    setUsers(data ?? []);
     setLoading(false);
   };
 
@@ -60,22 +60,18 @@ export default function UsersPage() {
           <thead className="border-b bg-gray-50 text-gray-500">
             <tr>
               <th className="p-4 text-left">User</th>
-              <th className="p-4 text-left">Email</th>
+              <th className="p-4 text-left">Username</th>
               <th className="p-4 text-left">Phone</th>
               <th className="p-4 text-left">Address</th>
               <th className="p-4 text-left">Status</th>
             </tr>
           </thead>
 
-
           {/* ===================== BODY ===================== */}
           <tbody>
             {loading && (
               <tr>
-                <td
-                  colSpan={5}
-                  className="p-6 text-center text-gray-400"
-                >
+                <td colSpan={5} className="p-6 text-center text-gray-400">
                   Loading users...
                 </td>
               </tr>
@@ -83,10 +79,7 @@ export default function UsersPage() {
 
             {!loading && users.length === 0 && (
               <tr>
-                <td
-                  colSpan={5}
-                  className="p-6 text-center text-gray-400"
-                >
+                <td colSpan={5} className="p-6 text-center text-gray-400">
                   No users found
                 </td>
               </tr>
@@ -97,7 +90,6 @@ export default function UsersPage() {
                 <UserRow
                   key={user.id}
                   avatarUrl={user.avatar_url}
-                  email={user.email}
                   username={user.username}
                   fullName={user.full_name}
                   phone={user.phone}
@@ -105,7 +97,6 @@ export default function UsersPage() {
                   active
                 />
               ))}
-
           </tbody>
         </table>
       </div>
@@ -116,7 +107,6 @@ export default function UsersPage() {
 /* ===================== ROW ===================== */
 function UserRow({
   avatarUrl,
-  email,
   username,
   fullName,
   phone,
@@ -124,7 +114,6 @@ function UserRow({
   active,
 }: {
   avatarUrl: string | null;
-  email: string;
   username: string | null;
   fullName: string | null;
   phone: string | null;
@@ -136,7 +125,7 @@ function UserRow({
       {/* USER */}
       <td className="p-4">
         <div className="flex items-center gap-3">
-          <div className='border rounded-full border-gray-300'>
+          <div className="border rounded-full border-gray-300">
             <img
               src={avatarUrl || '/images/avt.png'}
               alt=""
@@ -148,14 +137,18 @@ function UserRow({
               {fullName || username || 'Unnamed'}
             </div>
             <div className="text-xs text-gray-500">
-              @{username ?? '—'}
+              {fullName ? `@${username ?? '—'}` : username ? `@${username}` : '—'}
             </div>
           </div>
         </div>
       </td>
 
-      {/* EMAIL */}
-      <td className="p-4 text-gray-700">{email}</td>
+      {/* USERNAME */}
+      <td className="p-4 text-gray-700">
+        <span className="inline-flex rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700">
+          @{username ?? '—'}
+        </span>
+      </td>
 
       {/* PHONE */}
       <td className="p-4 text-gray-600">{phone ?? '—'}</td>
@@ -166,10 +159,9 @@ function UserRow({
       {/* STATUS */}
       <td className="p-4">
         <span
-          className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${active
-            ? 'bg-green-100 text-green-700'
-            : 'bg-gray-100 text-gray-500'
-            }`}
+          className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
+            active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+          }`}
         >
           {active ? 'Active' : 'Disabled'}
         </span>
@@ -177,4 +169,3 @@ function UserRow({
     </tr>
   );
 }
-
