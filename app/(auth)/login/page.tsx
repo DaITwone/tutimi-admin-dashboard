@@ -49,7 +49,7 @@ export default function LoginPage() {
 
         // 2. Check role từ bảng users
         const { data: profile, error: profileError } = await supabase
-            .from('users')
+            .from('profiles')
             .select('role')
             .eq('id', authData.user.id)
             .single();
