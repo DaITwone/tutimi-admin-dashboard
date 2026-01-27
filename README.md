@@ -49,9 +49,15 @@ This project solves the need for efficient administration of an online coffee an
 
 ## Screenshots
 
-- Create Product: `/public/screenshots/product.png`
-- Voucher Management: `/public/screenshots/voucher.png`
-- Theme Management: `/public/screenshots/theme.png`
+### 🛒 Create Product
+![Create Product](./public/screenshots/product.png)
+
+### 🎟️ Voucher Management
+![Voucher Management](./public/screenshots/voucher.png)
+
+### 🎨 Theme Management
+![Theme Management](./public/screenshots/theme.png)
+
 
 ## Setup
 
