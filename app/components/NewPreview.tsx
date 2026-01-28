@@ -1,3 +1,4 @@
+// app\components\NewPreview.tsx
 'use client';
 
 type NewsPreviewProps = {

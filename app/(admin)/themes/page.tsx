@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/app/lib/supabase';
 import { getPublicImageUrl } from '@/app/lib/storage';
+import { useRouter } from 'next/navigation';
 
 /* ===================== TYPES ===================== */
 type Theme = {
@@ -10,7 +11,7 @@ type Theme = {
     name: string;
     background_uri: string;
     is_active: boolean;
-    display_order: string | null;
+    created_at: string;
 };
 
 type Branding = {
@@ -41,11 +42,11 @@ export default function AdminThemesPage() {
     const [themes, setThemes] = useState<Theme[]>([]);
     const [brandings, setBrandings] = useState<Branding[]>([]);
     const [banners, setBanners] = useState<Banner[]>([]);
-    const [bannerSettings, setBannerSettings] = useState<BannerSettings | null>(
-        null
-    );
+    const [bannerSettings, setBannerSettings] = useState<BannerSettings | null>(null);
 
     const [loading, setLoading] = useState(true);
+
+    const router = useRouter();
 
     /* ===================== COMPUTED ===================== */
     const activeBannerThemeKey = bannerSettings?.active_theme_key || '';
@@ -69,12 +70,12 @@ export default function AdminThemesPage() {
 
         const [themesRes, brandingsRes, bannersRes, settingsRes] =
             await Promise.all([
-                supabase.from('app_themes').select('*').order('display_order'),
+                supabase.from('app_themes').select('*').order('created_at', { ascending: true }),
                 supabase
                     .from('app_brandings')
                     .select('*')
                     .order('display_order'),
-                supabase.from('banners').select('*').order('order'),
+                supabase.from('banners').select('*').order('created_at', ({ ascending: true })),
                 supabase.from('app_banner_settings').select('*').single(),
             ]);
 
@@ -93,8 +94,16 @@ export default function AdminThemesPage() {
     /* ===================== ACTIONS: APP THEMES ===================== */
     const setActiveAppTheme = async (theme: Theme) => {
         // update DB
-        await supabase.from('app_themes').update({ is_active: false }).neq('id', '');
-        await supabase.from('app_themes').update({ is_active: true }).eq('id', theme.id);
+        await supabase
+            .from('app_themes')
+            .update({ is_active: false })
+            .neq('id', theme.id);
+
+        await supabase
+            .from('app_themes')
+            .update({ is_active: true })
+            .eq('id', theme.id);
+
 
         // update UI
         setThemes((prev) =>
@@ -107,7 +116,11 @@ export default function AdminThemesPage() {
 
     /* ===================== ACTIONS: BRANDINGS ===================== */
     const setActiveBranding = async (branding: Branding) => {
-        await supabase.from('app_brandings').update({ is_active: false }).neq('id', '');
+        await supabase
+            .from('app_brandings')
+            .update({ is_active: false })
+            .neq('id', branding.id);
+
         await supabase
             .from('app_brandings')
             .update({ is_active: true })
@@ -155,9 +168,18 @@ export default function AdminThemesPage() {
         <div className="p-6 space-y-10">
             {/* ===== THEMES LIST ===== */}
             <section className="space-y-4">
-                <h2 className="text-lg border-b-2 font-bold text-[#1b4f94]">
-                    GIAO DIỆN CHÍNH
-                </h2>
+                <div className="flex items-center justify-between gap-3 border-b-2 pb-2">
+                    <h2 className="text-lg font-bold text-[#1b4f94]">
+                        GIAO DIỆN CHÍNH
+                    </h2>
+
+                    <button
+                        onClick={() => router.push('/themes/create')}
+                        className="rounded-lg bg-[#1b4f94] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1c4273]"
+                    >
+                        + Thêm
+                    </button>
+                </div>
 
                 <div
                     className="
