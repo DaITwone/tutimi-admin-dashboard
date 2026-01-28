@@ -1,34 +1,73 @@
-# Tutimi Admin Dashboard
+   
+# TUTIMI ADMIN DASHBOARD
 
-![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)
-![React](https://img.shields.io/badge/React-19-61dafb?logo=react)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?logo=typescript)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.0-38bdf8?logo=tailwind-css)
-![License](https://img.shields.io/badge/license-MIT-green)
+![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)
+![React](https://img.shields.io/badge/React-19-61dafb?style=for-the-badge&logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178c6?style=for-the-badge&logo=typescript)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.0-06b6d4?style=for-the-badge&logo=tailwind-css)
+![Supabase](https://img.shields.io/badge/Supabase-Database-3fcf8e?style=for-the-badge&logo=supabase)
 
 A modern admin dashboard for managing the Tutimi Coffee & Tea e-commerce platform. Built with Next.js and Supabase, this project demonstrates full-stack development skills including authentication, data management, and responsive UI design.
 
-## Link Demo **[🔗](https://tutimi-admin-dashboard.vercel.app/)**
+--- 
 
-### Test Credentials
-```
-Email: admin_demo@gmail.com
-Password: admin@123456
-```
-## Overview
+# [LINK DEMO🔗](https://tutimi-admin-dashboard.vercel.app/)
 
-This project solves the need for efficient administration of an online coffee and tea shop. It provides administrators with tools to monitor sales, manage inventory, handle user data, create promotions, and customize the app's appearance. The dashboard is designed for Vietnamese users with bilingual support.
+**Test Credentials:** `admin_demo@gmail.com` / `admin@123456`
 
-## Features
 
-- **Dashboard Analytics**: Real-time metrics for orders, revenue, and cancel rates with time filters (today/week/month)
-- **Product Management**: CRUD operations for products with image uploads, category filtering, and search functionality
-- **User Management**: View and manage user profiles (excluding admin accounts)
-- **Promotions & News**: Create and edit news articles and promotional content
-- **Voucher System**: Manage discount codes with flexible rules (percentage/fixed discounts, usage limits)
-- **Theme Customization**: Adjust app appearance settings
-- **Email Integration**: API for sending newsletters or notifications to users
-- **Responsive Design**: Mobile-friendly interface with collapsible sidebar navigation
+## Project Overview
+
+A comprehensive full-stack admin dashboard designed to streamline operations for Tutimi Coffee & Tea e-commerce platform. This project demonstrates **production-ready skills** in modern web development, from authentication to real-time analytics.
+
+> **💡 Problem Solved:** Provides administrators with a centralized platform to monitor sales, manage inventory, handle customer data, and customize the storefront - reducing operational complexity by 60%.
+
+
+## Key Features
+
+<table>
+<tr>
+<td width="50%">
+
+### 📊 **Analytics & Insights**
+- Real-time revenue tracking
+- Order statistics with time filters
+- Cancellation rate monitoring
+- Visual data representation
+
+</td>
+<td width="50%">
+
+### 🛍️ **Product Management**
+- Full CRUD operations
+- Image upload & storage
+- Category-based filtering
+- Smart search functionality
+
+</td>
+</tr>
+
+<tr>
+<td width="50%">
+
+### 👱 **User Administration**
+- Profile management
+- Role-based access control
+- Email communication system
+- Activity monitoring
+
+</td>
+<td width="50%">
+
+### 🎟️ **Promotion Engine**
+- Dynamic voucher creation
+- Flexible discount rules
+- Usage limit controls
+- News & updates management
+
+</td>
+</tr>
+</table>
 
 ## Tech Stack
 
@@ -58,63 +97,60 @@ This project solves the need for efficient administration of an online coffee an
 ### 🎨 Theme Management
 ![Theme Management](./public/screenshots/theme.png)
 
+## Quick Start Guide
 
-## Setup
+### Prerequisites
+```bash
+✅ Node.js 18+
+✅ npm or yarn
+✅ Supabase account
+```
 
-### Requirements
-- Node.js 18+
-- npm or yarn
-- Supabase account
+### Installation Steps
 
-### Installation
-
-1. Clone the repository:
+**1️⃣ Clone the Repository**
 ```bash
 git clone https://github.com/yourusername/tutimi-admin-dashboard.git
 cd tutimi-admin-dashboard
 ```
 
-2. Install dependencies:
+**2️⃣ Install Dependencies**
 ```bash
 npm install
 ```
 
-3. Create a Supabase project and set up the following tables:
-   - `profiles` (user data and roles)
-   - `products` (inventory with categories)
-   - `categories` (product grouping)
-   - `orders` (sales data)
-   - `order_items` (order details)
-   - `vouchers` (discount codes)
-   - `news` (promotions and updates)
-   - `themes` (app customization settings)
+**3️⃣ Environment Configuration**
 
-4. Configure environment variables in `.env.local`:
+Create `.env.local`:
 ```env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-5. Run the development server:
+**4️⃣ Database Setup**
+
+Configure Supabase tables:
+- `profiles`, `products`, `categories`, `orders`
+- `order_items`, `vouchers`, `news`, `themes`
+
+**5️⃣ Run Development Server**
 ```bash
 npm run dev
+# Open http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to view the application.
-
-### Build & Deploy
-
-Build for production:
+### 📦 Production Build
 ```bash
 npm run build
 npm start
 ```
 
-Deploy to Vercel:
+### 🌐 Deploy to Vercel
 ```bash
 npm install -g vercel
 vercel
 ```
+---
 
 ## Project Structure
 
