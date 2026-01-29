@@ -9,10 +9,14 @@ type InventoryUIState = {
   productId: string | null;
   productName: string | null;
 
+  // ✅ NEW: tồn kho hiện tại
+  stockQuantity: number;
+
   openDrawer: (payload: {
     action: InventoryAction;
     productId: string;
     productName: string;
+    stockQuantity: number; // ✅ NEW
   }) => void;
 
   closeDrawer: () => void;
@@ -33,12 +37,16 @@ export const useInventoryUI = create<InventoryUIState>((set) => ({
   productId: null,
   productName: null,
 
-  openDrawer: ({ action, productId, productName }) =>
+  // ✅ NEW init
+  stockQuantity: 0,
+
+  openDrawer: ({ action, productId, productName, stockQuantity }) =>
     set({
       open: true,
       action,
       productId,
       productName,
+      stockQuantity, // ✅ NEW
     }),
 
   closeDrawer: () =>
@@ -46,6 +54,7 @@ export const useInventoryUI = create<InventoryUIState>((set) => ({
       open: false,
       productId: null,
       productName: null,
+      stockQuantity: 0, // ✅ NEW reset
     }),
 
   // ===== History Drawer init =====

@@ -253,7 +253,7 @@ export default function ProductsPage() {
                 : 'bg-[#1b4f94] text-white'
                 }`}
             >
-              {showInventoryActions ? 'Đóng' : 'Xử Lý Tồn Kho'}
+              {showInventoryActions ? 'Đóng' : 'Xử lý tồn kho'}
             </button>
 
             {/* Manage mode toggle */}
@@ -265,7 +265,7 @@ export default function ProductsPage() {
                 }`}
             >
               <Power size={20} />
-              {manageMode ? '' : 'Bật/Tắt Món'}
+              {manageMode ? '' : 'Bật/Tắt món'}
             </button>
           </div>
 
@@ -565,6 +565,7 @@ export default function ProductsPage() {
                                   action: 'IN',
                                   productId: product.id,
                                   productName: product.name,
+                                  stockQuantity: product.stock_quantity ?? 0,
                                 })
                               }
                               className="rounded-md border border-blue-200 bg-blue-50 px-3 py-1 text-sm text-blue-700 hover:bg-blue-100"
@@ -578,6 +579,7 @@ export default function ProductsPage() {
                                   action: 'OUT',
                                   productId: product.id,
                                   productName: product.name,
+                                  stockQuantity: product.stock_quantity ?? 0,
                                 })
                               }
                               className="rounded-md border border-yellow-200 bg-yellow-50 px-3 py-1 text-sm text-yellow-700 hover:bg-yellow-100"
@@ -591,6 +593,7 @@ export default function ProductsPage() {
                                   action: 'ADJUST',
                                   productId: product.id,
                                   productName: product.name,
+                                  stockQuantity: product.stock_quantity ?? 0,
                                 })
                               }
                               title="Điều chỉnh"
