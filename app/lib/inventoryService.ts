@@ -2,11 +2,14 @@ import { supabase } from '@/app/lib/supabase';
 
 export type InventoryDirection = 'INCREASE' | 'DECREASE';
 
+// Nhập hàng
 export async function createInventoryIn(payload: {
   productId: string;
   quantity: number;
   note?: string | null;
-}) {
+}) 
+{
+  // rpc = gọi Postgres Function (stored proceduce)
   const { data, error } = await supabase.rpc('create_inventory_in', {
     p_product_id: payload.productId,
     p_quantity: payload.quantity,
@@ -17,6 +20,7 @@ export async function createInventoryIn(payload: {
   return data; // returns uuid
 }
 
+// Xuất hàng
 export async function createInventoryOut(payload: {
   productId: string;
   quantity: number;
@@ -32,6 +36,7 @@ export async function createInventoryOut(payload: {
   return data;
 }
 
+// Điều chỉnh tồn kho
 export async function createInventoryAdjust(payload: {
   productId: string;
   direction: InventoryDirection;

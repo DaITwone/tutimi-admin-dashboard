@@ -5,9 +5,9 @@ import {
   createInventoryIn,
   createInventoryOut,
   fetchInventoryTransactions,
-  InventoryDirection,
 } from '@/app/lib/inventoryService';
 
+/* ===================== QUERIES ===================== */
 export function useInventoryTransactions(productId: string | null) {
   return useQuery({
     queryKey: queryKeys.inventoryTransactions(productId || ''),
@@ -17,32 +17,50 @@ export function useInventoryTransactions(productId: string | null) {
   });
 }
 
+/* ===================== INVALIDATE HELPER ===================== */
+function invalidateInventoryRelatedQueries(qc: ReturnType<typeof useQueryClient>, productId?: string | null) {
+  // ✅ invalidate ALL products queries (match prefix)
+  qc.invalidateQueries({ queryKey: ['products'] });
+
+  // ✅ invalidate transactions list for this product
+  if (productId) {
+    qc.invalidateQueries({
+      queryKey: queryKeys.inventoryTransactions(productId),
+    });
+  }
+}
+
+/* ===================== MUTATIONS ===================== */
 export function useCreateInventoryIn() {
   const qc = useQueryClient();
+
   return useMutation({
     mutationFn: createInventoryIn,
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['products'] });
+    onSuccess: (_data, variables) => {
+      // variables should contain productId
+      invalidateInventoryRelatedQueries(qc, variables.productId);
     },
   });
 }
 
 export function useCreateInventoryOut() {
   const qc = useQueryClient();
+
   return useMutation({
     mutationFn: createInventoryOut,
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['products'] });
+    onSuccess: (_data, variables) => {
+      invalidateInventoryRelatedQueries(qc, variables.productId);
     },
   });
 }
 
 export function useCreateInventoryAdjust() {
   const qc = useQueryClient();
+
   return useMutation({
     mutationFn: createInventoryAdjust,
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['products'] });
+    onSuccess: (_data, variables) => {
+      invalidateInventoryRelatedQueries(qc, variables.productId);
     },
   });
 }

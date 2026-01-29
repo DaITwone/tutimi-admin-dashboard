@@ -85,10 +85,10 @@ export default function InventoryActionDrawer() {
           <div className="flex items-center justify-between border-b px-6 pt-3">
             <div>
               <h2 className="text-lg font-semibold text-[#1c4273]">{title}</h2>
-              <p className="text-xs text-gray-500 mt-1">{productName}</p>
+              <p className="text-md italic text-gray-500">{productName}</p>
             </div>
 
-            <button onClick={closeDrawer} className="rounded-full p-2 hover:bg-gray-100">
+            <button onClick={closeDrawer} className="rounded-full px-2 py-0.5 bg-gray-100">
               ✕
             </button>
           </div>

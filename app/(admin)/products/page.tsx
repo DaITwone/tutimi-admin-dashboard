@@ -10,6 +10,7 @@ import ConfirmDeleteDrawer from '@/app/components/ConfirmDeleteDrawer';
 import InventoryActionDrawer from '@/app/components/InventoryActionDrawer';
 import { useInventoryUI } from '@/app/store/inventoryUI';
 import { useProductsQuery } from '@/app/hooks/useProductsQuery';
+import InventoryHistoryDrawer from '@/app/components/InventoryHistoryDrawer';
 
 /* ===================== TYPES ===================== */
 type Product = {
@@ -53,7 +54,6 @@ export default function ProductsPage() {
 
   const [manageMode, setManageMode] = useState(false);
   const [showInventoryActions, setShowInventoryActions] = useState(false);
-  const [inventoryOpenId, setInventoryOpenId] = useState<string | null>(null);
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
@@ -191,11 +191,6 @@ export default function ProductsPage() {
     else setSelectedIds((prev) => prev.filter((x) => x !== id));
   };
 
-  useEffect(() => {
-    if (manageMode) setShowInventoryActions(false);
-  }, [manageMode]);
-
-
   /* ===================== UI ===================== */
   return (
     <div className="space-y-3">
@@ -236,48 +231,11 @@ export default function ProductsPage() {
       {/* Error */}
       {error && <div className="rounded-lg bg-red-50 p-4 text-red-600">{error}</div>}
 
-      {/* Status Filter (only in Manage Mode) */}
-      {manageMode && (
-        <div className="flex items-center justify-end gap-2">
-          {/* ALL */}
-          <button
-            onClick={() => {
-              setSelectedIds([]);
-              setStatusFilter('all');
-            }}
-            className={`whitespace-nowrap rounded-full px-4 py-2 text-sm shadow-sm ${statusFilter === 'all' ? 'bg-[#1b4f94] text-white' : 'bg-white text-gray-500'
-              }`}
-          >
-            All
-          </button>
-
-          {/* SWITCH ON/OFF */}
-          <button
-            onClick={() => {
-              setSelectedIds([]);
-              setStatusFilter((prev) => (prev === 'on' ? 'off' : 'on'));
-            }}
-            className={`flex items-center gap-2 rounded-full border px-3 py-2 text-sm shadow-sm transition ${statusFilter === 'all'
-              ? 'bg-white text-gray-500 border-gray-200'
-              : statusFilter === 'on'
-                ? 'bg-green-600 text-white border-green-600'
-                : 'bg-red-600 text-white border-red-600'
-              }`}
-          >
-            <div className="relative h-5 w-10 rounded-full bg-white/30 transition">
-              <div
-                className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition ${statusFilter === 'on' ? 'left-5' : 'left-1'
-                  }`}
-              />
-            </div>
-          </button>
-        </div>
-      )}
-
       {/* Table */}
       <div className="overflow-hidden rounded-xl bg-white shadow-sm">
         {/* Top Bar */}
         <div className="mx-4 mt-4.5 flex flex-wrap items-center justify-between gap-3">
+          {/* LEFT */}
           <div className="flex flex-wrap items-center gap-2">
             {/* Add */}
             <button
@@ -290,42 +248,88 @@ export default function ProductsPage() {
             {/* Inventory Toggle */}
             <button
               onClick={() => setShowInventoryActions((prev) => !prev)}
-              className={`rounded-lg border p-2.5 transition  font-semibold text-sm ${showInventoryActions
-                ? 'bg-[#1b4f94] text-white'
-                : 'border-gray-200 bg-white text-[#1c4273] hover:bg-gray-50'
+              className={`rounded-lg border p-2 transition ${showInventoryActions
+                ? 'border-gray-200 bg-white text-[#1c4273] hover:bg-gray-50 font-semibold'
+                : 'bg-[#1b4f94] text-white'
                 }`}
             >
-              {showInventoryActions ? 'Ẩn tồn kho' : 'Xử Lý Tồn Kho'}
+              {showInventoryActions ? 'Đóng' : 'Xử Lý Tồn Kho'}
             </button>
 
             {/* Manage mode toggle */}
             <button
               onClick={toggleManageMode}
-              className={`flex items-center gap-2 rounded-lg border px-2.5 py-2.5 text-sm font-semibold transition ${manageMode
-                ? 'border-red-200 bg-red-100 text-red-600'
-                : 'border-gray-200 bg-white text-[#1c4273] hover:bg-gray-50'
+              className={`flex items-center gap-2 rounded-lg border p-2 transition ${manageMode
+                ? 'border-red-200 bg-red-100 text-red-600 py-2.5'
+                : 'bg-[#1b4f94] text-white'
                 }`}
             >
               <Power size={20} />
               {manageMode ? '' : 'Bật/Tắt Món'}
             </button>
-
           </div>
 
-          {/* Search */}
-          <div className="relative w-64">
-            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-              <Search size={16} />
-            </span>
+          {/* RIGHT */}
+          <div className="flex flex-wrap items-center justify-end gap-3">
+            {/* Search */}
+            <div className="relative w-64">
+              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                <Search size={16} />
+              </span>
 
-            <input
-              type="text"
-              placeholder="Tìm kiếm sản phẩm..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 bg-gray-50 py-2 pl-10 pr-3 text-sm outline-none
-              focus:border-[#1b4f94] focus:bg-white"
-            />
+              <input
+                type="text"
+                placeholder="Tìm kiếm sản phẩm..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full rounded-lg border border-gray-300 bg-gray-50 py-2 pl-10 pr-3 text-sm outline-none
+        focus:border-[#1b4f94] focus:bg-white"
+              />
+            </div>
+
+            {/* Status Filter (only in Manage Mode) */}
+            {manageMode && (
+              <div className="flex items-center justify-end gap-2">
+                {/* ALL */}
+                <button
+                  onClick={() => {
+                    setSelectedIds([]);
+                    setStatusFilter('all');
+                  }}
+                  className={`whitespace-nowrap rounded-full px-4 py-2 text-sm shadow-sm ${statusFilter === 'all'
+                    ? 'bg-[#1b4f94] text-white'
+                    : 'bg-white text-gray-500'
+                    }`}
+                >
+                  All
+                </button>
+
+                {/* SWITCH ON/OFF */}
+                <button
+                  onClick={() => {
+                    setSelectedIds([]);
+                    setStatusFilter((prev) => (prev === 'on' ? 'off' : 'on'));
+                  }}
+                  className={`flex items-center gap-2 rounded-full border px-3 py-2 text-sm shadow-sm transition ${statusFilter === 'all'
+                    ? 'bg-white text-gray-500 border-gray-200'
+                    : statusFilter === 'on'
+                      ? 'bg-green-600 text-white border-green-600'
+                      : 'bg-red-600 text-white border-red-600'
+                    }`}
+                >
+                  <div
+                    className={`relative h-5 w-10 rounded-full transition ${statusFilter === 'all'
+                      ? 'bg-gray-300'       // neutral track, nhìn rõ trên nền trắng
+                      : 'bg-white/30'       // khi on/off thì vẫn đẹp
+                      }`}
+                  >                    <div
+                      className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition ${statusFilter === 'on' ? 'left-5' : 'left-1'
+                        }`}
+                    />
+                  </div>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -377,7 +381,7 @@ export default function ProductsPage() {
                 </th>
               )}
 
-              <th className="w-80 pl-5 pr-2 py-3 text-left">Sản phẩm</th>
+              <th className="w-72 pl-5 pr-2 py-3 text-left">Sản phẩm</th>
               <th className="w-40 px-4 py-3 text-left">Giá</th>
               <th className="w-44 px-4 py-3 text-left">Tồn kho</th>
               <th className="w-40 px-4 py-3 text-left">Trạng thái</th>
@@ -596,6 +600,18 @@ export default function ProductsPage() {
                               <SlidersHorizontal size={16} />
                             </button>
 
+                            <button
+                              onClick={() =>
+                                invUI.openHistory({
+                                  productId: product.id,
+                                  productName: product.name,
+                                })
+                              }
+                              className="rounded-md border border-gray-300 bg-white px-3 py-1 text-sm text-gray-700 hover:bg-gray-50"
+                            >
+                              Lịch sử
+                            </button>
+
                           </div>
                         )}
                       </div>
@@ -607,8 +623,9 @@ export default function ProductsPage() {
           </tbody>
         </table>
 
-        {/* ✅ Inventory Drawer */}
         <InventoryActionDrawer />
+
+        <InventoryHistoryDrawer />
 
         {/* Drawer Edit */}
         {editingId && (
