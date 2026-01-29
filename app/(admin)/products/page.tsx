@@ -4,9 +4,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/app/lib/supabase';
 import { getPublicImageUrl } from '@/app/lib/storage';
-import { Power, Search } from 'lucide-react';
+import { Power, Search, SlidersHorizontal } from 'lucide-react';
 import EditProductDrawer from '@/app/components/EditProductDrawer';
 import ConfirmDeleteDrawer from '@/app/components/ConfirmDeleteDrawer';
+import InventoryActionDrawer from '@/app/components/InventoryActionDrawer';
+import { useInventoryUI } from '@/app/store/inventoryUI';
+import { useProductsQuery } from '@/app/hooks/useProductsQuery';
 
 /* ===================== TYPES ===================== */
 type Product = {
@@ -18,6 +21,9 @@ type Product = {
   is_best_seller: boolean;
   image: string | null;
   is_active: boolean | null;
+
+  // ✅ inventory
+  stock_quantity: number;
 };
 
 type Category = {
@@ -30,31 +36,51 @@ type StatusFilter = 'all' | 'on' | 'off';
 /* ===================== COMPONENT ===================== */
 export default function ProductsPage() {
   const router = useRouter();
+  const invUI = useInventoryUI();
 
   /* -------------------- STATE -------------------- */
-  const [products, setProducts] = useState<Product[]>([]);
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>('all');
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
 
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  // ✅ Manage Mode (UI progressive disclosure)
   const [manageMode, setManageMode] = useState(false);
+  const [showInventoryActions, setShowInventoryActions] = useState(false);
+  const [inventoryOpenId, setInventoryOpenId] = useState<string | null>(null);
 
-  // ✅ Bulk mode states
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [bulkLoading, setBulkLoading] = useState(false);
 
   const SKELETON_ROWS = 5;
+
+  /* -------------------- SEARCH DEBOUNCE -------------------- */
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search.trim()), 400);
+    return () => clearTimeout(t);
+  }, [search]);
+
+  /* -------------------- REACT QUERY: PRODUCTS -------------------- */
+  const {
+    data: products = [],
+    isLoading: loading,
+    error: productsError,
+    refetch: refetchProducts,
+  } = useProductsQuery({
+    categoryId: activeCategory,
+    search: debouncedSearch,
+    manageMode,
+    statusFilter,
+  });
+
+  const error = productsError ? 'Không thể tải danh sách sản phẩm' : null;
 
   /* -------------------- DERIVED -------------------- */
   const hasSelection = selectedIds.length > 0;
@@ -65,7 +91,7 @@ export default function ProductsPage() {
     return selectedIds.length === products.length;
   }, [manageMode, products.length, selectedIds.length]);
 
-  const colSpan = manageMode ? 5 : 4;
+  const colSpan = manageMode ? 6 : 5;
 
   /* -------------------- HELPERS -------------------- */
   const resetManageTools = () => {
@@ -91,66 +117,15 @@ export default function ProductsPage() {
     if (data) setCategories(data);
   };
 
-  /* -------------------- FETCH PRODUCTS -------------------- */
-  const fetchProducts = async (categoryId: string = 'all') => {
-    setLoading(true);
-    setError(null);
-
-    let query = supabase
-      .from('products')
-      .select('id, name, price, image, sale_price, stats, is_best_seller, is_active')
-      .order('created_at', { ascending: false });
-
-    // category filter
-    if (categoryId !== 'all') query = query.eq('category_id', categoryId);
-
-    // ✅ status filter only matters in manage mode
-    if (manageMode) {
-      if (statusFilter === 'on') query = query.eq('is_active', true);
-      if (statusFilter === 'off') query = query.eq('is_active', false);
-    }
-
-    // search
-    if (search.trim()) query = query.ilike('name', `%${search.trim()}%`);
-
-    const { data, error } = await query;
-
-    if (error) {
-      console.error(error);
-      setError('Không thể tải danh sách sản phẩm');
-      setProducts([]);
-    } else {
-      setProducts(data || []);
-    }
-
-    setLoading(false);
-  };
-
   /* -------------------- INITIAL LOAD -------------------- */
   useEffect(() => {
     fetchCategories();
-    fetchProducts('all');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /* -------------------- RELOAD WHEN manageMode/status changes -------------------- */
   useEffect(() => {
-    // khi bật/tắt manage mode thì reload list theo logic tương ứng
     setSelectedIds([]);
-    fetchProducts(activeCategory);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [manageMode, statusFilter]);
-
-  /* -------------------- SEARCH DEBOUNCE -------------------- */
-  useEffect(() => {
-    const delay = setTimeout(() => {
-      setSelectedIds([]);
-      fetchProducts(activeCategory);
-    }, 400);
-
-    return () => clearTimeout(delay);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search]);
+  }, [manageMode, statusFilter, activeCategory, debouncedSearch]);
 
   /* -------------------- DELETE -------------------- */
   const confirmDelete = async () => {
@@ -168,10 +143,12 @@ export default function ProductsPage() {
     }
 
     setDeleteId(null);
-    fetchProducts(activeCategory);
+
+    // ✅ refresh list after delete
+    refetchProducts();
   };
 
-  /* -------------------- BULK UPDATE ACTIVE -------------------- */
+  /* -------------------- BULK UPDATE ACTIVE (legacy) -------------------- */
   const bulkUpdateActive = async (nextActive: boolean) => {
     if (!hasSelection) return;
 
@@ -190,12 +167,10 @@ export default function ProductsPage() {
       return;
     }
 
-    // optimistic UI
-    setProducts((prev) =>
-      prev.map((p) => (selectedIds.includes(p.id) ? { ...p, is_active: nextActive } : p))
-    );
-
     setSelectedIds([]);
+
+    // ✅ refresh list
+    refetchProducts();
   };
 
   /* -------------------- SELECT HANDLERS -------------------- */
@@ -216,6 +191,11 @@ export default function ProductsPage() {
     else setSelectedIds((prev) => prev.filter((x) => x !== id));
   };
 
+  useEffect(() => {
+    if (manageMode) setShowInventoryActions(false);
+  }, [manageMode]);
+
+
   /* ===================== UI ===================== */
   return (
     <div className="space-y-3">
@@ -226,7 +206,6 @@ export default function ProductsPage() {
             onClick={() => {
               setActiveCategory('all');
               setSelectedIds([]);
-              fetchProducts('all');
             }}
             className={`whitespace-nowrap rounded-full px-4 py-2 text-sm shadow-sm ${activeCategory === 'all'
               ? 'bg-[#1b4f94] text-white'
@@ -242,7 +221,6 @@ export default function ProductsPage() {
               onClick={() => {
                 setActiveCategory(cat.id);
                 setSelectedIds([]);
-                fetchProducts(cat.id);
               }}
               className={`whitespace-nowrap rounded-full px-4 py-2 text-sm shadow-sm ${activeCategory === cat.id
                 ? 'bg-[#1b4f94] text-white'
@@ -267,9 +245,7 @@ export default function ProductsPage() {
               setSelectedIds([]);
               setStatusFilter('all');
             }}
-            className={`whitespace-nowrap rounded-full px-4 py-2 text-sm shadow-sm ${statusFilter === 'all'
-              ? 'bg-[#1b4f94] text-white'
-              : 'bg-white text-gray-500'
+            className={`whitespace-nowrap rounded-full px-4 py-2 text-sm shadow-sm ${statusFilter === 'all' ? 'bg-[#1b4f94] text-white' : 'bg-white text-gray-500'
               }`}
           >
             All
@@ -311,6 +287,17 @@ export default function ProductsPage() {
               + Thêm sản phẩm
             </button>
 
+            {/* Inventory Toggle */}
+            <button
+              onClick={() => setShowInventoryActions((prev) => !prev)}
+              className={`rounded-lg border p-2.5 transition  font-semibold text-sm ${showInventoryActions
+                ? 'bg-[#1b4f94] text-white'
+                : 'border-gray-200 bg-white text-[#1c4273] hover:bg-gray-50'
+                }`}
+            >
+              {showInventoryActions ? 'Ẩn tồn kho' : 'Xử Lý Tồn Kho'}
+            </button>
+
             {/* Manage mode toggle */}
             <button
               onClick={toggleManageMode}
@@ -322,6 +309,7 @@ export default function ProductsPage() {
               <Power size={20} />
               {manageMode ? '' : 'Bật/Tắt Món'}
             </button>
+
           </div>
 
           {/* Search */}
@@ -341,7 +329,7 @@ export default function ProductsPage() {
           </div>
         </div>
 
-        {/* Bulk Action Bar (only in Manage Mode) */}
+        {/* Bulk Action Bar (legacy Manage Mode) */}
         {manageMode && hasSelection && (
           <div className="mx-4 mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-gray-300 bg-blue-50 px-4 py-3">
             <p className="text-md text-gray-700">
@@ -389,11 +377,11 @@ export default function ProductsPage() {
                 </th>
               )}
 
-              <th className="pl-5 pr-2 py-3 text-left">Sản phẩm</th>
+              <th className="w-80 pl-5 pr-2 py-3 text-left">Sản phẩm</th>
               <th className="w-40 px-4 py-3 text-left">Giá</th>
-              <th className="w-60 px-4 py-3 text-left">Chỉ số</th>
+              <th className="w-44 px-4 py-3 text-left">Tồn kho</th>
               <th className="w-40 px-4 py-3 text-left">Trạng thái</th>
-              <th className="w-44 px-4 py-3 text-right">Thao tác</th>
+              <th className="w-52 px-4 py-3 text-right">Thao tác</th>
             </tr>
           </thead>
 
@@ -421,6 +409,10 @@ export default function ProductsPage() {
                     <div className="h-4 w-24 rounded bg-gray-200" />
                   </td>
 
+                  <td className="w-44 px-4 py-4 align-top">
+                    <div className="h-4 w-20 rounded bg-gray-200" />
+                  </td>
+
                   <td className="w-60 px-4 py-4 align-top">
                     <div className="h-4 w-44 rounded bg-gray-200" />
                   </td>
@@ -429,7 +421,7 @@ export default function ProductsPage() {
                     <div className="h-4 w-20 rounded bg-gray-200" />
                   </td>
 
-                  <td className="w-44 px-4 py-4 align-top text-right">
+                  <td className="w-52 px-4 py-4 align-top text-right">
                     <div className="flex justify-end gap-2">
                       <div className="h-7 w-12 rounded bg-gray-200" />
                       <div className="h-7 w-12 rounded bg-gray-200" />
@@ -444,123 +436,186 @@ export default function ProductsPage() {
                 </td>
               </tr>
             ) : (
-              products.map((product) => (
-                <tr key={product.id} className="hover:bg-gray-50">
-                  {manageMode && (
-                    <td className="w-10 pl-6 pr-2 py-3">
-                      <input
-                        type="checkbox"
-                        className="accent-[#1b4f94] scale-125"
-                        checked={selectedIds.includes(product.id)}
-                        onChange={(e) =>
-                          handleToggleSelectOne(product.id, e.target.checked)
-                        }
-                      />
-                    </td>
-                  )}
+              products.map((product) => {
+                const stock = product.stock_quantity ?? 0;
+                const outOfStock = stock <= 0;
 
-                  {/* Product */}
-                  <td className="px-4 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="h-24 w-20 overflow-hidden rounded-lg bg-gray-50">
-                        {product.image ? (
-                          <img
-                            src={getPublicImageUrl('products', product.image) ?? ''}
-                            alt={product.name}
-                            className="h-full w-full object-contain"
-                          />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center text-xs text-gray-400">
-                            No image
+                return (
+                  <tr key={product.id} className="hover:bg-gray-50">
+                    {manageMode && (
+                      <td className="w-10 pl-6 pr-2 py-3">
+                        <input
+                          type="checkbox"
+                          className="accent-[#1b4f94] scale-125"
+                          checked={selectedIds.includes(product.id)}
+                          onChange={(e) =>
+                            handleToggleSelectOne(product.id, e.target.checked)
+                          }
+                        />
+                      </td>
+                    )}
+
+                    {/* Product */}
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="h-24 w-20 overflow-hidden rounded-lg bg-gray-50">
+                          {product.image ? (
+                            <img
+                              src={getPublicImageUrl('products', product.image) ?? ''}
+                              alt={product.name}
+                              className="h-full w-full object-contain"
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center text-xs text-gray-400">
+                              No image
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="font-bold text-[#1c4f94] leading-snug">
+                              {product.name}
+                            </p>
+
+                            {product.is_best_seller && (
+                              <span className="inline-flex items-center rounded-full border border-green-200 bg-green-100 px-2 py-0.5 text-[11px] font-semibold text-green-700">
+                                Best seller
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Price */}
+                    <td className="w-40 px-4 py-4">
+                      {product.sale_price ? (
+                        <div className="space-x-2">
+                          <span className="font-semibold text-red-600">
+                            {product.sale_price.toLocaleString()}đ
+                          </span>
+                          <span className="text-sm text-gray-400 line-through">
+                            {product.price.toLocaleString()}đ
+                          </span>
+                        </div>
+                      ) : (
+                        <span>{product.price.toLocaleString()}đ</span>
+                      )}
+                    </td>
+
+                    {/* Stock */}
+                    <td className="w-44 px-4 py-4">
+                      {outOfStock ? (
+                        <span className="rounded-lg bg-red-100 px-3 py-2 text-xs font-semibold text-red-700">
+                          Hết hàng
+                        </span>
+                      ) : (
+                        <span className="rounded-lg bg-blue-100 px-3 py-2 text-xs font-semibold text-blue-700">
+                          Còn {stock}
+                        </span>
+                      )}
+                    </td>
+
+                    {/* Active status */}
+                    <td className="w-40 px-4 py-4">
+                      {product.is_active ? (
+                        <span className="rounded-lg bg-green-100 px-3 py-2 text-xs font-semibold text-green-700">
+                          Đang hoạt động
+                        </span>
+                      ) : (
+                        <span className="rounded-lg bg-gray-100 px-3 py-2 text-xs font-semibold text-gray-500">
+                          Tạm tắt
+                        </span>
+                      )}
+                    </td>
+
+                    {/* Actions */}
+                    <td className="w-52 px-4 py-4 text-right">
+                      <div className="flex flex-col items-end gap-2">
+                        {/* Row 1: Edit/Delete (only when NOT in inventory mode) */}
+                        {!showInventoryActions && (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => setEditingId(product.id)}
+                              className="rounded-md border border-gray-400 px-3 py-1 text-sm hover:bg-gray-50"
+                            >
+                              Sửa
+                            </button>
+
+                            <button
+                              onClick={() => setDeleteId(product.id)}
+                              className="rounded-md border border-red-200 px-3 py-1 text-sm text-red-600 hover:bg-red-50"
+                            >
+                              Xóa
+                            </button>
+                          </div>
+                        )}
+
+                        {/* Row 2: Inventory actions (only when inventory mode ON) */}
+                        {showInventoryActions && (
+                          <div className="flex flex-nowrap justify-end gap-2 overflow-x-auto">
+                            <button
+                              onClick={() =>
+                                invUI.openDrawer({
+                                  action: 'IN',
+                                  productId: product.id,
+                                  productName: product.name,
+                                })
+                              }
+                              className="rounded-md border border-blue-200 bg-blue-50 px-3 py-1 text-sm text-blue-700 hover:bg-blue-100"
+                            >
+                              Nhập
+                            </button>
+
+                            <button
+                              onClick={() =>
+                                invUI.openDrawer({
+                                  action: 'OUT',
+                                  productId: product.id,
+                                  productName: product.name,
+                                })
+                              }
+                              className="rounded-md border border-yellow-200 bg-yellow-50 px-3 py-1 text-sm text-yellow-700 hover:bg-yellow-100"
+                            >
+                              Xuất
+                            </button>
+
+                            <button
+                              onClick={() =>
+                                invUI.openDrawer({
+                                  action: 'ADJUST',
+                                  productId: product.id,
+                                  productName: product.name,
+                                })
+                              }
+                              title="Điều chỉnh"
+                              aria-label="Điều chỉnh"
+                              className="rounded-md border border-purple-200 bg-purple-50 px-3 py-1 text-sm text-purple-700 hover:bg-purple-100"
+                            >
+                              <SlidersHorizontal size={16} />
+                            </button>
+
                           </div>
                         )}
                       </div>
-
-                      <div className="min-w-0">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <p className="font-bold text-[#1c4f94] leading-snug">
-                            {product.name}
-                          </p>
-
-                          {product.is_best_seller && (
-                            <span className="inline-flex items-center rounded-full border border-green-200 bg-green-100 px-2 py-0.5 text-[11px] font-semibold text-green-700">
-                              Best seller
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-
-                  {/* Price */}
-                  <td className="w-40 px-4 py-4">
-                    {product.sale_price ? (
-                      <div className="space-x-2">
-                        <span className="font-semibold text-red-600">
-                          {product.sale_price.toLocaleString()}đ
-                        </span>
-                        <span className="text-sm text-gray-400 line-through">
-                          {product.price.toLocaleString()}đ
-                        </span>
-                      </div>
-                    ) : (
-                      <span>{product.price.toLocaleString()}đ</span>
-                    )}
-                  </td>
-
-                  {/* Stats */}
-                  <td className="w-60 px-4 py-4">
-                    {product.stats ? (
-                      <p className="text-xs text-gray-500">{product.stats}</p>
-                    ) : (
-                      <span className="text-gray-300">—</span>
-                    )}
-                  </td>
-
-                  {/* Active status */}
-                  <td className="w-40 px-4 py-4">
-                    {product.is_active ? (
-                      <span className="rounded-lg bg-green-100 px-3 py-2 text-xs font-semibold text-green-700">
-                        Đang hoạt động
-                      </span>
-                    ) : (
-                      <span className="rounded-lg bg-gray-100 px-3 py-2 text-xs font-semibold text-gray-500">
-                        Tạm tắt
-                      </span>
-                    )}
-                  </td>
-
-                  {/* Actions */}
-                  <td className="w-44 px-4 py-4 text-right">
-                    <div className="flex justify-end gap-2">
-                      <button
-                        onClick={() => setEditingId(product.id)}
-                        className="rounded-md border border-gray-400 px-3 py-1 text-sm hover:bg-gray-50"
-                      >
-                        Sửa
-                      </button>
-
-                      <button
-                        onClick={() => setDeleteId(product.id)}
-                        className="rounded-md border border-red-200 px-3 py-1 text-sm text-red-600 hover:bg-red-50"
-                      >
-                        Xóa
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
 
+        {/* ✅ Inventory Drawer */}
+        <InventoryActionDrawer />
 
         {/* Drawer Edit */}
         {editingId && (
           <EditProductDrawer
             productId={editingId}
             onClose={() => setEditingId(null)}
-            onUpdated={() => fetchProducts(activeCategory)}
+            onUpdated={() => refetchProducts()}
           />
         )}
 
