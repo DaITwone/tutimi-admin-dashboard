@@ -6,6 +6,7 @@ import { supabase } from '@/app/lib/supabase';
 
 import Sidebar from '@/app/components/Sidebar';
 import Header from '@/app/components/Header';
+import { useInventoryRealtimeSync } from '../hooks/useInventoryRealtimeSync';
 
 export default function AdminLayout({
   children,
@@ -15,6 +16,8 @@ export default function AdminLayout({
   const router = useRouter();
   const [checking, setChecking] = useState(true);
   const [collapsed, setCollapsed] = useState(false); // 👈 lifted state
+
+  useInventoryRealtimeSync();
 
   useEffect(() => {
     const checkAuth = async () => {
