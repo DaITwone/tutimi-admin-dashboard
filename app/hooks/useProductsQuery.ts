@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/app/lib/supabase';
+import { queryKeys } from '@/app/lib/queryKeys';
 
 export type Product = {
   id: string;
@@ -23,7 +24,7 @@ export function useProductsQuery(params: {
   const { categoryId, search, manageMode, statusFilter } = params;
 
   return useQuery({
-    queryKey: ['products', { categoryId, search, manageMode, statusFilter }],
+    queryKey: queryKeys.products(params),
     queryFn: async () => {
       let query = supabase
         .from('products')
