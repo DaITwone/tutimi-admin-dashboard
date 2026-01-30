@@ -7,10 +7,8 @@ import { getPublicImageUrl } from '@/app/lib/storage';
 import { Power, Search, SlidersHorizontal } from 'lucide-react';
 import EditProductDrawer from '@/app/components/EditProductDrawer';
 import ConfirmDeleteDrawer from '@/app/components/ConfirmDeleteDrawer';
-import InventoryActionDrawer from '@/app/components/InventoryActionDrawer';
-import { useInventoryUI } from '@/app/store/inventoryUI';
 import { useProductsQuery } from '@/app/hooks/useProductsQuery';
-import InventoryHistoryDrawer from '@/app/components/InventoryHistoryDrawer';
+import { InventoryActionDrawer, InventoryHistoryDrawer, useInventoryUI } from '@/app/features/inventory';
 
 /* ===================== TYPES ===================== */
 type Product = {

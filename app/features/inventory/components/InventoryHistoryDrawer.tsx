@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { useInventoryUI } from '@/app/store/inventoryUI';
+import { useInventoryUI } from '@/app/features/inventory/store/inventoryUI';
 import { useInventoryTransactions } from '../hooks/useInventory';
 
 type TxFilter = 'ALL' | 'IN' | 'OUT' | 'ADJUST';

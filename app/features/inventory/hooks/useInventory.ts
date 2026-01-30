@@ -5,7 +5,7 @@ import {
   createInventoryIn,
   createInventoryOut,
   fetchInventoryTransactions,
-} from '@/app/lib/inventoryService';
+} from '@/app/features/inventory/services/inventoryService';
 
 /* ===================== QUERIES ===================== */
 export function useInventoryTransactions(productId: string | null) {

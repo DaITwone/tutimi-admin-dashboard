@@ -6,7 +6,7 @@ import { supabase } from '@/app/lib/supabase';
 
 import Sidebar from '@/app/components/Sidebar';
 import Header from '@/app/components/Header';
-import { useInventoryRealtimeSync } from '../hooks/useInventoryRealtimeSync';
+import { useInventoryRealtimeSync } from '../features/inventory/hooks/useInventoryRealtimeSync';
 
 export default function AdminLayout({
   children,

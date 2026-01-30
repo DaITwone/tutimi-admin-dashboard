@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { useInventoryUI } from '@/app/store/inventoryUI';
+import { useInventoryUI } from '@/app/features/inventory/store/inventoryUI';
 import {
   useCreateInventoryAdjust,
   useCreateInventoryIn,
   useCreateInventoryOut,
-} from '@/app/hooks/useInventory';
+} from '@/app/features/inventory/hooks/useInventory';
 
 export default function InventoryActionDrawer() {
   const {
