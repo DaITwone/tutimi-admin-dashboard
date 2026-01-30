@@ -11,7 +11,8 @@ const getPageTitle = (pathname: string) => {
   if (pathname.startsWith('/dashboard')) return 'Admin Dashboard';
   if (pathname.startsWith('/products')) return 'QUẢN LÝ SẢN PHẨM';
   if (pathname.startsWith('/users')) return 'QUẢN LÝ NGƯỜI DÙNG';
-  if (pathname.startsWith('/orders')) return 'Orders';
+  if (pathname.startsWith('/inventory')) return 'QUẢN LÝ TỒN KHO';
+  // if (pathname.startsWith('/orders')) return 'Orders';
   if (pathname.startsWith('/vouchers')) return 'VOUCHERS';
   if (pathname.startsWith('/themes')) return 'THIẾT LẬP GIAO DIỆN';
   if (pathname.startsWith('/news')) return 'TIN TỨC & ƯU ĐÃI';

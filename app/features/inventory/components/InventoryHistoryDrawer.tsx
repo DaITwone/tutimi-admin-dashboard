@@ -71,9 +71,6 @@ export default function InventoryHistoryDrawer() {
               <h2 className="text-lg font-semibold text-[#1c4273]">
                 LỊCH SỬ TỒN KHO
               </h2>
-              <p className="text-md italic text-gray-500">
-                {productName ? `${productName}` : '---'}
-              </p>
             </div>
 
             <button
@@ -90,44 +87,40 @@ export default function InventoryHistoryDrawer() {
             <div className="flex flex-nowrap gap-2">
               <button
                 onClick={() => setFilter('ALL')}
-                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm shadow-sm ${
-                  filter === 'ALL'
-                    ? 'bg-[#1b4f94] text-white'
-                    : 'bg-gray-100 text-[#1c4273]'
-                }`}
+                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm shadow-sm ${filter === 'ALL'
+                  ? 'bg-[#1b4f94] text-white'
+                  : 'bg-gray-100 text-[#1c4273]'
+                  }`}
               >
                 Tất cả
               </button>
 
               <button
                 onClick={() => setFilter('IN')}
-                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm shadow-sm ${
-                  filter === 'IN'
-                    ? 'bg-[#1b4f94] text-white'
-                    : 'bg-gray-100 text-[#1c4273]'
-                }`}
+                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm shadow-sm ${filter === 'IN'
+                  ? 'bg-[#1b4f94] text-white'
+                  : 'bg-gray-100 text-[#1c4273]'
+                  }`}
               >
                 Nhập kho
               </button>
 
               <button
                 onClick={() => setFilter('OUT')}
-                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm shadow-sm ${
-                  filter === 'OUT'
-                    ? 'bg-[#1b4f94] text-white'
-                    : 'bg-gray-100 text-[#1c4273]'
-                }`}
+                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm shadow-sm ${filter === 'OUT'
+                  ? 'bg-[#1b4f94] text-white'
+                  : 'bg-gray-100 text-[#1c4273]'
+                  }`}
               >
                 Xuất kho
               </button>
 
               <button
                 onClick={() => setFilter('ADJUST')}
-                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm shadow-sm ${
-                  filter === 'ADJUST'
-                    ? 'bg-[#1b4f94] text-white'
-                    : 'bg-gray-100 text-[#1c4273]'
-                }`}
+                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm shadow-sm ${filter === 'ADJUST'
+                  ? 'bg-[#1b4f94] text-white'
+                  : 'bg-gray-100 text-[#1c4273]'
+                  }`}
               >
                 Điều chỉnh
               </button>
@@ -157,6 +150,10 @@ export default function InventoryHistoryDrawer() {
                 </button>
               </div>
             )}
+
+            <p className="text-md italic text-gray-500">
+              {productName ? `${productName}` : '---'}
+            </p>
 
             {/* Empty */}
             {!isLoading && !error && filtered.length === 0 && (
@@ -207,13 +204,12 @@ export default function InventoryHistoryDrawer() {
 
                       {/* Delta */}
                       <div
-                        className={`rounded-lg px-3 py-2 text-sm font-bold ${
-                          isZero
-                            ? 'bg-gray-100 text-gray-600'
-                            : isPlus
+                        className={`rounded-lg px-3 py-2 text-sm font-bold ${isZero
+                          ? 'bg-gray-100 text-gray-600'
+                          : isPlus
                             ? 'bg-green-100 text-green-700'
                             : 'bg-red-100 text-red-700'
-                        }`}
+                          }`}
                         title="Số lượng thay đổi"
                       >
                         {isZero ? '0' : isPlus ? `+${tx.delta}` : tx.delta}

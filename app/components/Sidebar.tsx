@@ -7,16 +7,11 @@ import {
   faHouse,
   faBox,
   faUsers,
-  faDollarSign,
-  faCartShopping,
   faGear,
-  faEnvelope,
-  faBell,
-  faCircleInfo,
   faNewspaper,
-  faTicketAlt,
   faTags,
   faPalette,
+  faBoxOpen,
 } from '@fortawesome/free-solid-svg-icons';
 import Image from 'next/image';
 
@@ -33,9 +28,9 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
     { label: 'Trang chủ', href: '/dashboard', icon: faHouse },
     { label: 'Người dùng', href: '/users', icon: faUsers },
     { label: 'Sản phẩm', href: '/products', icon: faBox },
+    { label: 'Tồn kho', href: '/inventory', icon: faBoxOpen  },
     { label: 'Tin tức & Ưu đãi', href: '/news', icon: faNewspaper},
     { label: 'Voucher', href: '/vouchers', icon: faTags   },
-    // { label: 'Đơn hàng', href: '/orders', icon: faCartShopping },
     { label: 'Thiết lập giao diện', href: '/themes', icon: faPalette  },
     { label: 'Cài đặt', href: '/settings', icon: faGear },
     // { label: 'Thông báo', href: '/notifications', icon: faBell },

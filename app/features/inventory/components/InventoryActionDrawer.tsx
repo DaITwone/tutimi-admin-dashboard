@@ -133,12 +133,9 @@ export default function InventoryActionDrawer() {
       <div className="fixed right-0 top-0 z-50 h-full w-100 bg-white shadow-2xl animate-slide-in">
         <div className="flex h-full flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between border-b px-6 pt-3">
+          <div className="flex items-center justify-between border-b px-6 pt-3 py-2.5">
             <div>
               <h2 className="text-lg font-semibold text-[#1c4273]">{title}</h2>
-              <p className="text-md italic text-gray-500">{productName}</p>
-
-
             </div>
 
             <button onClick={closeDrawer} className="rounded-full px-2 py-0.5 bg-gray-100">
@@ -148,6 +145,7 @@ export default function InventoryActionDrawer() {
 
           {/* Content */}
           <div className="flex-1 space-y-6 overflow-y-auto px-6 py-5">
+            <p className="text-md italic text-gray-500 mb-3">{productName}</p>
             {/* ✅ show tồn hiện tại */}
             <div className="mb-3 inline-flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm text-blue-700">
               <span className="font-medium">Tồn hiện tại:</span>

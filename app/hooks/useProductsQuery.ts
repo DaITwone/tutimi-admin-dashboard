@@ -15,24 +15,45 @@ export type Product = {
   category_id: string | null;
 };
 
-export function useProductsQuery(params: {
+export type StatusFilter = 'all' | 'on' | 'off';
+
+export type UseProductsQueryParams = {
   categoryId: string;
   search: string;
-  manageMode: boolean;
-  statusFilter: 'all' | 'on' | 'off';
-}) {
-  const { categoryId, search, manageMode, statusFilter } = params;
+
+  // ✅ legacy (optional now)
+  manageMode?: boolean;
+  statusFilter?: StatusFilter;
+};
+
+export function useProductsQuery(params: UseProductsQueryParams) {
+  const {
+    categoryId,
+    search,
+    manageMode = false,
+    statusFilter = 'all',
+  } = params;
 
   return useQuery({
-    queryKey: queryKeys.products(params),
+    // ✅ always pass "normalized params" to avoid unstable cache keys
+    queryKey: queryKeys.products({
+      categoryId,
+      search,
+      manageMode,
+      statusFilter,
+    }),
+
     queryFn: async () => {
       let query = supabase
         .from('products')
-        .select('id,name,price,image,sale_price,stats,is_best_seller,is_active,stock_quantity,category_id')
+        .select(
+          'id,name,price,image,sale_price,stats,is_best_seller,is_active,stock_quantity,category_id'
+        )
         .order('created_at', { ascending: false });
 
       if (categoryId !== 'all') query = query.eq('category_id', categoryId);
 
+      // ✅ only apply active filter when in manageMode
       if (manageMode) {
         if (statusFilter === 'on') query = query.eq('is_active', true);
         if (statusFilter === 'off') query = query.eq('is_active', false);
@@ -45,6 +66,7 @@ export function useProductsQuery(params: {
 
       return (data ?? []) as Product[];
     },
+
     staleTime: 1000 * 20,
   });
 }
