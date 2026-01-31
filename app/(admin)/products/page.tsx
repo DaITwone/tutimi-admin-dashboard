@@ -267,7 +267,7 @@ export default function ProductsPage() {
             {/* Add */}
             <button
               onClick={() => router.push('/products/create')}
-              className="rounded-lg bg-[#1b4f94] px-4 py-2 text-white hover:bg-[#1c4273]"
+              className="border border-[#1b4f94] rounded-lg bg-[#1b4f94] px-4 py-2 text-white hover:bg-[#1c4273]"
             >
               + Thêm sản phẩm
             </button>
@@ -275,14 +275,39 @@ export default function ProductsPage() {
             {/* Manage mode toggle */}
             <button
               onClick={toggleManageMode}
-              className={`flex items-center gap-2 rounded-lg border p-2 transition ${manageMode
-                ? 'border-red-200 bg-red-100 text-red-600 py-2.5'
-                : 'bg-[#1b4f94] text-white'
-                }`}
+              className={`flex items-center gap-2 rounded-lg border p-2 transition ${manageMode ? 'bg-white text-[#1b4f94]' : 'bg-[#1b4f94] text-white'}`}
             >
-              <Power size={20} />
-              {manageMode ? '' : 'Bật/Tắt món'}
+              <Power size={18} />
+              Bật/Tắt món
             </button>
+
+            {/* Bulk Action Bar (legacy Manage Mode) */}
+            {manageMode && (
+              <div className="flex gap-1">
+                <button
+                  disabled={bulkLoading}
+                  onClick={() => bulkUpdateActive(true)}
+                  className="rounded-lg bg-green-600 px-2 py-1 text-sm text-white hover:bg-green-700 disabled:opacity-50"
+                >
+                  {bulkLoading ? 'Đang xử lý...' : 'ON'}
+                </button>
+
+                <button
+                  disabled={bulkLoading}
+                  onClick={() => bulkUpdateActive(false)}
+                  className="rounded-lg bg-red-600 px-2 py-1 text-sm text-white hover:bg-red-700 disabled:opacity-50"
+                >
+                  {bulkLoading ? 'Đang xử lý...' : 'OFF'}
+                </button>
+
+                <button
+                  onClick={() => setSelectedIds([])}
+                  className="rounded-lg border border-gray-400 bg-white px-2 py-2 text-sm text-gray-500 hover:bg-gray-50"
+                >
+                  Bỏ chọn
+                </button>
+              </div>
+            )}
           </div>
 
           {/* RIGHT */}
@@ -345,44 +370,10 @@ export default function ProductsPage() {
                   </div>
                 </button>
               </div>
-              
+
             )}
           </div>
         </div>
-
-        {/* Bulk Action Bar (legacy Manage Mode) */}
-        {manageMode && hasSelection && (
-          <div className="mx-4 mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-gray-300 bg-blue-50 px-4 py-3">
-            <p className="text-md text-gray-700">
-              Đã chọn <b>{selectedIds.length}</b> sản phẩm
-            </p>
-
-            <div className="flex gap-2">
-              <button
-                disabled={bulkLoading}
-                onClick={() => bulkUpdateActive(true)}
-                className="rounded-lg bg-green-600 px-4 py-2 text-sm text-white hover:bg-green-700 disabled:opacity-50"
-              >
-                {bulkLoading ? 'Đang xử lý...' : 'ON'}
-              </button>
-
-              <button
-                disabled={bulkLoading}
-                onClick={() => bulkUpdateActive(false)}
-                className="rounded-lg bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-700 disabled:opacity-50"
-              >
-                {bulkLoading ? 'Đang xử lý...' : 'OFF'}
-              </button>
-
-              <button
-                onClick={() => setSelectedIds([])}
-                className="rounded-lg border border-gray-400 bg-white px-4 py-2 text-sm text-gray-500 hover:bg-gray-50"
-              >
-                Bỏ chọn
-              </button>
-            </div>
-          </div>
-        )}
 
         <table className="mt-2 w-full text-sm">
           <thead className="border-b bg-gray-50 text-gray-600">
@@ -398,7 +389,17 @@ export default function ProductsPage() {
                 </th>
               )}
 
-              <th className="pl-5 pr-2 py-3 text-left">Sản phẩm</th>
+              <th className="pl-5 pr-2 py-3 text-left">
+                <div className="flex items-center gap-2">
+                  <span>Sản phẩm</span>
+
+                  {manageMode && (
+                    <span className="rounded-lg bg-blue-100 px-2.5 py-1 text-xs text-blue-700">
+                      Đã chọn {selectedIds.length}
+                    </span>
+                  )}
+                </div>
+              </th>
               <th className="w-40 px-4 py-3 text-left">Giá</th>
               <th className="w-60 px-4 py-3 text-left">Chỉ số</th>
               <th className="w-40 px-4 py-3 text-left">Trạng thái</th>
