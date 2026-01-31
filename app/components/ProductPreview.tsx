@@ -26,7 +26,7 @@ export default function ProductPreview({
         <div className="sticky top-7">
             {/* PHONE FRAME */}
             <div
-                className="mx-auto w-90 rounded-xl border border-gray-300 bg-white shadow-xl overflow-hidden">
+                className="mx-auto w-80 rounded-xl border border-gray-300 bg-white shadow-xl overflow-hidden">
                 {/* STATUS BAR */}
                 <div className="flex items-center justify-between px-4 py-2 text-xs text-gray-500">
                     <span>18:39</span>
@@ -34,7 +34,7 @@ export default function ProductPreview({
                 </div>
 
                 {/* HEADER */}
-                <div className="px-4 pb-3">
+                <div className="px-4 pb-2">
                     <h3 className="text-lg font-semibold text-[#1b4f94]">
                         Thực đơn
                     </h3>
@@ -44,18 +44,19 @@ export default function ProductPreview({
                 </div>
 
                 {/* TABS */}
-                <div className="flex gap-2 px-4 pb-4 overflow-x-auto">
-                    {['Tất cả', 'Cà Phê', 'Trà Sữa', 'Matcha'].map(
-                        (item, i) => (
-                            <div
-                                key={item}
-                                className={`min-w-18 h-8 flex items-center justify-center rounded-full shadow-sm px-3 text-sm text-center leading-tight ${i === 0 ? 'bg-[#1b4f94] text-white' : 'bg-gray-100 text-gray-500'}`}
-                            >
-                                {item}
-                            </div>
-                        )
-                    )}
+                <div className="flex flex-nowrap gap-2 px-4 pb-4 overflow-x-auto scrollbar-hide">
+                    {['Tất cả', 'Cà Phê', 'Trà Sữa', 'Matcha'].map((item, i) => (
+                        <div
+                            key={item}
+                            className={`shrink-0 h-8 flex items-center justify-center rounded-full shadow-sm px-3 text-xs text-center leading-tight
+                                ${i === 0 ? 'bg-[#1b4f94] text-white' : 'bg-gray-100 text-gray-500'}
+                            `}
+                        >
+                            {item}
+                        </div>
+                    ))}
                 </div>
+
 
                 {/* PRODUCT LIST */}
                 <div className="space-y-5 px-4 pb-6">
