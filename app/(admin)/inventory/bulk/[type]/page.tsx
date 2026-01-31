@@ -144,6 +144,7 @@ export default function BulkInventoryPage() {
         fail: number;
         details: { productId: string; qty: number; error?: string }[];
     }>(null);
+    const [lastReceiptId, setLastReceiptId] = useState<string | null>(null);
 
     const handleSubmit = async () => {
         setResult(null);
@@ -154,6 +155,9 @@ export default function BulkInventoryPage() {
         }
 
         setSubmitting(true);
+
+        const receiptId = crypto.randomUUID();
+        setLastReceiptId(receiptId);
 
         const details: { productId: string; qty: number; error?: string }[] = [];
 
@@ -173,10 +177,9 @@ export default function BulkInventoryPage() {
                         p_product_id: item.productId,
                         p_quantity: item.qty,
                         p_note: reasonText || null,
-
-                        // new measurement fields
                         p_input_value: item.inputValue,
                         p_input_unit: item.inputUnit,
+                        p_receipt_id: receiptId,
                     });
                     if (error) throw error;
                 } else {
@@ -184,10 +187,9 @@ export default function BulkInventoryPage() {
                         p_product_id: item.productId,
                         p_quantity: item.qty,
                         p_note: reasonText || null,
-
-                        // new measurement fields
                         p_input_value: item.inputValue,
                         p_input_unit: item.inputUnit,
+                        p_receipt_id: receiptId,
                     });
                     if (error) throw error;
                 }
@@ -207,7 +209,20 @@ export default function BulkInventoryPage() {
 
         setResult({ success, fail, details });
         setSubmitting(false);
+        if (success > 0) {
+            setRowById({});
+            setSearch('');
+            setReasonPreset('Kho giao');
+            setCustomReason('');
+        }
+        if (success === 0) setLastReceiptId(null);
     };
+
+    const handlePrintReceipt = () => {
+        if (!lastReceiptId) return;
+        router.push(`/inventory/print/${lastReceiptId}?type=${type}`);
+    };
+
 
     return (
         <div className="mt-6 space-y-4">
@@ -231,14 +246,35 @@ export default function BulkInventoryPage() {
                     </div>
                 </div>
 
-                <button
-                    disabled={submitting || !canSubmit}
-                    onClick={handleSubmit}
-                    className="flex items-center gap-2 rounded-lg bg-[#1b4f94] px-4 py-2 text-white hover:bg-[#1c4273] disabled:opacity-50"
-                >
-                    <Save size={18} />
-                    {submitting ? 'Đang lưu...' : 'Lưu'}
-                </button>
+                <div className="flex items-center gap-2">
+                    {/* ✅ Receipt code badge */}
+                    {lastReceiptId && (result?.success ?? 0) > 0 && (
+                        <div className="flex items-center gap-2 rounded-lg bg-blue-50 px-3 py-3.5">
+                            <span className="text-xs text-gray-500">Mã phiếu</span>
+                            <span className="text-sm font-semibold text-[#1c4273]">
+                                {lastReceiptId.slice(0, 8).toUpperCase()}
+                            </span>
+                        </div>
+                    )}
+                    <button
+                        disabled={!lastReceiptId || (result?.success ?? 0) === 0}
+                        onClick={handlePrintReceipt}
+                        className="flex items-center gap-2 rounded-lg border border-[#1b4f94] bg-white px-4 py-2 text-[#1b4f94] hover:bg-blue-50 disabled:opacity-40"
+                        title={!lastReceiptId ? 'Chưa có phiếu mới để in' : 'In phiếu vừa tạo'}
+                    >
+                        In phiếu
+                    </button>
+
+
+                    <button
+                        disabled={submitting || !canSubmit}
+                        onClick={handleSubmit}
+                        className="flex items-center gap-2 rounded-lg bg-[#1b4f94] px-4 py-2 text-white hover:bg-[#1c4273] disabled:opacity-50"
+                    >
+                        <Save size={18} />
+                        {submitting ? 'Đang lưu...' : 'Lưu'}
+                    </button>
+                </div>
             </div>
 
             {/* Reason */}
@@ -443,7 +479,7 @@ export default function BulkInventoryPage() {
                                             </div>
                                         </td>
 
-                                        {/* selected qty column (đưa xuống cuối) */}
+                                        {/* selected qty column */}
                                         <td className="pr-4.5 py-4 text-right">
                                             {qty > 0 ? (
                                                 <span className="rounded-lg bg-[#1b4f94] px-3 py-2 text-sm font-semibold text-white">
@@ -460,24 +496,6 @@ export default function BulkInventoryPage() {
                     </tbody>
                 </table>
             </div>
-
-            {/* Result */}
-            {result && (
-                <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                        <p className="font-semibold text-gray-800">
-                            Kết quả: ✅ {result.success} thành công — ❌ {result.fail} lỗi
-                        </p>
-
-                        <button
-                            onClick={() => router.push('/inventory')}
-                            className="rounded-lg bg-[#1b4f94] px-4 py-2 text-sm text-white hover:bg-[#1c4273]"
-                        >
-                            Quay về Inventory
-                        </button>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

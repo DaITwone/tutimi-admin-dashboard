@@ -108,14 +108,20 @@ export default function InventoryPage() {
               onClick={() => router.push('/inventory/bulk/in')}
               className="rounded-lg bg-[#1b4f94] px-4 py-2 text-white hover:bg-[#1c4273]"
             >
-              Nhập hàng
+              Nhập Hàng
             </button>
 
             <button
               onClick={() => router.push('/inventory/bulk/out')}
               className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-[#1c4273] font-semibold hover:bg-gray-50"
             >
-              Xuất hàng
+              Xuất Hàng
+            </button>
+            <button
+              onClick={() => router.push('/inventory/history')}
+              className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-[#1c4273] font-semibold hover:bg-gray-50"
+            >
+              Phiếu In
             </button>
           </div>
 

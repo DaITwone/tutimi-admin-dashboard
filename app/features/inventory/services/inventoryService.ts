@@ -10,6 +10,8 @@ export async function createInventoryIn(payload: {
   inputValue?: number | null;
   inputUnit?: string | null;
   quantityUnit?: string | null;
+  receiptId?: string | null;
+
 }) {
   // rpc = gọi Postgres Function (stored proceduce)
   const { data, error } = await supabase.rpc('create_inventory_in', {
@@ -19,6 +21,7 @@ export async function createInventoryIn(payload: {
     p_input_value: payload.inputValue ?? null,
     p_input_unit: payload.inputUnit ?? null,
     p_quantity_unit: payload.quantityUnit ?? null,
+    p_receipt_id: payload.receiptId ?? null,
   });
 
   if (error) throw error;
@@ -33,6 +36,7 @@ export async function createInventoryOut(payload: {
   inputValue?: number | null;
   inputUnit?: string | null;
   quantityUnit?: string | null;
+  receiptId?: string | null; //
 }) {
   const { data, error } = await supabase.rpc('create_inventory_out', {
     p_product_id: payload.productId,
@@ -41,6 +45,7 @@ export async function createInventoryOut(payload: {
     p_input_value: payload.inputValue ?? null,
     p_input_unit: payload.inputUnit ?? null,
     p_quantity_unit: payload.quantityUnit ?? null,
+    p_receipt_id: payload.receiptId ?? null,
   });
 
   if (error) throw error;
@@ -53,12 +58,14 @@ export async function createInventoryAdjust(payload: {
   direction: InventoryDirection;
   quantity: number;
   note?: string | null;
+  receiptId?: string | null;
 }) {
   const { data, error } = await supabase.rpc('create_inventory_adjust', {
     p_product_id: payload.productId,
     p_direction: payload.direction,
     p_quantity: payload.quantity,
     p_note: payload.note ?? null,
+    p_receipt_id: payload.receiptId ?? null,
   });
 
   if (error) throw error;
@@ -67,6 +74,7 @@ export async function createInventoryAdjust(payload: {
 
 export type InventoryTransaction = {
   id: string;
+  receipt_id: string | null;
   type: 'IN' | 'OUT' | 'ADJUST';
   requested_quantity: number;
   applied_quantity: number;
@@ -81,7 +89,7 @@ export type InventoryTransaction = {
 export async function fetchInventoryTransactions(productId: string) {
   const { data, error } = await supabase
     .from('inventory_transactions')
-    .select('id, type, requested_quantity, applied_quantity, delta, note, input_value, input_unit, quantity_unit, created_at')
+    .select('id, receipt_id, type, requested_quantity, applied_quantity, delta, note, input_value, input_unit, quantity_unit, created_at')
     .eq('product_id', productId)
     .order('created_at', { ascending: false });
 

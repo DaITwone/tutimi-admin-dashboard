@@ -29,6 +29,7 @@ body {
   from {
     transform: translateX(100%);
   }
+
   to {
     transform: translateX(0);
   }
@@ -40,10 +41,91 @@ body {
 
 /* Hide scrollbar but keep scroll */
 .scrollbar-hide {
-  -ms-overflow-style: none; /* IE & Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  /* IE & Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 .scrollbar-hide::-webkit-scrollbar {
-  display: none; /* Chrome, Safari */
+  display: none;
+  /* Chrome, Safari */
+}
+
+@media print {
+
+  /* Ẩn nguyên layout Admin */
+  aside,
+  nav,
+  header,
+  footer {
+    display: none !important;
+  }
+
+  /* ✅ reset toàn bộ spacing do layout tạo ra */
+  html,
+  body {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  /* ✅ FIX LỆCH: wrapper content đang ml-64/ml-14 */
+  body>div,
+  .admin-layout,
+  .app-shell {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* ✅ Nếu main wrapper của bạn là div có ml-64/ml-14 */
+  main {
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  /* ✅ Quan trọng nhất: khi in, bỏ margin-left */
+  [class*="ml-64"],
+  [class*="ml-14"] {
+    margin-left: 0 !important;
+  }
+
+  /* Chỉ hiện phiếu */
+  .print-area {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+  }
+
+  table {
+    border-collapse: collapse !important;
+    width: 100%;
+    border: 1px solid #9ca3af !important;
+    /* gray-400 */
+  }
+
+  thead tr {
+    border-bottom: 1px solid #9ca3af !important;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid #e5e7eb !important;
+    /* gray-200 */
+  }
+
+  th,
+  td {
+    border: none !important;
+  }
+
+  tbody tr:last-child {
+    border-bottom: none !important;
+  }
+
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
 }
