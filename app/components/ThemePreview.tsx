@@ -25,7 +25,7 @@ export default function ThemePreview({ name, image }: ThemePreviewProps) {
   <div className="sticky top-7 mt-7">
     {/* PHONE FRAME */}
     <div
-      className="mx-auto w-72 h-120 overflow-hidden rounded-[28px] border border-gray-300 shadow-xl"
+      className="mx-auto w-80 h-125 overflow-hidden rounded-[28px] border border-gray-300 shadow-xl"
       style={{
         backgroundImage: imageUrl ? `url(${imageUrl})` : undefined,
         backgroundSize: 'cover',
@@ -100,7 +100,7 @@ export default function ThemePreview({ name, image }: ThemePreviewProps) {
         </div>
 
         {/* BOTTOM TAB (fixed at bottom) */}
-        <div className="border-t bg-white px-6 py-2">
+        <div className="border-t bg-white px-6 py-4">
           <div className="flex justify-between text-[11px] text-gray-400">
             <span>Trang chủ</span>
             <span>Menu</span>
