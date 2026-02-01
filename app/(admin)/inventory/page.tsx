@@ -212,8 +212,8 @@ export default function InventoryPage() {
         <table className="mt-2 w-full text-sm">
           <thead className="border-b bg-gray-50 text-gray-600">
             <tr>
-              <th className="w-16 pl-5 pr-2 py-3 text-left">STT</th>
-              <th className="w-130 px-4 py-3 text-left">Sản phẩm</th>
+              <th className="w-16 pl-5 pr-2 py-3 text-center">STT</th>
+              <th className="w-100 px-4 py-3 text-left">Sản phẩm</th>
               <th className="w-44 px-4 py-3 text-center">Tồn kho</th>
               <th className="w-56 px-4 py-3 text-center">Tổng định lượng/ĐVT</th>
               <th className="w-40 px-4 py-3 text-right">Thao tác</th>
@@ -271,7 +271,7 @@ export default function InventoryPage() {
                 return (
                   <tr key={product.id} className="hover:bg-gray-50">
                     {/* STT */}
-                    <td className="pl-5 pr-2 py-4 text-gray-600">{idx + 1}</td>
+                    <td className="pl-5 pr-2 py-4 text-gray-600 text-center">{idx + 1}</td>
 
                     {/* Product */}
                     <td className="px-4 py-4">
