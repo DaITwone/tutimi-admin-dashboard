@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/app/lib/queryKeys';
 import {
-  createInventoryAdjust,
   createInventoryIn,
   createInventoryOut,
   fetchInventoryTransactions,
@@ -18,7 +17,10 @@ export function useInventoryTransactions(productId: string | null) {
 }
 
 /* ===================== INVALIDATE HELPER ===================== */
-function invalidateInventoryRelatedQueries(qc: ReturnType<typeof useQueryClient>, productId?: string | null) {
+function invalidateInventoryRelatedQueries(
+  qc: ReturnType<typeof useQueryClient>,
+  productId?: string | null
+) {
   // ✅ invalidate ALL products queries (match prefix)
   qc.invalidateQueries({ queryKey: ['products'] });
 
@@ -37,7 +39,6 @@ export function useCreateInventoryIn() {
   return useMutation({
     mutationFn: createInventoryIn,
     onSuccess: (_data, variables) => {
-      // variables should contain productId
       invalidateInventoryRelatedQueries(qc, variables.productId);
     },
   });
@@ -48,17 +49,6 @@ export function useCreateInventoryOut() {
 
   return useMutation({
     mutationFn: createInventoryOut,
-    onSuccess: (_data, variables) => {
-      invalidateInventoryRelatedQueries(qc, variables.productId);
-    },
-  });
-}
-
-export function useCreateInventoryAdjust() {
-  const qc = useQueryClient();
-
-  return useMutation({
-    mutationFn: createInventoryAdjust,
     onSuccess: (_data, variables) => {
       invalidateInventoryRelatedQueries(qc, variables.productId);
     },

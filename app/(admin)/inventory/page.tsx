@@ -1,16 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/app/lib/supabase';
 import { getPublicImageUrl } from '@/app/lib/storage';
-import { Search, SlidersHorizontal } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useProductsQuery } from '@/app/hooks/useProductsQuery';
-import {
-  InventoryActionDrawer,
-  InventoryHistoryDrawer,
-  useInventoryUI,
-} from '@/app/features/inventory';
+import { InventoryHistoryDrawer, useInventoryUI } from '@/app/features/inventory';
 
 /* ===================== TYPES ===================== */
 type Category = {
@@ -18,19 +14,83 @@ type Category = {
   title: string;
 };
 
+/* ===================== HELPERS ===================== */
+/**
+ * Tổng định lượng/ĐVT dựa vào stock_quantity + measure_unit theo rule bạn define:
+ * - ML: 500ml = 1 stock => total_ml = stock * 500
+ * - L: 1L = 2 stock     => total_l = stock / 2
+ * - G: 100g = 1 stock   => total_g = stock * 100
+ * - Kg: 1Kg = 10 stock  => total_kg = stock / 10
+ * - Cái: 1 cái = 1 stock => total = stock
+ * - Lốc: 1 lốc = 6 cái = 6 stock => ưu tiên show Lốc nếu chia hết 6
+ *
+ * Display rule:
+ * - >= 1000ml => L
+ * - >= 1000g  => Kg
+ */
+function formatTotalMeasurement(stock: number, unit: string | null) {
+  const qty = Number(stock ?? 0);
+  if (!Number.isFinite(qty) || qty <= 0) return '-';
+
+  const u = (unit ?? '').trim().toLowerCase();
+
+  // default fallback => show stock
+  if (!u) return `${qty}`;
+
+  // Cái
+  if (u === 'cái' || u === 'cai') return `${qty} Cái`;
+
+  // Lốc
+  if (u === 'lốc' || u === 'loc') {
+    if (qty >= 6 && qty % 6 === 0) return `${qty / 6} Lốc`;
+    return `${qty} Cái`;
+  }
+
+  // ML
+  if (u === 'ml') {
+    const totalMl = qty * 500;
+    if (totalMl >= 1000) {
+      const totalL = totalMl / 1000;
+      return `${Number.isInteger(totalL) ? totalL : totalL.toFixed(1)} L`;
+    }
+    return `${totalMl} ML`;
+  }
+
+  // L
+  if (u === 'l') {
+    const totalL = qty / 2;
+    return `${Number.isInteger(totalL) ? totalL : totalL.toFixed(1)} L`;
+  }
+
+  // G
+  if (u === 'g') {
+    const totalG = qty * 100;
+    if (totalG >= 1000) {
+      const totalKg = totalG / 1000;
+      return `${Number.isInteger(totalKg) ? totalKg : totalKg.toFixed(1)} Kg`;
+    }
+    return `${totalG} G`;
+  }
+
+  // Kg
+  if (u === 'kg') {
+    const totalKg = qty / 10;
+    return `${Number.isInteger(totalKg) ? totalKg : totalKg.toFixed(1)} Kg`;
+  }
+
+  // unknown
+  return `${qty}`;
+}
+
 /* ===================== COMPONENT ===================== */
 export default function InventoryPage() {
   const router = useRouter();
-  const invUI = useInventoryUI();
-
-  /* -------------------- STATE -------------------- */
   const [categories, setCategories] = useState<Category[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>('all');
-
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-
   const SKELETON_ROWS = 5;
+  const invUI = useInventoryUI();
 
   /* -------------------- SEARCH DEBOUNCE -------------------- */
   useEffect(() => {
@@ -39,16 +99,16 @@ export default function InventoryPage() {
   }, [search]);
 
   /* -------------------- FETCH CATEGORIES -------------------- */
-  const fetchCategories = async () => {
-    const { data } = await supabase
-      .from('categories')
-      .select('id, title')
-      .order('sort_order', { ascending: true });
-
-    if (data) setCategories(data);
-  };
-
   useEffect(() => {
+    const fetchCategories = async () => {
+      const { data } = await supabase
+        .from('categories')
+        .select('id, title')
+        .order('sort_order', { ascending: true });
+
+      if (data) setCategories(data);
+    };
+
     fetchCategories();
   }, []);
 
@@ -64,6 +124,9 @@ export default function InventoryPage() {
 
   const error = productsError ? 'Không thể tải danh sách sản phẩm' : null;
 
+  // STT stable theo list hiện tại
+  const rows = useMemo(() => products, [products]);
+
   /* ===================== UI ===================== */
   return (
     <div className="space-y-3">
@@ -73,8 +136,8 @@ export default function InventoryPage() {
           <button
             onClick={() => setActiveCategory('all')}
             className={`whitespace-nowrap rounded-full px-4 py-2 text-sm shadow-sm ${activeCategory === 'all'
-              ? 'bg-[#1b4f94] text-white'
-              : 'bg-gray-100 text-[#1c4273]'
+                ? 'bg-[#1b4f94] text-white'
+                : 'bg-gray-100 text-[#1c4273]'
               }`}
           >
             Tất cả
@@ -85,8 +148,8 @@ export default function InventoryPage() {
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
               className={`whitespace-nowrap rounded-full px-4 py-2 text-sm shadow-sm ${activeCategory === cat.id
-                ? 'bg-[#1b4f94] text-white'
-                : 'bg-gray-100 text-[#1c4273]'
+                  ? 'bg-[#1b4f94] text-white'
+                  : 'bg-gray-100 text-[#1c4273]'
                 }`}
             >
               {cat.title}
@@ -102,7 +165,7 @@ export default function InventoryPage() {
       <div className="overflow-hidden rounded-xl bg-white shadow-sm">
         {/* Top Bar */}
         <div className="mx-4 mt-4.5 flex flex-wrap items-center justify-between gap-3">
-          {/* LEFT */}
+          {/* LEFT (✅ giữ nguyên 3 nút) */}
           <div className="flex items-center gap-2">
             <button
               onClick={() => router.push('/inventory/bulk/in')}
@@ -117,6 +180,7 @@ export default function InventoryPage() {
             >
               Xuất Hàng
             </button>
+
             <button
               onClick={() => router.push('/inventory/history')}
               className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-[#1c4273] font-semibold hover:bg-gray-50"
@@ -148,10 +212,11 @@ export default function InventoryPage() {
         <table className="mt-2 w-full text-sm">
           <thead className="border-b bg-gray-50 text-gray-600">
             <tr>
-              <th className="w-72 pl-5 pr-2 py-3 text-left">Sản phẩm</th>
-              <th className="w-40 px-4 py-3 text-left">Giá</th>
-              <th className="w-44 px-4 py-3 text-left">Tồn kho</th>
-              <th className="w-52 px-4 py-3 text-right">Thao tác</th>
+              <th className="w-16 pl-5 pr-2 py-3 text-left">STT</th>
+              <th className="w-130 px-4 py-3 text-left">Sản phẩm</th>
+              <th className="w-44 px-4 py-3 text-center">Tồn kho</th>
+              <th className="w-56 px-4 py-3 text-center">Tổng định lượng/ĐVT</th>
+              <th className="w-40 px-4 py-3 text-right">Thao tác</th>
             </tr>
           </thead>
 
@@ -159,8 +224,13 @@ export default function InventoryPage() {
             {loading ? (
               Array.from({ length: SKELETON_ROWS }).map((_, i) => (
                 <tr key={i} className="animate-pulse">
+                  {/* STT */}
+                  <td className="pl-5 pr-2 py-4">
+                    <div className="h-4 w-8 rounded bg-gray-200" />
+                  </td>
+
                   {/* Product */}
-                  <td className="w-72 pl-5 pr-2 py-4">
+                  <td className="px-4 py-4">
                     <div className="flex items-center gap-3">
                       <div className="h-24 w-20 rounded-lg bg-gray-200" />
                       <div className="space-y-2">
@@ -170,40 +240,39 @@ export default function InventoryPage() {
                     </div>
                   </td>
 
-                  {/* Price */}
-                  <td className="w-40 px-4 py-4">
-                    <div className="h-4 w-24 rounded bg-gray-200" />
+                  {/* Stock */}
+                  <td className="px-4 py-4">
+                    <div className="mx-auto h-7 w-24 rounded-lg bg-gray-200" />
                   </td>
 
-                  {/* Stock */}
-                  <td className="w-44 px-4 py-4">
-                    <div className="h-7 w-24 rounded-lg bg-gray-200" />
+                  {/* Total measurement */}
+                  <td className="px-4 py-4">
+                    <div className="mx-auto h-7 w-36 rounded-lg bg-gray-200" />
                   </td>
 
                   {/* Actions */}
-                  <td className="w-52 px-4 py-4 text-right">
-                    <div className="flex justify-end gap-2">
-                      <div className="h-7 w-14 rounded bg-gray-200" />
-                      <div className="h-7 w-14 rounded bg-gray-200" />
-                      <div className="h-7 w-10 rounded bg-gray-200" />
-                      <div className="h-7 w-16 rounded bg-gray-200" />
-                    </div>
+                  <td className="px-4 py-4 text-right">
+                    <div className="ml-auto h-7 w-20 rounded bg-gray-200" />
                   </td>
                 </tr>
               ))
-            ) : products.length === 0 ? (
+            ) : rows.length === 0 ? (
               <tr>
-                <td colSpan={4} className="p-6 text-center text-gray-500">
+                <td colSpan={5} className="p-6 text-center text-gray-500">
                   Chưa có sản phẩm nào
                 </td>
               </tr>
             ) : (
-              products.map((product) => {
+              rows.map((product, idx) => {
                 const stock = product.stock_quantity ?? 0;
                 const outOfStock = stock <= 0;
+                const totalText = formatTotalMeasurement(stock, product.measure_unit);
 
                 return (
                   <tr key={product.id} className="hover:bg-gray-50">
+                    {/* STT */}
+                    <td className="pl-5 pr-2 py-4 text-gray-600">{idx + 1}</td>
+
                     {/* Product */}
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-3">
@@ -222,101 +291,43 @@ export default function InventoryPage() {
                         </div>
 
                         <div className="min-w-0">
-                          <p className="font-bold text-[#1c4f94] leading-snug">
-                            {product.name}
-                          </p>
+                          <p className="font-bold text-[#1c4f94] leading-snug">{product.name}</p>
                         </div>
                       </div>
                     </td>
 
-                    {/* Price */}
-                    <td className="w-40 px-4 py-4">
-                      {product.sale_price ? (
-                        <div className="space-x-2">
-                          <span className="font-semibold text-red-600">
-                            {product.sale_price.toLocaleString()}đ
-                          </span>
-                          <span className="text-sm text-gray-400 line-through">
-                            {product.price.toLocaleString()}đ
-                          </span>
-                        </div>
-                      ) : (
-                        <span>{product.price.toLocaleString()}đ</span>
-                      )}
-                    </td>
-
                     {/* Stock */}
-                    <td className="w-44 px-4 py-4">
+                    <td className="px-4 py-4 text-center">
                       {outOfStock ? (
                         <span className="rounded-lg bg-red-100 px-3 py-2 text-xs font-semibold text-red-700">
                           Hết hàng
                         </span>
                       ) : (
                         <span className="rounded-lg bg-blue-100 px-3 py-2 text-xs font-semibold text-blue-700">
-                          Còn {stock}
+                          {stock}
                         </span>
                       )}
                     </td>
 
-                    {/* Inventory Actions */}
-                    <td className="w-52 px-4 py-4 text-right">
-                      <div className="flex flex-nowrap justify-end gap-2 overflow-x-auto">
-                        <button
-                          onClick={() =>
-                            invUI.openDrawer({
-                              action: 'IN',
-                              productId: product.id,
-                              productName: product.name,
-                              stockQuantity: product.stock_quantity ?? 0,
-                            })
-                          }
-                          className="rounded-md border border-blue-200 bg-blue-50 px-3 py-1 text-sm text-blue-700 hover:bg-blue-100"
-                        >
-                          Nhập
-                        </button>
+                    {/* Total measurement */}
+                    <td className="px-4 py-4 text-center">
+                      <span className="rounded-lg bg-gray-100 px-3 py-2 text-xs font-semibold text-gray-700">
+                        {totalText}
+                      </span>
+                    </td>
 
-                        <button
-                          onClick={() =>
-                            invUI.openDrawer({
-                              action: 'OUT',
-                              productId: product.id,
-                              productName: product.name,
-                              stockQuantity: product.stock_quantity ?? 0,
-                            })
-                          }
-                          className="rounded-md border border-yellow-200 bg-yellow-50 px-3 py-1 text-sm text-yellow-700 hover:bg-yellow-100"
-                        >
-                          Xuất
-                        </button>
-
-                        <button
-                          onClick={() =>
-                            invUI.openDrawer({
-                              action: 'ADJUST',
-                              productId: product.id,
-                              productName: product.name,
-                              stockQuantity: product.stock_quantity ?? 0,
-                            })
-                          }
-                          title="Điều chỉnh"
-                          aria-label="Điều chỉnh"
-                          className="rounded-md border border-purple-200 bg-purple-50 px-3 py-1 text-sm text-purple-700 hover:bg-purple-100"
-                        >
-                          <SlidersHorizontal size={16} />
-                        </button>
-
-                        <button
-                          onClick={() =>
-                            invUI.openHistory({
-                              productId: product.id,
-                              productName: product.name,
-                            })
-                          }
-                          className="rounded-md border border-gray-300 bg-white px-3 py-1 text-sm text-gray-700 hover:bg-gray-50"
-                        >
-                          Lịch sử
-                        </button>
-                      </div>
+                    {/* Actions (ONLY History) */}
+                    <td className="px-4 py-4 text-right">
+                      <button
+                        onClick={() =>
+                          invUI.openHistory({
+                            productId: product.id,
+                          })
+                        }
+                        className="rounded-md border border-gray-300 bg-white px-3 py-1 text-sm text-gray-700 hover:bg-gray-50"
+                      >
+                        Lịch sử
+                      </button>
                     </td>
                   </tr>
                 );
@@ -325,8 +336,7 @@ export default function InventoryPage() {
           </tbody>
         </table>
 
-        {/* Inventory drawers */}
-        <InventoryActionDrawer />
+        {/* ✅ Keep drawer if your /inventory/[id] page uses it; otherwise can remove */}
         <InventoryHistoryDrawer />
       </div>
     </div>

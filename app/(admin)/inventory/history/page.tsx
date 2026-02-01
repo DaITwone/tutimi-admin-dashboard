@@ -113,20 +113,24 @@ export default function InventoryHistoryPage() {
 
           {/* Type filter */}
           <div className="flex items-center gap-2">
-            {(['all', 'IN', 'OUT'] as const).map((t) => (
+            {([
+              { value: 'all', label: 'Tất cả' },
+              { value: 'IN', label: 'Nhập Kho' },
+              { value: 'OUT', label: 'Xuất Kho' },
+            ] as const).map((item) => (
               <button
-                key={t}
-                onClick={() => setFilterType(t)}
-                className={`rounded-full px-4 py-2 text-sm shadow-sm transition ${
-                  filterType === t
+                key={item.value}
+                onClick={() => setFilterType(item.value)}
+                className={`rounded-full px-4 py-2 text-sm shadow-sm transition ${filterType === item.value
                     ? 'bg-[#1b4f94] text-white'
                     : 'bg-gray-100 text-[#1c4273] hover:bg-gray-200'
-                }`}
+                  }`}
               >
-                {t === 'all' ? 'Tất cả' : t}
+                {item.label}
               </button>
             ))}
           </div>
+
         </div>
       </div>
 
@@ -170,11 +174,10 @@ export default function InventoryHistoryPage() {
 
                   <td className="px-4 py-4">
                     <span
-                      className={`rounded-lg px-3 py-1 text-xs font-semibold ${
-                        r.type === 'IN'
+                      className={`rounded-lg px-3 py-1 text-xs font-semibold ${r.type === 'IN'
                           ? 'bg-blue-100 text-blue-700'
                           : 'bg-red-100 text-red-700'
-                      }`}
+                        }`}
                     >
                       {r.type}
                     </span>

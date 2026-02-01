@@ -15,7 +15,6 @@ type TxRow = {
     note: string | null;
     input_value: number | null;
     input_unit: string | null;
-    quantity_unit: string | null;
     created_at: string;
     product_id: string;
     receipt_id?: string | null;
@@ -65,7 +64,6 @@ export default function PrintReceiptPage() {
     note,
     input_value,
     input_unit,
-    quantity_unit,
     created_at,
     product_id,
     receipt_id
@@ -284,8 +282,8 @@ export default function PrintReceiptPage() {
                                     <tr className="border-b">
                                         <th className="w-12 px-4 py-3 text-center">STT</th>
                                         <th className="px-4 py-3 text-left">Sản phẩm</th>
-                                        <th className="px-4 py-3 text-left">Đơn vị tính</th>
-                                        <th className="px-4 py-3 text-right">
+                                        <th className="px-4 py-3 text-center">Tổng định lượng/ĐVT</th>
+                                        <th className="px-4 py-3 text-center">
                                             {receiptType === 'in' ? 'Số lượng Nhập' : 'Số lượng Xuất'}
                                         </th>
                                     </tr>
@@ -330,9 +328,9 @@ export default function PrintReceiptPage() {
                                                     </div>
                                                 </td>
 
-                                                <td className="pl-10 py-3 text-gray-700">{inputText}</td>
+                                                <td className="px-4 py-3 text-gray-700 text-center">{inputText}</td>
 
-                                                <td className="px-4 py-3 text-right">
+                                                <td className="px-4 py-3 text-center">
                                                     <span className="inline-flex min-w-10 justify-center rounded-lg py-1.5 font-bold text-[#1b4f94]">
                                                         {r.applied_quantity}
                                                     </span>

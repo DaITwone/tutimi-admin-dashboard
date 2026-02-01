@@ -18,7 +18,7 @@ const REASON_PRESETS = [
 ] as const;
 
 /** Units admin can select */
-const INPUT_UNITS = ['ml', 'l', 'g', 'kg', 'cái', 'lốc'] as const;
+const INPUT_UNITS = ['ML', 'L', 'G', 'Kg', 'Cái', 'Lốc'] as const;
 
 type InputUnit = (typeof INPUT_UNITS)[number];
 
@@ -34,17 +34,17 @@ function convertToQty(inputValue: number, unit: InputUnit) {
     if (!Number.isFinite(inputValue) || inputValue <= 0) return 0;
 
     switch (unit) {
-        case 'ml':
+        case 'ML':
             return Math.floor(inputValue / 500);
-        case 'l':
+        case 'L':
             return Math.floor((inputValue * 1000) / 500);
-        case 'g':
+        case 'G':
             return Math.floor(inputValue / 100);
-        case 'kg':
+        case 'Kg':
             return Math.floor(inputValue * 10);
-        case 'cái':
+        case 'Cái':
             return Math.floor(inputValue);
-        case 'lốc':
+        case 'Lốc':
             return Math.floor(inputValue * 6);
         default:
             return 0;
@@ -107,7 +107,7 @@ export default function BulkInventoryPage() {
         setRowById((prev) => {
             const current: RowState = prev[productId] ?? {
                 inputValue: '',
-                unit: 'ml',
+                unit: 'ML',
                 qty: 0,
             };
 
@@ -395,7 +395,7 @@ export default function BulkInventoryPage() {
                                 const row = rowById[p.id];
                                 const qty = row?.qty ?? 0;
                                 const inputValue = row?.inputValue ?? '';
-                                const unit = row?.unit ?? 'ml';
+                                const unit = row?.unit ?? 'ML';
 
                                 return (
                                     <tr

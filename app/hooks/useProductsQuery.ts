@@ -13,6 +13,7 @@ export type Product = {
   is_active: boolean | null;
   stock_quantity: number;
   category_id: string | null;
+  measure_unit: string | null;
 };
 
 export type StatusFilter = 'all' | 'on' | 'off';
@@ -20,8 +21,6 @@ export type StatusFilter = 'all' | 'on' | 'off';
 export type UseProductsQueryParams = {
   categoryId: string;
   search: string;
-
-  // ✅ legacy (optional now)
   manageMode?: boolean;
   statusFilter?: StatusFilter;
 };
@@ -35,7 +34,6 @@ export function useProductsQuery(params: UseProductsQueryParams) {
   } = params;
 
   return useQuery({
-    // ✅ always pass "normalized params" to avoid unstable cache keys
     queryKey: queryKeys.products({
       categoryId,
       search,
@@ -47,7 +45,7 @@ export function useProductsQuery(params: UseProductsQueryParams) {
       let query = supabase
         .from('products')
         .select(
-          'id,name,price,image,sale_price,stats,is_best_seller,is_active,stock_quantity,category_id'
+          'id,name,price,image,sale_price,stats,is_best_seller,is_active,stock_quantity,category_id, measure_unit'
         )
         .order('created_at', { ascending: false });
 

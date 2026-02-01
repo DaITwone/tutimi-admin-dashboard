@@ -1,10 +1,33 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/app/lib/supabase';
 import { useInventoryUI } from '@/app/features/inventory/store/inventoryUI';
-import { useInventoryTransactions } from '../hooks/useInventory';
 
-type TxFilter = 'ALL' | 'IN' | 'OUT' | 'ADJUST';
+type TxFilter = 'ALL' | 'IN' | 'OUT';
+
+type ProductLite = {
+  id: string;
+  name: string;
+  stock_quantity: number;
+  measure_value: number | null;
+  measure_unit: string | null;
+};
+
+type InventoryTx = {
+  id: string;
+  product_id: string;
+  receipt_id: string | null;
+  type: 'IN' | 'OUT' | 'ADJUST';
+  requested_quantity: number;
+  applied_quantity: number;
+  delta: number;
+  note: string | null;
+  input_value: number | null;
+  input_unit: string | null;
+  created_at: string;
+};
 
 function formatDateVN(iso: string) {
   try {
@@ -17,24 +40,21 @@ function formatDateVN(iso: string) {
 function getTypeLabel(type: 'IN' | 'OUT' | 'ADJUST') {
   if (type === 'IN') return 'Nhập kho';
   if (type === 'OUT') return 'Xuất kho';
-  return 'Điều chỉnh';
+  return 'Khác';
 }
 
 function getTypeBadgeClass(type: 'IN' | 'OUT' | 'ADJUST') {
   if (type === 'IN') return 'bg-blue-100 text-blue-700 border-blue-200';
   if (type === 'OUT') return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-  return 'bg-purple-100 text-purple-700 border-purple-200';
+  return 'bg-gray-100 text-gray-700 border-gray-200';
 }
+
 
 export default function InventoryHistoryDrawer() {
   const invUI = useInventoryUI();
-
   const productId = invUI.historyProductId;
-  const productName = invUI.historyProductName;
 
   const [filter, setFilter] = useState<TxFilter>('ALL');
-
-  const { data = [], isLoading, error, refetch } = useInventoryTransactions(productId);
 
   /* -------------------- ESC TO CLOSE -------------------- */
   useEffect(() => {
@@ -45,14 +65,63 @@ export default function InventoryHistoryDrawer() {
     return () => window.removeEventListener('keydown', esc);
   }, [invUI]);
 
+  /* ===================== QUERY: PRODUCT INFO ===================== */
+  const {
+    data: product,
+    isLoading: loadingProduct,
+    error: productError,
+  } = useQuery({
+    queryKey: ['inventory-product', productId],
+    enabled: !!productId && invUI.historyOpen,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('products')
+        .select('id,name,stock_quantity,measure_value,measure_unit')
+        .eq('id', productId!)
+        .single();
+
+      if (error) throw error;
+      return data as ProductLite;
+    },
+    staleTime: 1000 * 20,
+  });
+
+  /* ===================== QUERY: TRANSACTIONS ===================== */
+  const {
+    data: transactions = [],
+    isLoading: loadingTx,
+    error: txError,
+    refetch,
+  } = useQuery({
+    queryKey: ['inventory-transactions', productId],
+    enabled: !!productId && invUI.historyOpen,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('inventory_transactions')
+        .select(
+          'id,product_id,receipt_id,type,requested_quantity,applied_quantity,delta,note,input_value,input_unit,created_at'
+        )
+        .eq('product_id', productId!)
+        .in('type', ['IN', 'OUT']) // ✅ remove ADJUST from results
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return (data ?? []) as InventoryTx[];
+    },
+    staleTime: 1000 * 10,
+  });
+
   /* -------------------- FILTERED DATA -------------------- */
   const filtered = useMemo(() => {
-    if (filter === 'ALL') return data;
-    return data.filter((x) => x.type === filter);
-  }, [data, filter]);
+    if (filter === 'ALL') return transactions;
+    return transactions.filter((x) => x.type === filter);
+  }, [transactions, filter]);
 
   /* -------------------- CLOSE ON OVERLAY -------------------- */
   if (!invUI.historyOpen) return null;
+
+  const isLoading = loadingProduct || loadingTx;
+  const error = productError || txError;
 
   return (
     <>
@@ -67,7 +136,7 @@ export default function InventoryHistoryDrawer() {
         <div className="flex h-full flex-col">
           {/* Header */}
           <div className="flex items-center justify-between border-b px-6 pt-3 pb-3">
-            <div>
+            <div className="min-w-0">
               <h2 className="text-lg font-semibold text-[#1c4273]">
                 LỊCH SỬ TỒN KHO
               </h2>
@@ -85,50 +154,30 @@ export default function InventoryHistoryDrawer() {
           {/* Bộ lọc */}
           <div className="px-4 pt-4">
             <div className="flex flex-nowrap gap-2">
-              <button
-                onClick={() => setFilter('ALL')}
-                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm shadow-sm ${filter === 'ALL'
-                  ? 'bg-[#1b4f94] text-white'
-                  : 'bg-gray-100 text-[#1c4273]'
-                  }`}
-              >
-                Tất cả
-              </button>
-
-              <button
-                onClick={() => setFilter('IN')}
-                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm shadow-sm ${filter === 'IN'
-                  ? 'bg-[#1b4f94] text-white'
-                  : 'bg-gray-100 text-[#1c4273]'
-                  }`}
-              >
-                Nhập kho
-              </button>
-
-              <button
-                onClick={() => setFilter('OUT')}
-                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm shadow-sm ${filter === 'OUT'
-                  ? 'bg-[#1b4f94] text-white'
-                  : 'bg-gray-100 text-[#1c4273]'
-                  }`}
-              >
-                Xuất kho
-              </button>
-
-              <button
-                onClick={() => setFilter('ADJUST')}
-                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm shadow-sm ${filter === 'ADJUST'
-                  ? 'bg-[#1b4f94] text-white'
-                  : 'bg-gray-100 text-[#1c4273]'
-                  }`}
-              >
-                Điều chỉnh
-              </button>
+              {([
+                { value: 'ALL', label: 'Tất cả' },
+                { value: 'IN', label: 'Nhập kho' },
+                { value: 'OUT', label: 'Xuất kho' },
+              ] as const).map((item) => (
+                <button
+                  key={item.value}
+                  onClick={() => setFilter(item.value)}
+                  className={`whitespace-nowrap rounded-full px-4 py-2 text-sm shadow-sm ${filter === item.value
+                    ? 'bg-[#1b4f94] text-white'
+                    : 'bg-gray-100 text-[#1c4273]'
+                    }`}
+                >
+                  {item.label}
+                </button>
+              ))}
             </div>
           </div>
 
           {/* Content */}
           <div className="flex-1 overflow-y-auto px-6 py-5 space-y-3">
+            <p className="text-md text-gray-500 italic">
+              {product?.name ?? '---'}
+            </p>
             {/* Loading */}
             {isLoading && (
               <div className="rounded-xl border bg-white p-4 text-sm text-gray-500">
@@ -151,9 +200,12 @@ export default function InventoryHistoryDrawer() {
               </div>
             )}
 
-            <p className="text-md italic text-gray-500">
-              {productName ? `${productName}` : '---'}
-            </p>
+            {/* Current stock */}
+            {!isLoading && !error && product && (
+              <div className="rounded-xl border bg-gray-50 p-4 text-sm text-gray-700">
+                Tồn hiện tại: <b>{product.stock_quantity}</b>
+              </div>
+            )}
 
             {/* Empty */}
             {!isLoading && !error && filtered.length === 0 && (
@@ -173,7 +225,6 @@ export default function InventoryHistoryDrawer() {
                   <div key={tx.id} className="rounded-xl border bg-white p-4 shadow-sm">
                     <div className="flex items-start justify-between gap-3">
                       <div className="space-y-1">
-                        {/* Type + date */}
                         <div className="flex flex-wrap items-center gap-2">
                           <span
                             className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold ${getTypeBadgeClass(
@@ -188,21 +239,16 @@ export default function InventoryHistoryDrawer() {
                           </span>
                         </div>
 
-                        {/* Quantities */}
                         <p className="text-sm text-gray-700">
                           Số lượng yêu cầu: <b>{tx.requested_quantity}</b> — Áp dụng:{' '}
                           <b>{tx.applied_quantity}</b>
                         </p>
 
-                        {/* Note */}
                         {tx.note && (
-                          <p className="text-xs text-gray-500">
-                            Ghi chú: {tx.note}
-                          </p>
+                          <p className="text-xs text-gray-500">Ghi chú: {tx.note}</p>
                         )}
                       </div>
 
-                      {/* Delta */}
                       <div
                         className={`rounded-lg px-3 py-2 text-sm font-bold ${isZero
                           ? 'bg-gray-100 text-gray-600'

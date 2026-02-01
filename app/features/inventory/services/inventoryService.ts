@@ -1,7 +1,5 @@
 import { supabase } from '@/app/lib/supabase';
 
-export type InventoryDirection = 'INCREASE' | 'DECREASE';
-
 // Nhập hàng
 export async function createInventoryIn(payload: {
   productId: string;
@@ -11,9 +9,7 @@ export async function createInventoryIn(payload: {
   inputUnit?: string | null;
   quantityUnit?: string | null;
   receiptId?: string | null;
-
 }) {
-  // rpc = gọi Postgres Function (stored proceduce)
   const { data, error } = await supabase.rpc('create_inventory_in', {
     p_product_id: payload.productId,
     p_quantity: payload.quantity,
@@ -36,7 +32,7 @@ export async function createInventoryOut(payload: {
   inputValue?: number | null;
   inputUnit?: string | null;
   quantityUnit?: string | null;
-  receiptId?: string | null; //
+  receiptId?: string | null;
 }) {
   const { data, error } = await supabase.rpc('create_inventory_out', {
     p_product_id: payload.productId,
@@ -52,30 +48,10 @@ export async function createInventoryOut(payload: {
   return data;
 }
 
-// Điều chỉnh tồn kho
-export async function createInventoryAdjust(payload: {
-  productId: string;
-  direction: InventoryDirection;
-  quantity: number;
-  note?: string | null;
-  receiptId?: string | null;
-}) {
-  const { data, error } = await supabase.rpc('create_inventory_adjust', {
-    p_product_id: payload.productId,
-    p_direction: payload.direction,
-    p_quantity: payload.quantity,
-    p_note: payload.note ?? null,
-    p_receipt_id: payload.receiptId ?? null,
-  });
-
-  if (error) throw error;
-  return data;
-}
-
 export type InventoryTransaction = {
   id: string;
   receipt_id: string | null;
-  type: 'IN' | 'OUT' | 'ADJUST';
+  type: 'IN' | 'OUT';
   requested_quantity: number;
   applied_quantity: number;
   delta: number;
@@ -89,8 +65,11 @@ export type InventoryTransaction = {
 export async function fetchInventoryTransactions(productId: string) {
   const { data, error } = await supabase
     .from('inventory_transactions')
-    .select('id, receipt_id, type, requested_quantity, applied_quantity, delta, note, input_value, input_unit, quantity_unit, created_at')
+    .select(
+      'id, receipt_id, type, requested_quantity, applied_quantity, delta, note, input_value, input_unit, quantity_unit, created_at'
+    )
     .eq('product_id', productId)
+    .in('type', ['IN', 'OUT']) // ✅ remove ADJUST from results
     .order('created_at', { ascending: false });
 
   if (error) throw error;
