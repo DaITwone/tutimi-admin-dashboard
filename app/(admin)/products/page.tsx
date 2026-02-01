@@ -378,16 +378,18 @@ export default function ProductsPage() {
         <table className="mt-2 w-full text-sm">
           <thead className="border-b bg-gray-50 text-gray-600">
             <tr>
-              {manageMode && (
-                <th className="w-10 pl-6 pr-2 py-3">
+              <th className="w-12 pl-6 pr-2 py-3 text-left">
+                {manageMode ? (
                   <input
                     type="checkbox"
                     className="accent-[#1b4f94] scale-125"
                     checked={isAllChecked}
                     onChange={(e) => handleToggleSelectAll(e.target.checked)}
                   />
-                </th>
-              )}
+                ) : (
+                  <span className="">STT</span>
+                )}
+              </th>
 
               <th className="pl-5 pr-2 py-3 text-left">
                 <div className="flex items-center gap-2">
@@ -411,12 +413,13 @@ export default function ProductsPage() {
             {loading ? (
               Array.from({ length: SKELETON_ROWS }).map((_, i) => (
                 <tr key={i} className="animate-pulse">
-                  {manageMode && (
-                    <td className="w-10 px-4 py-4 align-top">
+                  <td className="w-12 pl-6 pr-2 py-4">
+                    {manageMode ? (
                       <div className="h-4 w-4 rounded bg-gray-200" />
-                    </td>
-                  )}
-
+                    ) : (
+                      <div className="h-4 w-6 rounded bg-gray-200" />
+                    )}
+                  </td>
                   <td className="px-4 py-4 align-top">
                     <div className="flex items-center gap-3">
                       <div className="h-20 w-16 rounded-lg bg-gray-200" />
@@ -427,19 +430,19 @@ export default function ProductsPage() {
                     </div>
                   </td>
 
-                  <td className="w-40 px-4 py-4 align-top">
+                  <td className="w-40 px-4 py-4">
                     <div className="h-4 w-24 rounded bg-gray-200" />
                   </td>
 
-                  <td className="w-60 px-4 py-4 align-top">
+                  <td className="w-60 px-4 py-4">
                     <div className="h-4 w-44 rounded bg-gray-200" />
                   </td>
 
-                  <td className="w-40 px-4 py-4 align-top">
+                  <td className="w-40 px-4 py-4">
                     <div className="h-4 w-20 rounded bg-gray-200" />
                   </td>
 
-                  <td className="w-44 px-4 py-4 align-top text-right">
+                  <td className="w-44 px-4 py-4 text-right">
                     <div className="flex justify-end gap-2">
                       <div className="h-7 w-12 rounded bg-gray-200" />
                       <div className="h-7 w-12 rounded bg-gray-200" />
@@ -454,20 +457,20 @@ export default function ProductsPage() {
                 </td>
               </tr>
             ) : (
-              products.map((product) => (
+              products.map((product, index) => (
                 <tr key={product.id} className="hover:bg-gray-50">
-                  {manageMode && (
-                    <td className="w-10 pl-6 pr-2 py-3">
+                  <td className="w-12 pl-6 pr-2 py-3 text-sm text-center font-semibold text-gray-400">
+                    {manageMode ? (
                       <input
                         type="checkbox"
                         className="accent-[#1b4f94] scale-125"
                         checked={selectedIds.includes(product.id)}
-                        onChange={(e) =>
-                          handleToggleSelectOne(product.id, e.target.checked)
-                        }
+                        onChange={(e) => handleToggleSelectOne(product.id, e.target.checked)}
                       />
-                    </td>
-                  )}
+                    ) : (
+                      <span className='text-center'>{index + 1}</span>
+                    )}
+                  </td>
 
                   {/* Product */}
                   <td className="px-4 py-4">
@@ -563,7 +566,6 @@ export default function ProductsPage() {
             )}
           </tbody>
         </table>
-
 
         {/* Drawer Edit */}
         {editingId && (
