@@ -17,30 +17,16 @@ type User = {
 /* ===================== PAGE ===================== */
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
+
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
   const fetchUsers = async () => {
     setLoading(true);
 
     const { data, error } = await supabase
       .from('profiles')
-      .select(
-        `
-        id,
-        username,
-        full_name,
-        phone,
-        address,
-        avatar_url,
-        role
-      `
-      )
-      .neq('role', 'admin')
-      .order('created_at', { ascending: false });
+      .select(`id, username, full_name, phone, address, avatar_url, role`)
+      .neq('role', 'admin') // neq = not equal
+      .order('created_at', { ascending: false }); // ASC = giảm dần, DESC = tăng dần
 
     if (error) {
       console.error('Fetch profiles error:', error.message);
@@ -48,9 +34,31 @@ export default function UsersPage() {
       return;
     }
 
-    setUsers(data ?? []);
+    setUsers(data ?? []); // ?? Nullish coalescing operator
     setLoading(false);
   };
+
+  useEffect(() => {
+    fetchUsers();
+
+    const channel = supabase
+      .channel('profiles-admin')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'profiles' },
+        async (payload) => {
+          console.log('Realtime:', payload);
+
+          // simplest + safest
+          await fetchUsers();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   return (
     <div className="mt-6 space-y-6">
@@ -159,9 +167,8 @@ function UserRow({
       {/* STATUS */}
       <td className="p-4">
         <span
-          className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-            active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
-          }`}
+          className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+            }`}
         >
           {active ? 'Active' : 'Disabled'}
         </span>
