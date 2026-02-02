@@ -15,7 +15,7 @@ export default function AdminLayout({
 }) {
   const router = useRouter();
   const [checking, setChecking] = useState(true);
-  const [collapsed, setCollapsed] = useState(false); // 👈 lifted state
+  const [collapsed, setCollapsed] = useState(false);
 
   useInventoryRealtimeSync();
 
@@ -36,7 +36,7 @@ export default function AdminLayout({
 
   if (checking) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen bg-[#F7F8FB]">
         <span className="text-gray-500">Checking authentication…</span>
       </div>
     );
@@ -49,12 +49,15 @@ export default function AdminLayout({
 
       {/* Right content */}
       <div
-        className={`flex min-h-screen flex-col transition-all duration-300
-          ${collapsed ? 'ml-14' : 'ml-64'}
+        className={`
+          flex min-h-screen flex-col transition-all duration-300
+          ${collapsed ? 'lg:ml-14' : 'lg:ml-64'}
+          ml-0
         `}
       >
         <Header />
-        <main className="flex-1 px-8 pb-6 overflow-auto">
+
+        <main className="flex-1 overflow-auto px-4 pb-6 lg:px-8">
           {children}
         </main>
       </div>
