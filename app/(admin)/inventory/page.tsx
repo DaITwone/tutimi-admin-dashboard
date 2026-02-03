@@ -166,7 +166,7 @@ export default function InventoryPage() {
         {/* Top Bar */}
         <div className="mx-4 mt-4.5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           {/* LEFT (✅ giữ nguyên 3 nút) */}
-          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-row sm:flex-wrap sm:items-center">
             <button
               onClick={() => router.push('/inventory/bulk/in')}
               className="w-full sm:w-auto rounded-lg bg-[#1b4f94] px-4 py-2 text-white hover:bg-[#1c4273]"
@@ -183,7 +183,7 @@ export default function InventoryPage() {
 
             <button
               onClick={() => router.push('/inventory/history')}
-              className="w-full sm:w-auto rounded-lg border border-gray-300 bg-white px-4 py-2 text-[#1c4273] font-semibold hover:bg-gray-50"
+              className="col-span-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 font-semibold text-[#1c4273] hover:bg-gray-50 sm:col-span-1 sm:w-auto"
             >
               Phiếu In
             </button>
