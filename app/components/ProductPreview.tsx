@@ -15,6 +15,7 @@ export default function ProductPreview({
     stats,
     isBestSeller,
 }: ProductPreviewProps) {
+    
     const imageUrl =
         image instanceof File
             ? URL.createObjectURL(image)
@@ -23,10 +24,10 @@ export default function ProductPreview({
                 : null;
 
     return (
-        <div className="sticky top-7">
+        <div className="lg:sticky lg:top-7">
             {/* PHONE FRAME */}
             <div
-                className="mx-auto w-80 rounded-xl border border-gray-300 bg-white shadow-xl overflow-hidden">
+                className="mx-auto w-full max-w-[320px] rounded-xl border border-gray-300 bg-white shadow-xl overflow-hidden">
                 {/* STATUS BAR */}
                 <div className="flex items-center justify-between px-4 py-2 text-xs text-gray-500">
                     <span>18:39</span>
