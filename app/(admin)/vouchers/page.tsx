@@ -114,15 +114,15 @@ export default function VouchersPage() {
 
             <div className="overflow-hidden rounded-xl bg-white shadow-sm">
                 {/* HEADER */}
-                <div className="mx-4 mt-4.5 flex flex-wrap items-center justify-between gap-3">
+                <div className="mx-4 mt-4.5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <button
                         onClick={() => router.push('/vouchers/create')}
-                        className="rounded-lg bg-[#1b4f94] px-4 py-2 text-white hover:bg-[#1c4273]"
+                        className="w-full md:w-auto rounded-lg bg-[#1b4f94] px-4 py-2 text-white hover:bg-[#1c4273]"
                     >
                         + Thêm voucher
                     </button>
 
-                    <div className="relative w-64">
+                    <div className="relative w-full md:w-72">
                         <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                             <Search size={16} />
                         </span>
@@ -132,178 +132,200 @@ export default function VouchersPage() {
                             onChange={(e) => setSearch(e.target.value)}
                             placeholder="Tìm kiếm voucher..."
                             className="
-                w-full rounded-lg border border-gray-300 bg-gray-50
-                py-2 pl-10 pr-3 text-sm
-                focus:border-[#1b4f94]
-                focus:bg-white
-                outline-none
-              "
+                                w-full rounded-lg border border-gray-300 bg-gray-50
+                                py-2 pl-10 pr-3 text-sm
+                                focus:border-[#1b4f94]
+                                focus:bg-white
+                                outline-none
+                            "
                         />
                     </div>
                 </div>
 
+                {/* ===================== MOBILE: CARDS ===================== */}
+                <div className="md:hidden px-4 pb-4 pt-3 space-y-3">
+                    {loading ? (
+                        <VouchersMobileSkeleton count={5} />
+                    ) : vouchers.length === 0 ? (
+                        <div className="rounded-xl bg-white p-4 text-center text-sm text-gray-400 shadow-sm">
+                            Chưa có voucher nào
+                        </div>
+                    ) : (
+                        vouchers.map((v) => (
+                            <VoucherCard
+                                key={v.code}
+                                voucher={v}
+                                onEdit={() => setEditingCode(v.code)}
+                                onDelete={() => setDeleteCode(v.code)}
+                            />
+                        ))
+                    )}
+                </div>
+
                 {/* TABLE */}
-                <table className="mt-3 w-full text-sm">
-                    <thead className="border-b text-gray-500">
-                        <tr>
-                            <th className="p-4 text-left">Code</th>
-                            <th className="p-4 text-left">Tiêu đề</th>
-                            <th className="p-4 text-left">Giảm</th>
-                            <th className="p-4 text-left">Đơn tối thiểu</th>
-                            <th className="p-4 text-left">Giới hạn</th>
-                            <th className="p-4 text-left">Đối tượng</th>
-                            <th className="p-4 text-left">Trạng thái</th>
-                            <th className="px-4.5 text-right">Thao tác</th>
-                        </tr>
-                    </thead>
+                <div className='hidden md:block'>
+                    <table className="mt-3 w-full text-sm">
+                        <thead className="border-b text-gray-500">
+                            <tr>
+                                <th className="p-4 text-left">Code</th>
+                                <th className="p-4 text-left">Tiêu đề</th>
+                                <th className="p-4 text-left">Giảm</th>
+                                <th className="p-4 text-left">Đơn tối thiểu</th>
+                                <th className="p-4 text-left">Giới hạn</th>
+                                <th className="p-4 text-left">Đối tượng</th>
+                                <th className="p-4 text-left">Trạng thái</th>
+                                <th className="px-4.5 text-right">Thao tác</th>
+                            </tr>
+                        </thead>
 
-                    <tbody>
-                        {loading ? (
-                            Array.from({ length: SKELETON_ROWS }).map((_, i) => (
-                                <tr key={i} className="animate-pulse">
-                                    {/* CODE */}
-                                    <td className="p-4">
-                                        <div className="h-4 w-24 rounded bg-gray-200" />
-                                    </td>
-
-                                    {/* TITLE */}
-                                    <td className="p-4 space-y-2">
-                                        <div className="h-4 w-40 rounded bg-gray-200" />
-                                        <div className="h-3 w-28 rounded bg-gray-200" />
-                                    </td>
-
-                                    {/* DISCOUNT */}
-                                    <td className="p-4">
-                                        <div className="h-4 w-16 rounded bg-gray-200" />
-                                    </td>
-
-                                    {/* MIN ORDER */}
-                                    <td className="p-4">
-                                        <div className="h-4 w-20 rounded bg-gray-200" />
-                                    </td>
-
-                                    {/* LIMIT */}
-                                    <td className="p-4">
-                                        <div className="h-4 w-12 rounded bg-gray-200" />
-                                    </td>
-
-                                    {/* TARGET */}
-                                    <td className="p-4">
-                                        <div className="h-6 w-20 rounded-full bg-gray-200" />
-                                    </td>
-
-                                    {/* STATUS */}
-                                    <td className="p-4">
-                                        <div className="h-6 w-20 rounded-full bg-gray-200" />
-                                    </td>
-
-                                    {/* ACTIONS */}
-                                    <td className="p-4 text-right">
-                                        <div className="flex justify-end gap-2">
-                                            <div className="h-7 w-12 rounded bg-gray-200" />
-                                            <div className="h-7 w-12 rounded bg-gray-200" />
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))
-                        )
-                            : vouchers.length === 0 ? (
-                                <tr>
-                                    <td
-                                        colSpan={7}
-                                        className="p-6 text-center text-gray-500"
-                                    >
-                                        Chưa có voucher nào
-                                    </td>
-                                </tr>
-                            ) : (
-                                vouchers.map((v) => (
-                                    <tr
-                                        key={v.code}
-                                        className="border-t border-gray-300 hover:bg-gray-50"
-                                    >
+                        <tbody>
+                            {loading ? (
+                                Array.from({ length: SKELETON_ROWS }).map((_, i) => (
+                                    <tr key={i} className="animate-pulse">
                                         {/* CODE */}
-                                        <td className="p-4 font-mono font-extrabold text-[#1c4273]">
-                                            {v.code}
+                                        <td className="p-4">
+                                            <div className="h-4 w-24 rounded bg-gray-200" />
                                         </td>
 
                                         {/* TITLE */}
-                                        <td className="p-4">
-                                            <p className="font-bold text-[#1b4f94]">{v.title}</p>
-                                            {v.description && (
-                                                <p className="text-xs text-gray-400">
-                                                    {v.description}
-                                                </p>
-                                            )}
+                                        <td className="p-4 space-y-2">
+                                            <div className="h-4 w-40 rounded bg-gray-200" />
+                                            <div className="h-3 w-28 rounded bg-gray-200" />
                                         </td>
 
                                         {/* DISCOUNT */}
                                         <td className="p-4">
-                                            {v.discount_type === 'percent'
-                                                ? `${v.discount_value}%`
-                                                : `${v.discount_value.toLocaleString()}đ`}
+                                            <div className="h-4 w-16 rounded bg-gray-200" />
                                         </td>
 
                                         {/* MIN ORDER */}
                                         <td className="p-4">
-                                            {v.min_order_value
-                                                ? `${v.min_order_value.toLocaleString()}đ`
-                                                : '—'}
+                                            <div className="h-4 w-20 rounded bg-gray-200" />
                                         </td>
 
                                         {/* LIMIT */}
                                         <td className="p-4">
-                                            {v.max_usage_per_user ?? '—'}
+                                            <div className="h-4 w-12 rounded bg-gray-200" />
                                         </td>
 
                                         {/* TARGET */}
                                         <td className="p-4">
-                                            {v.for_new_user ? (
-                                                <span className="rounded-lg bg-blue-100 px-3 py-1 text-sm text-blue-700">
-                                                    Khách mới
-                                                </span>
-                                            ) : (
-                                                <span className="rounded-lg bg-gray-200 px-3 py-1 text-sm text-gray-600">
-                                                    Tất cả
-                                                </span>
-                                            )}
+                                            <div className="h-6 w-20 rounded-full bg-gray-200" />
                                         </td>
 
                                         {/* STATUS */}
                                         <td className="p-4">
-                                            <span
-                                                className={`rounded-lg px-3 py-1 text-sm ${v.is_active
-                                                    ? 'bg-green-100 text-green-700'
-                                                    : 'bg-gray-200 text-gray-500'
-                                                    }`}
-                                            >
-                                                {v.is_active ? 'Hoạt động' : 'Tắt'}
-                                            </span>
+                                            <div className="h-6 w-20 rounded-full bg-gray-200" />
                                         </td>
 
                                         {/* ACTIONS */}
                                         <td className="p-4 text-right">
                                             <div className="flex justify-end gap-2">
-                                                <button
-                                                    onClick={() => setEditingCode(v.code)}
-                                                    className="rounded-md border border-gray-400 px-3 py-1 text-sm hover:bg-gray-50"
-                                                >
-                                                    Sửa
-                                                </button>
-
-                                                <button
-                                                    onClick={() => setDeleteCode(v.code)}
-                                                    className="rounded-md border border-red-200 px-3 py-1 text-sm text-red-600 hover:bg-red-50"
-                                                >
-                                                    Xóa
-                                                </button>
+                                                <div className="h-7 w-12 rounded bg-gray-200" />
+                                                <div className="h-7 w-12 rounded bg-gray-200" />
                                             </div>
                                         </td>
                                     </tr>
                                 ))
-                            )}
-                    </tbody>
-                </table>
+                            )
+                                : vouchers.length === 0 ? (
+                                    <tr>
+                                        <td
+                                            colSpan={7}
+                                            className="p-6 text-center text-gray-500"
+                                        >
+                                            Chưa có voucher nào
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    vouchers.map((v) => (
+                                        <tr
+                                            key={v.code}
+                                            className="border-t border-gray-300 hover:bg-gray-50"
+                                        >
+                                            {/* CODE */}
+                                            <td className="p-4 font-mono font-extrabold text-[#1c4273]">
+                                                {v.code}
+                                            </td>
+
+                                            {/* TITLE */}
+                                            <td className="p-4">
+                                                <p className="font-bold text-[#1b4f94]">{v.title}</p>
+                                                {v.description && (
+                                                    <p className="text-xs text-gray-400">
+                                                        {v.description}
+                                                    </p>
+                                                )}
+                                            </td>
+
+                                            {/* DISCOUNT */}
+                                            <td className="p-4">
+                                                {v.discount_type === 'percent'
+                                                    ? `${v.discount_value}%`
+                                                    : `${v.discount_value.toLocaleString()}đ`}
+                                            </td>
+
+                                            {/* MIN ORDER */}
+                                            <td className="p-4">
+                                                {v.min_order_value
+                                                    ? `${v.min_order_value.toLocaleString()}đ`
+                                                    : '—'}
+                                            </td>
+
+                                            {/* LIMIT */}
+                                            <td className="p-4">
+                                                {v.max_usage_per_user ?? '—'}
+                                            </td>
+
+                                            {/* TARGET */}
+                                            <td className="p-4">
+                                                {v.for_new_user ? (
+                                                    <span className="rounded-lg bg-blue-100 px-3 py-1 text-sm text-blue-700">
+                                                        Khách mới
+                                                    </span>
+                                                ) : (
+                                                    <span className="rounded-lg bg-gray-200 px-3 py-1 text-sm text-gray-600">
+                                                        Tất cả
+                                                    </span>
+                                                )}
+                                            </td>
+
+                                            {/* STATUS */}
+                                            <td className="p-4">
+                                                <span
+                                                    className={`rounded-lg px-3 py-1 text-sm ${v.is_active
+                                                        ? 'bg-green-100 text-green-700'
+                                                        : 'bg-gray-200 text-gray-500'
+                                                        }`}
+                                                >
+                                                    {v.is_active ? 'Hoạt động' : 'Tắt'}
+                                                </span>
+                                            </td>
+
+                                            {/* ACTIONS */}
+                                            <td className="p-4 text-right">
+                                                <div className="flex justify-end gap-2">
+                                                    <button
+                                                        onClick={() => setEditingCode(v.code)}
+                                                        className="rounded-md border border-gray-400 px-3 py-1 text-sm hover:bg-gray-50"
+                                                    >
+                                                        Sửa
+                                                    </button>
+
+                                                    <button
+                                                        onClick={() => setDeleteCode(v.code)}
+                                                        className="rounded-md border border-red-200 px-3 py-1 text-sm text-red-600 hover:bg-red-50"
+                                                    >
+                                                        Xóa
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
             {editingCode && (
                 <EditVoucherDrawer
@@ -323,5 +345,153 @@ export default function VouchersPage() {
             />
         </div>
 
+    );
+}
+
+function VoucherCard({
+    voucher,
+    onEdit,
+    onDelete,
+}: {
+    voucher: {
+        code: string;
+        title: string;
+        description: string | null;
+        discount_type: 'percent' | 'fixed';
+        discount_value: number;
+        min_order_value: number | null;
+        for_new_user: boolean;
+        max_usage_per_user: number | null;
+        is_active: boolean;
+    };
+    onEdit: () => void;
+    onDelete: () => void;
+}) {
+    const discountText =
+        voucher.discount_type === 'percent'
+            ? `${voucher.discount_value}%`
+            : `${voucher.discount_value.toLocaleString()}đ`;
+
+    return (
+        <div className="rounded-2xl bg-white p-4 shadow-sm border border-gray-100">
+            {/* header */}
+            <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                    <p className="font-mono font-extrabold text-[#1c4273] truncate">
+                        {voucher.code}
+                    </p>
+
+                    <p className="mt-1 font-bold text-[#1b4f94] leading-snug line-clamp-2">
+                        {voucher.title}
+                    </p>
+
+                    {voucher.description ? (
+                        <p className="mt-1 text-sm text-gray-500 line-clamp-2">
+                            {voucher.description}
+                        </p>
+                    ) : null}
+                </div>
+
+                <span
+                    className={`shrink-0 rounded-lg px-3 py-1 text-xs font-semibold ${voucher.is_active
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-gray-200 text-gray-600'
+                        }`}
+                >
+                    {voucher.is_active ? 'Hoạt động' : 'Tắt'}
+                </span>
+            </div>
+
+            {/* details */}
+            <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
+                <div className="rounded-xl bg-gray-50 p-3">
+                    <div className="text-xs text-gray-500">Giảm</div>
+                    <div className="mt-1 font-semibold text-gray-800">{discountText}</div>
+                </div>
+
+                <div className="rounded-xl bg-gray-50 p-3">
+                    <div className="text-xs text-gray-500">Đơn tối thiểu</div>
+                    <div className="mt-1 font-semibold text-gray-800">
+                        {voucher.min_order_value
+                            ? `${voucher.min_order_value.toLocaleString()}đ`
+                            : '—'}
+                    </div>
+                </div>
+
+                <div className="rounded-xl bg-gray-50 p-3">
+                    <div className="text-xs text-gray-500">Giới hạn</div>
+                    <div className="mt-1 font-semibold text-gray-800">
+                        {voucher.max_usage_per_user ?? '—'}
+                    </div>
+                </div>
+
+                <div className="rounded-xl bg-gray-50 p-3">
+                    <div className="text-xs text-gray-500">Đối tượng</div>
+                    <div className="mt-1">
+                        {voucher.for_new_user ? (
+                            <span className="rounded-lg bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">
+                                Khách mới
+                            </span>
+                        ) : (
+                            <span className="rounded-lg bg-gray-200 px-3 py-1 text-xs font-medium text-gray-600">
+                                Tất cả
+                            </span>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* actions */}
+            <div className="mt-3 grid grid-cols-2 gap-2">
+                <button
+                    onClick={onEdit}
+                    className="rounded-xl border border-gray-300 px-3 py-2 text-sm hover:bg-gray-50"
+                >
+                    Sửa
+                </button>
+
+                <button
+                    onClick={onDelete}
+                    className="rounded-xl border border-red-200 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                >
+                    Xóa
+                </button>
+            </div>
+        </div>
+    );
+}
+
+function VouchersMobileSkeleton({ count = 5 }: { count?: number }) {
+    return (
+        <div className="space-y-3">
+            {Array.from({ length: count }).map((_, idx) => (
+                <div
+                    key={idx}
+                    className="rounded-2xl bg-white p-4 shadow-sm border border-gray-100 animate-pulse"
+                >
+                    <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 space-y-2">
+                            <div className="h-4 w-32 rounded bg-gray-200" />
+                            <div className="h-4 w-2/3 rounded bg-gray-200" />
+                            <div className="h-3 w-full rounded bg-gray-200" />
+                        </div>
+
+                        <div className="h-6 w-20 rounded bg-gray-200" />
+                    </div>
+
+                    <div className="mt-3 grid grid-cols-2 gap-3">
+                        <div className="h-16 rounded-xl bg-gray-200" />
+                        <div className="h-16 rounded-xl bg-gray-200" />
+                        <div className="h-16 rounded-xl bg-gray-200" />
+                        <div className="h-16 rounded-xl bg-gray-200" />
+                    </div>
+
+                    <div className="mt-3 grid grid-cols-2 gap-2">
+                        <div className="h-10 rounded-xl bg-gray-200" />
+                        <div className="h-10 rounded-xl bg-gray-200" />
+                    </div>
+                </div>
+            ))}
+        </div>
     );
 }

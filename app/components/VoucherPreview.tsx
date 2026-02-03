@@ -34,8 +34,8 @@ export default function VoucherPreview({
   );
 
   return (
-    <div className="sticky top-7">
-      <div className="mx-auto w-90 overflow-hidden rounded-xl border border-gray-300 bg-white shadow-xl">
+    <div className="lg:sticky lg:top-7">
+      <div className="mx-auto w-full max-w-90 overflow-hidden rounded-xl border border-gray-300 bg-white shadow-xl">
         {/* STATUS BAR */}
         <div className="flex items-center justify-between px-4 py-2 text-xs text-gray-500">
           <span className="rounded-md px-2 py-0.5 text-black">
