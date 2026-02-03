@@ -9,26 +9,17 @@ import NewsPreview from '@/app/components/NewPreview';
 
 export default function CreateNewsPage() {
   const router = useRouter();
-
-  /* ===================== FORM STATE ===================== */
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [content, setContent] = useState('');
   const [hashtag, setHashtag] = useState('');
   const [type, setType] = useState<'Tin Tức' | 'Khuyến Mãi'>('Tin Tức');
   const [isActive, setIsActive] = useState(true);
-
-  /* ===================== IMAGE STATE ===================== */
-  const [imageType, setImageType] =
-    useState<'upload' | 'link'>('upload');
-  const [newImage, setNewImage] =
-    useState<File | null>(null);
-  const [imageLink, setImageLink] =
-    useState('');
-
+  const [imageType, setImageType] = useState<'upload' | 'link'>('upload');
+  const [newImage, setNewImage] = useState<File | null>(null);
+  const [imageLink, setImageLink] = useState('');
   const [saving, setSaving] = useState(false);
-
-  /* ===================== SUBMIT ===================== */
+  const [previewOpen, setPreviewOpen] = useState(false);
   const handleSubmit = async (
     e: React.FormEvent
   ) => {
@@ -79,11 +70,8 @@ export default function CreateNewsPage() {
     router.push('/news');
   };
 
-  /* ===================== UI ===================== */
   return (
-
-
-    <div className="grid grid-cols-2 gap-8 items-start">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8 items-start">
       {/* LEFT FORM */}
       <div className="mt-6">
         <div className="max-w-150">
@@ -296,6 +284,15 @@ export default function CreateNewsPage() {
               Hiển thị tin tức
             </label>
 
+            {/* MOBILE PREVIEW BUTTON */}
+            <button
+              type="button"
+              onClick={() => setPreviewOpen(true)}
+              className="lg:hidden w-full rounded-xl border border-[#1b4f94] bg-white px-4 py-2 text-sm font-semibold text-[#1b4f94] hover:bg-blue-50"
+            >
+              Xem Preview
+            </button>
+
             {/* ACTION */}
             <div className="flex justify-end gap-3">
               <button
@@ -332,17 +329,57 @@ export default function CreateNewsPage() {
         </div>
       </div>
 
-      {/* RIGHT PREVIEW */}
-      <NewsPreview
-        title={title}
-        description={description}
-        content={content}
-        hashtag={hashtag}
-        type={type}
-        image={newImage || imageLink}
-        createdAt={new Date().toLocaleDateString('vi-VN')}
-      />
+      {/* RIGHT PREVIEW (Desktop only) */}
+      <div className="hidden lg:block">
+        <NewsPreview
+          title={title}
+          description={description}
+          content={content}
+          hashtag={hashtag}
+          type={type}
+          image={newImage || imageLink}
+          createdAt={new Date().toLocaleDateString('vi-VN')}
+        />
+      </div>
+      {/* MOBILE PREVIEW MODAL */}
+      {previewOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          {/* overlay */}
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setPreviewOpen(false)}
+          />
 
+          {/* sheet */}
+          <div className="absolute inset-x-0 bottom-0 rounded-t-3xl bg-[#F7F8FB] p-4 shadow-2xl">
+            <div className="flex justify-center">
+              <div className="h-1.5 w-10 rounded-full bg-gray-200" />
+            </div>
+            <div className="mb-3 flex items-center justify-between">
+              <div className="text-sm font-semibold text-[#1b4f94]">
+                Tin Tức - Ưu đãi
+              </div>
+
+              <button
+                onClick={() => setPreviewOpen(false)}
+                className="rounded-xl border border-gray-300 bg-white px-3 py-1 text-sm text-gray-700"
+              >
+                X
+              </button>
+            </div>
+
+            <NewsPreview
+              title={title}
+              description={description}
+              content={content}
+              hashtag={hashtag}
+              type={type}
+              image={newImage || imageLink}
+              createdAt={new Date().toLocaleDateString('vi-VN')}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

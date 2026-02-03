@@ -35,9 +35,9 @@ export default function NewsPreview({
                 : null;
 
     return (
-        <div className="sticky top-7">
+        <div className="lg:sticky lg:top-7">
             {/* PHONE FRAME */}
-            <div className="mx-auto w-80 overflow-hidden rounded-xl border border-gray-300 bg-white shadow-xl">
+            <div className="mx-auto w-full max-w-[320px] overflow-hidden rounded-xl border border-gray-300 bg-white shadow-xl">
                 {/* STATUS BAR */}
                 <div className="flex items-center justify-between bg-[#1c4273] px-4 py-2 text-xs text-white">
                     <span>18:28</span>

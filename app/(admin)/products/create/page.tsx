@@ -356,9 +356,10 @@ export default function CreateProductPage() {
           <div className="absolute inset-x-0 bottom-0 rounded-t-3xl bg-[#F7F8FB] p-4 shadow-2xl">
             <div className="flex justify-center">
               <div className="h-1.5 w-10 rounded-full bg-gray-200" />
-            </div>            <div className="mb-3 flex items-center justify-between">
+            </div>
+            <div className="mb-3 flex items-center justify-between">
               <div className="text-sm font-semibold text-[#1b4f94]">
-                Preview giao diện App
+                Trang sản phẩm 
               </div>
 
               <button
