@@ -2,10 +2,9 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/app/lib/supabase';
-import { getPublicImageUrl } from '@/app/lib/storage';
 import { useRouter } from 'next/navigation';
+import { getPublicImageUrl } from '@/app/lib/storage';
 
-/* ===================== TYPES ===================== */
 type Theme = {
     id: string;
     name: string;
@@ -37,18 +36,13 @@ type BannerSettings = {
     active_theme_key: string;
 };
 
-/* ===================== PAGE ===================== */
 export default function AdminThemesPage() {
     const [themes, setThemes] = useState<Theme[]>([]);
     const [brandings, setBrandings] = useState<Branding[]>([]);
     const [banners, setBanners] = useState<Banner[]>([]);
     const [bannerSettings, setBannerSettings] = useState<BannerSettings | null>(null);
-
     const [loading, setLoading] = useState(true);
-
     const router = useRouter();
-
-    /* ===================== COMPUTED ===================== */
     const activeBannerThemeKey = bannerSettings?.active_theme_key || '';
 
     const bannerThemeKeys = useMemo(() => {
@@ -64,7 +58,6 @@ export default function AdminThemesPage() {
             .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
     }, [banners, activeBannerThemeKey]);
 
-    /* ===================== FETCH ===================== */
     const fetchAll = async () => {
         setLoading(true);
 
@@ -163,19 +156,18 @@ export default function AdminThemesPage() {
 
     if (loading) return <div className="p-6">Loading settings...</div>;
 
-    /* ===================== RENDER ===================== */
     return (
-        <div className="p-6 space-y-10">
+        <div className="p-4 lg:p-6 space-y-10">
             {/* ===== THEMES LIST ===== */}
             <section className="space-y-4">
-                <div className="flex items-center justify-between gap-3 border-b-2 pb-2">
+                <div className="flex flex-col gap-3 border-b-2 pb-2 sm:flex-row sm:items-center sm:justify-between">
                     <h2 className="text-lg font-bold text-[#1b4f94]">
                         GIAO DIỆN CHÍNH
                     </h2>
 
                     <button
                         onClick={() => router.push('/themes/create')}
-                        className="rounded-lg bg-[#1b4f94] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1c4273]"
+                        className="ư-full sm:w-auto rounded-lg bg-[#1b4f94] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1c4273]"
                     >
                         + Thêm
                     </button>
