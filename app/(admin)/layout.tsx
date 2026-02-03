@@ -3,35 +3,42 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/app/lib/supabase';
-
+import { useInventoryRealtimeSync } from '../features/inventory/hooks/useInventoryRealtimeSync';
 import Sidebar from '@/app/components/Sidebar';
 import Header from '@/app/components/Header';
-import { useInventoryRealtimeSync } from '../features/inventory/hooks/useInventoryRealtimeSync';
 
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AdminLayout({ children, }: { children: React.ReactNode }) {
   const router = useRouter();
   const [checking, setChecking] = useState(true);
   const [collapsed, setCollapsed] = useState(false);
 
   useInventoryRealtimeSync();
 
+  // Vì getSession() chỉ check 1 lần, không từ update khi session thay đổi.
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data } = await supabase.auth.getSession();
+    let active = true;
 
+    const init = async () => {
+      const { data } = await supabase.auth.getSession();
       if (!data.session) {
         router.replace('/login');
-        return;
       }
 
-      setChecking(false);
-    };
+      if (active) setChecking(false);
+    }
 
-    checkAuth();
+    init();
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) {
+        router.replace('/login');
+      }
+    });
+
+    return () => {
+      active = false;
+      listener.subscription.unsubscribe();
+    }
   }, [router]);
 
   if (checking) {
