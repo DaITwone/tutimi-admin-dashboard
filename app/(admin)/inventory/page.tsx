@@ -136,8 +136,8 @@ export default function InventoryPage() {
           <button
             onClick={() => setActiveCategory('all')}
             className={`whitespace-nowrap rounded-full px-4 py-2 text-sm shadow-sm ${activeCategory === 'all'
-                ? 'bg-[#1b4f94] text-white'
-                : 'bg-gray-100 text-[#1c4273]'
+              ? 'bg-[#1b4f94] text-white'
+              : 'bg-gray-100 text-[#1c4273]'
               }`}
           >
             Tất cả
@@ -148,8 +148,8 @@ export default function InventoryPage() {
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
               className={`whitespace-nowrap rounded-full px-4 py-2 text-sm shadow-sm ${activeCategory === cat.id
-                  ? 'bg-[#1b4f94] text-white'
-                  : 'bg-gray-100 text-[#1c4273]'
+                ? 'bg-[#1b4f94] text-white'
+                : 'bg-gray-100 text-[#1c4273]'
                 }`}
             >
               {cat.title}
@@ -164,26 +164,26 @@ export default function InventoryPage() {
       {/* Table */}
       <div className="overflow-hidden rounded-xl bg-white shadow-sm">
         {/* Top Bar */}
-        <div className="mx-4 mt-4.5 flex flex-wrap items-center justify-between gap-3">
+        <div className="mx-4 mt-4.5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           {/* LEFT (✅ giữ nguyên 3 nút) */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
             <button
               onClick={() => router.push('/inventory/bulk/in')}
-              className="rounded-lg bg-[#1b4f94] px-4 py-2 text-white hover:bg-[#1c4273]"
+              className="w-full sm:w-auto rounded-lg bg-[#1b4f94] px-4 py-2 text-white hover:bg-[#1c4273]"
             >
               Nhập Hàng
             </button>
 
             <button
               onClick={() => router.push('/inventory/bulk/out')}
-              className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-[#1c4273] font-semibold hover:bg-gray-50"
+              className="w-full sm:w-auto rounded-lg border border-gray-300 bg-white px-4 py-2 text-[#1c4273] font-semibold hover:bg-gray-50"
             >
               Xuất Hàng
             </button>
 
             <button
               onClick={() => router.push('/inventory/history')}
-              className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-[#1c4273] font-semibold hover:bg-gray-50"
+              className="w-full sm:w-auto rounded-lg border border-gray-300 bg-white px-4 py-2 text-[#1c4273] font-semibold hover:bg-gray-50"
             >
               Phiếu In
             </button>
@@ -192,7 +192,7 @@ export default function InventoryPage() {
           {/* RIGHT */}
           <div className="flex flex-wrap items-center justify-end gap-3">
             {/* Search */}
-            <div className="relative w-64">
+            <div className="relative w-full md:w-72">
               <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                 <Search size={16} />
               </span>
@@ -209,136 +209,271 @@ export default function InventoryPage() {
           </div>
         </div>
 
-        <table className="mt-2 w-full text-sm">
-          <thead className="border-b bg-gray-50 text-gray-600">
-            <tr>
-              <th className="w-16 pl-5 pr-2 py-3 text-center">STT</th>
-              <th className="w-100 px-4 py-3 text-left">Sản phẩm</th>
-              <th className="w-44 px-4 py-3 text-center">Tồn kho</th>
-              <th className="w-56 px-4 py-3 text-center">Tổng định lượng/ĐVT</th>
-              <th className="w-40 px-4 py-3 text-right">Thao tác</th>
-            </tr>
-          </thead>
-
-          <tbody className="divide-y divide-gray-100">
-            {loading ? (
-              Array.from({ length: SKELETON_ROWS }).map((_, i) => (
-                <tr key={i} className="animate-pulse">
-                  {/* STT */}
-                  <td className="pl-5 pr-2 py-4">
-                    <div className="h-4 w-8 rounded bg-gray-200" />
-                  </td>
-
-                  {/* Product */}
-                  <td className="px-4 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="h-24 w-20 rounded-lg bg-gray-200" />
-                      <div className="space-y-2">
-                        <div className="h-4 w-40 rounded bg-gray-200" />
-                        <div className="h-3 w-24 rounded bg-gray-200" />
-                      </div>
-                    </div>
-                  </td>
-
-                  {/* Stock */}
-                  <td className="px-4 py-4">
-                    <div className="mx-auto h-7 w-24 rounded-lg bg-gray-200" />
-                  </td>
-
-                  {/* Total measurement */}
-                  <td className="px-4 py-4">
-                    <div className="mx-auto h-7 w-36 rounded-lg bg-gray-200" />
-                  </td>
-
-                  {/* Actions */}
-                  <td className="px-4 py-4 text-right">
-                    <div className="ml-auto h-7 w-20 rounded bg-gray-200" />
-                  </td>
-                </tr>
-              ))
-            ) : rows.length === 0 ? (
+        {/* ===================== MOBILE: CARDS ===================== */}
+        <div className="md:hidden px-4 pb-4 pt-3 space-y-3">
+          {loading ? (
+            <InventoryMobileSkeleton count={5} />
+          ) : rows.length === 0 ? (
+            <div className="rounded-xl bg-white p-4 text-center text-sm text-gray-400 shadow-sm">
+              Chưa có sản phẩm nào
+            </div>
+          ) : (
+            rows.map((product, idx) => (
+              <InventoryCard
+                key={product.id}
+                index={idx}
+                product={product}
+                onOpenHistory={() =>
+                  invUI.openHistory({
+                    productId: product.id,
+                  })
+                }
+              />
+            ))
+          )}
+        </div>
+        <div className='hidden md:block'>
+          <table className="mt-2 w-full text-sm">
+            <thead className="border-b bg-gray-50 text-gray-600">
               <tr>
-                <td colSpan={5} className="p-6 text-center text-gray-500">
-                  Chưa có sản phẩm nào
-                </td>
+                <th className="w-16 pl-5 pr-2 py-3 text-center">STT</th>
+                <th className="w-100 px-4 py-3 text-left">Sản phẩm</th>
+                <th className="w-44 px-4 py-3 text-center">Tồn kho</th>
+                <th className="w-56 px-4 py-3 text-center">Tổng định lượng/ĐVT</th>
+                <th className="w-40 px-4 py-3 text-right">Thao tác</th>
               </tr>
-            ) : (
-              rows.map((product, idx) => {
-                const stock = product.stock_quantity ?? 0;
-                const outOfStock = stock <= 0;
-                const totalText = formatTotalMeasurement(stock, product.measure_unit);
+            </thead>
 
-                return (
-                  <tr key={product.id} className="hover:bg-gray-50">
+            <tbody className="divide-y divide-gray-100">
+              {loading ? (
+                Array.from({ length: SKELETON_ROWS }).map((_, i) => (
+                  <tr key={i} className="animate-pulse">
                     {/* STT */}
-                    <td className="pl-5 pr-2 py-4 text-gray-600 text-center">{idx + 1}</td>
+                    <td className="pl-5 pr-2 py-4">
+                      <div className="h-4 w-8 rounded bg-gray-200" />
+                    </td>
 
                     {/* Product */}
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="h-24 w-20 overflow-hidden rounded-lg bg-gray-50">
-                          {product.image ? (
-                            <img
-                              src={getPublicImageUrl('products', product.image) ?? ''}
-                              alt={product.name}
-                              className="h-full w-full object-contain"
-                            />
-                          ) : (
-                            <div className="flex h-full w-full items-center justify-center text-xs text-gray-400">
-                              No image
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="min-w-0">
-                          <p className="font-bold text-[#1c4f94] leading-snug">{product.name}</p>
+                        <div className="h-24 w-20 rounded-lg bg-gray-200" />
+                        <div className="space-y-2">
+                          <div className="h-4 w-40 rounded bg-gray-200" />
+                          <div className="h-3 w-24 rounded bg-gray-200" />
                         </div>
                       </div>
                     </td>
 
                     {/* Stock */}
-                    <td className="px-4 py-4 text-center">
-                      {outOfStock ? (
-                        <span className="rounded-lg bg-red-100 px-3 py-2 text-xs font-semibold text-red-700">
-                          Hết hàng
-                        </span>
-                      ) : (
-                        <span className="rounded-lg bg-blue-100 px-3 py-2 text-xs font-semibold text-blue-700">
-                          {stock}
-                        </span>
-                      )}
+                    <td className="px-4 py-4">
+                      <div className="mx-auto h-7 w-24 rounded-lg bg-gray-200" />
                     </td>
 
                     {/* Total measurement */}
-                    <td className="px-4 py-4 text-center">
-                      <span className="rounded-lg bg-gray-100 px-3 py-2 text-xs font-semibold text-gray-700">
-                        {totalText}
-                      </span>
+                    <td className="px-4 py-4">
+                      <div className="mx-auto h-7 w-36 rounded-lg bg-gray-200" />
                     </td>
 
-                    {/* Actions (ONLY History) */}
+                    {/* Actions */}
                     <td className="px-4 py-4 text-right">
-                      <button
-                        onClick={() =>
-                          invUI.openHistory({
-                            productId: product.id,
-                          })
-                        }
-                        className="rounded-md border border-gray-300 bg-white px-3 py-1 text-sm text-gray-700 hover:bg-gray-50"
-                      >
-                        Lịch sử
-                      </button>
+                      <div className="ml-auto h-7 w-20 rounded bg-gray-200" />
                     </td>
                   </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
+                ))
+              ) : rows.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="p-6 text-center text-gray-500">
+                    Chưa có sản phẩm nào
+                  </td>
+                </tr>
+              ) : (
+                rows.map((product, idx) => {
+                  const stock = product.stock_quantity ?? 0;
+                  const outOfStock = stock <= 0;
+                  const totalText = formatTotalMeasurement(stock, product.measure_unit);
+
+                  return (
+                    <tr key={product.id} className="hover:bg-gray-50">
+                      {/* STT */}
+                      <td className="pl-5 pr-2 py-4 text-gray-600 text-center">{idx + 1}</td>
+
+                      {/* Product */}
+                      <td className="px-4 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="h-24 w-20 overflow-hidden rounded-lg bg-gray-50">
+                            {product.image ? (
+                              <img
+                                src={getPublicImageUrl('products', product.image) ?? ''}
+                                alt={product.name}
+                                className="h-full w-full object-contain"
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center text-xs text-gray-400">
+                                No image
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="min-w-0">
+                            <p className="font-bold text-[#1c4f94] leading-snug">{product.name}</p>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Stock */}
+                      <td className="px-4 py-4 text-center">
+                        {outOfStock ? (
+                          <span className="rounded-lg bg-red-100 px-3 py-2 text-xs font-semibold text-red-700">
+                            Hết hàng
+                          </span>
+                        ) : (
+                          <span className="rounded-lg bg-blue-100 px-3 py-2 text-xs font-semibold text-blue-700">
+                            {stock}
+                          </span>
+                        )}
+                      </td>
+
+                      {/* Total measurement */}
+                      <td className="px-4 py-4 text-center">
+                        <span className="rounded-lg bg-gray-100 px-3 py-2 text-xs font-semibold text-gray-700">
+                          {totalText}
+                        </span>
+                      </td>
+
+                      {/* Actions (ONLY History) */}
+                      <td className="px-4 py-4 text-right">
+                        <button
+                          onClick={() =>
+                            invUI.openHistory({
+                              productId: product.id,
+                            })
+                          }
+                          className="rounded-md border border-gray-300 bg-white px-3 py-1 text-sm text-gray-700 hover:bg-gray-50"
+                        >
+                          Lịch sử
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
 
         {/* ✅ Keep drawer if your /inventory/[id] page uses it; otherwise can remove */}
         <InventoryHistoryDrawer />
       </div>
+    </div>
+  );
+}
+
+function InventoryCard({
+  product,
+  index,
+  onOpenHistory,
+}: {
+  product: any;
+  index: number;
+  onOpenHistory: () => void;
+}) {
+  const stock = product.stock_quantity ?? 0;
+  const outOfStock = stock <= 0;
+  const totalText = formatTotalMeasurement(stock, product.measure_unit);
+
+  return (
+    <div className="rounded-2xl bg-white p-4 shadow-sm border border-gray-100">
+      <div className="flex items-start gap-3">
+        {/* IMAGE */}
+        <div className="h-24 w-20 shrink-0 overflow-hidden rounded-xl bg-gray-50">
+          {product.image ? (
+            <img
+              src={getPublicImageUrl('products', product.image) ?? ''}
+              alt={product.name}
+              className="h-full w-full object-contain"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-xs text-gray-400">
+              No image
+            </div>
+          )}
+        </div>
+
+        {/* INFO */}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-sm font-bold text-[#1c4f94] line-clamp-2">
+              {product.name}
+            </p>
+
+            <span className="text-xs font-semibold text-gray-400">
+              #{index + 1}
+            </span>
+          </div>
+
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <div className="rounded-xl bg-gray-50 p-3">
+              <div className="text-xs text-gray-500">Tồn kho</div>
+              <div className="mt-1">
+                {outOfStock ? (
+                  <span className="inline-flex rounded-lg bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
+                    Hết hàng
+                  </span>
+                ) : (
+                  <span className="inline-flex rounded-lg bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+                    {stock}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-xl bg-gray-50 p-3">
+              <div className="text-xs text-gray-500">Tổng định lượng</div>
+              <div className="mt-1">
+                <span className="inline-flex rounded-lg bg-gray-200 px-3 py-1 text-xs font-semibold text-gray-700">
+                  {totalText}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={onOpenHistory}
+            className="mt-3 w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+          >
+            Lịch sử
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function InventoryMobileSkeleton({ count = 5 }: { count?: number }) {
+  return (
+    <div className="space-y-3">
+      {Array.from({ length: count }).map((_, idx) => (
+        <div
+          key={idx}
+          className="rounded-2xl bg-white p-4 shadow-sm border border-gray-100 animate-pulse"
+        >
+          <div className="flex items-start gap-3">
+            <div className="h-24 w-20 rounded-xl bg-gray-200 shrink-0" />
+
+            <div className="flex-1 space-y-2">
+              <div className="h-4 w-3/4 rounded bg-gray-200" />
+              <div className="h-3 w-1/2 rounded bg-gray-200" />
+
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <div className="h-16 rounded-xl bg-gray-200" />
+                <div className="h-16 rounded-xl bg-gray-200" />
+              </div>
+
+              <div className="h-10 rounded-xl bg-gray-200 mt-3" />
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

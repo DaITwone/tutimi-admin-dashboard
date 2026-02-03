@@ -134,7 +134,7 @@ export default function EditProductDrawer({
                     fixed z-50 bg-white shadow-2xl
                     animate-slide-in
                     inset-x-0 bottom-0 h-[92vh] w-full rounded-t-3xl
-                    md:inset-y-0 md:right-0 md:left-auto md:h-full md:w-[420px] md:rounded-none
+                    md:inset-y-0 md:right-0 md:left-auto md:h-full md:w-105 md:rounded-none
                 "
             >
                 <div className="flex h-full flex-col">
