@@ -2,10 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/app/lib/supabase';
-import {
-    getPublicImageUrl,
-    uploadImageUnified,
-} from '@/app/lib/storage';
+import { getPublicImageUrl, uploadImageUnified } from '@/app/lib/storage';
 
 type Props = {
     productId: string;
@@ -29,7 +26,6 @@ export default function EditProductDrawer({
 }: Props) {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-
     const [form, setForm] = useState<ProductForm>({
         name: '',
         price: 0,
@@ -39,15 +35,10 @@ export default function EditProductDrawer({
         image: null,
     });
 
-    /* ---------- IMAGE STATE ---------- */
-    const [imageType, setImageType] =
-        useState<'upload' | 'link'>('upload');
-    const [newImage, setNewImage] =
-        useState<File | null>(null);
-    const [imageLink, setImageLink] =
-        useState('');
+    const [imageType, setImageType] = useState<'upload' | 'link'>('upload');
+    const [newImage, setNewImage] = useState<File | null>(null);
+    const [imageLink, setImageLink] = useState('');
 
-    /* -------------------- FETCH PRODUCT -------------------- */
     useEffect(() => {
         const fetchProduct = async () => {
             const { data } = await supabase
@@ -75,7 +66,6 @@ export default function EditProductDrawer({
         fetchProduct();
     }, [productId]);
 
-    /* -------------------- ESC TO CLOSE -------------------- */
     useEffect(() => {
         const esc = (e: KeyboardEvent) => {
             if (e.key === 'Escape') onClose();
@@ -84,7 +74,6 @@ export default function EditProductDrawer({
         return () => window.removeEventListener('keydown', esc);
     }, [onClose]);
 
-    /* -------------------- SUBMIT -------------------- */
     const handleSubmit = async () => {
         setSaving(true);
 
@@ -131,8 +120,6 @@ export default function EditProductDrawer({
         }
     };
 
-
-    /* ===================== UI ===================== */
     return (
         <>
             {/* Overlay */}
@@ -143,10 +130,16 @@ export default function EditProductDrawer({
 
             {/* Drawer */}
             <div
-                className="fixed right-0 top-0 z-50 h-full w-100 bg-white shadow-2xl animate-slide-in">
+                className="
+                    fixed z-50 bg-white shadow-2xl
+                    animate-slide-in
+                    inset-x-0 bottom-0 h-[92vh] w-full rounded-t-3xl
+                    md:inset-y-0 md:right-0 md:left-auto md:h-full md:w-[420px] md:rounded-none
+                "
+            >
                 <div className="flex h-full flex-col">
                     {/* Header */}
-                    <div className="flex items-center justify-between border-b px-6 pt-3">
+                    <div className="flex items-center justify-between border-b px-4 py-3 md:px-6">
                         <div>
                             <h2 className="text-lg font-semibold text-[#1c4273]">
                                 CẬP NHẬT SẢN PHẨM
@@ -163,9 +156,10 @@ export default function EditProductDrawer({
 
                     {/* Content */}
                     <div
-                        className={`flex-1 space-y-6 overflow-y-auto px-6 py-5 ${loading
-                            ? 'opacity-50 pointer-events-none'
-                            : ''
+                        className={`flex-1 space-y-6 overflow-y-auto px-4 py-4 md:px-6 md:py-5
+                            ${loading
+                                ? 'opacity-50 pointer-events-none'
+                                : ''
                             }`}
                     >
                         {loading ? (
@@ -366,32 +360,18 @@ export default function EditProductDrawer({
                     </div>
 
                     {/* Footer */}
-                    <div className="flex gap-3 border-t px-6 py-4">
+                    <div className="flex gap-3 border-t px-4 py-4 md:px-6">
                         <button
                             onClick={handleSubmit}
                             disabled={saving}
-                            className="
-                flex-1
-                rounded-lg
-                bg-[#163f78]
-                px-4 py-2
-                text-sm font-medium
-                text-white
-                hover:bg-[#1b4f94]
-                disabled:opacity-50
-              "
+                            className="flex-1 rounded-full bg-[#163f78] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1b4f94] disabled:opacity-50"
                         >
                             {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
                         </button>
 
                         <button
                             onClick={onClose}
-                            className="
-                rounded-lg border
-                px-4 py-2
-                text-sm
-                hover:bg-gray-50
-              "
+                            className="flex-1 md:flex-none rounded-lg border px-4 py-2 text-sm hover:bg-gray-50"
                         >
                             Hủy
                         </button>
