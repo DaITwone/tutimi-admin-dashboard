@@ -227,7 +227,7 @@ export default function BulkInventoryPage() {
     return (
         <div className="mt-6 space-y-4">
             {/* Header */}
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <div className="flex items-center gap-2">
                     <button
                         onClick={() => router.back()}
@@ -246,35 +246,39 @@ export default function BulkInventoryPage() {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="w-full sm:w-auto space-y-2">
                     {/* ✅ Receipt code badge */}
                     {lastReceiptId && (result?.success ?? 0) > 0 && (
-                        <div className="flex items-center gap-2 rounded-lg bg-blue-50 px-3 py-3.5">
+                        <div className="w-full flex items-center gap-2 rounded-lg bg-blue-50 px-3 py-3.5 sm:w-auto">
                             <span className="text-xs text-gray-500">Mã phiếu</span>
                             <span className="text-sm font-semibold text-[#1c4273]">
                                 {lastReceiptId.slice(0, 8).toUpperCase()}
                             </span>
                         </div>
                     )}
-                    <button
-                        disabled={!lastReceiptId || (result?.success ?? 0) === 0}
-                        onClick={handlePrintReceipt}
-                        className="flex items-center gap-2 rounded-lg border border-[#1b4f94] bg-white px-4 py-2 text-[#1b4f94] hover:bg-blue-50 disabled:opacity-40"
-                        title={!lastReceiptId ? 'Chưa có phiếu mới để in' : 'In phiếu vừa tạo'}
-                    >
-                        In phiếu
-                    </button>
 
+                    {/* Buttons row */}
+                    <div className="grid grid-cols-2 gap-2 sm:flex sm:justify-end">
+                        <button
+                            disabled={!lastReceiptId || (result?.success ?? 0) === 0}
+                            onClick={handlePrintReceipt}
+                            className="w-full flex items-center justify-center gap-2 rounded-lg border border-[#1b4f94] bg-white px-4 py-2 text-[#1b4f94] hover:bg-blue-50 disabled:opacity-40 sm:w-auto"
+                            title={!lastReceiptId ? 'Chưa có phiếu mới để in' : 'In phiếu vừa tạo'}
+                        >
+                            In phiếu
+                        </button>
 
-                    <button
-                        disabled={submitting || !canSubmit}
-                        onClick={handleSubmit}
-                        className="flex items-center gap-2 rounded-lg bg-[#1b4f94] px-4 py-2 text-white hover:bg-[#1c4273] disabled:opacity-50"
-                    >
-                        <Save size={18} />
-                        {submitting ? 'Đang lưu...' : 'Lưu'}
-                    </button>
+                        <button
+                            disabled={submitting || !canSubmit}
+                            onClick={handleSubmit}
+                            className="w-full flex items-center justify-center gap-2 rounded-lg bg-[#1b4f94] px-4 py-2 text-white hover:bg-[#1c4273] disabled:opacity-50 sm:w-auto"
+                        >
+                            <Save size={18} />
+                            {submitting ? 'Đang lưu...' : 'Lưu'}
+                        </button>
+                    </div>
                 </div>
+
             </div>
 
             {/* Reason */}
@@ -310,9 +314,9 @@ export default function BulkInventoryPage() {
 
             {/* Search */}
             <div className="rounded-xl bg-white p-4 shadow-sm">
-                <div className="flex items-center justify-between gap-4">
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     {/* Search */}
-                    <div className="relative w-80">
+                    <div className="relative w-full md:w-96">
                         <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                             <Search size={16} />
                         </span>
@@ -336,166 +340,335 @@ export default function BulkInventoryPage() {
 
             {/* Products table */}
             <div className="overflow-hidden rounded-xl bg-white shadow-sm">
-                <table className="w-full text-sm">
-                    <thead className="border-b bg-gray-50 text-gray-600">
-                        <tr>
-                            <th className="w-105 px-4 py-3 text-left">Sản phẩm</th>
-                            <th className="w-72 px-4 py-3 text-left">Tồn hiện tại</th>
-                            <th className="w-32 px-4 py-3 text-left">Số lượng</th>
-                            <th className="w-48 px-4 py-3 text-right">
-                                {type === 'in' ? 'Nhập' : 'Xuất'} kho ({type === 'in' ? 'IN' : 'OUT'})
-                            </th>
-                        </tr>
-                    </thead>
+                {/* ===================== MOBILE: CARDS ===================== */}
+                <div className="md:hidden p-4 space-y-3">
+                    {isLoading ? (
+                        <BulkMobileSkeleton count={6} />
+                    ) : products.length === 0 ? (
+                        <div className="rounded-xl bg-white p-4 text-center text-sm text-gray-400 shadow-sm">
+                            Không có sản phẩm
+                        </div>
+                    ) : (
+                        products.map((p) => {
+                            const stock = p.stock_quantity ?? 0;
+                            const row = rowById[p.id];
+                            const qty = row?.qty ?? 0;
+                            const inputValue = row?.inputValue ?? '';
+                            const unit = row?.unit ?? 'ML';
 
-                    <tbody className="divide-y divide-gray-100">
-                        {isLoading ? (
-                            Array.from({ length: 8 }).map((_, i) => (
-                                <tr key={i} className="animate-pulse">
-                                    {/* product */}
-                                    <td className="px-4 py-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="h-20 w-20 rounded-lg bg-gray-200" />
-                                            <div className="min-w-0 flex-1 space-y-2">
-                                                <div className="h-4 w-48 rounded bg-gray-200" />
-                                                <div className="h-3 w-28 rounded bg-gray-200" />
-                                            </div>
-                                        </div>
-                                    </td>
+                            return (
+                                <BulkInventoryCard
+                                    key={p.id}
+                                    type={type}
+                                    product={p}
+                                    stock={stock}
+                                    qty={qty}
+                                    inputValue={inputValue}
+                                    unit={unit}
+                                    onChangeValue={(val) => setRow(p.id, { inputValue: val })}
+                                    onChangeUnit={(u) => setRow(p.id, { unit: u })}
+                                    onClear={() => clearRow(p.id)}
+                                />
+                            );
+                        })
+                    )}
+                </div>
 
-                                    {/* stock */}
-                                    <td className="px-4 py-6">
-                                        <div className="h-9 w-28 rounded-lg bg-gray-200" />
-                                    </td>
-
-                                    {/* input measurement */}
-                                    <td className="px-4 py-4">
-                                        <div className="flex w-72 items-center gap-2">
-                                            <div className="h-9 w-14 rounded-lg bg-gray-200" />
-                                            <div className="h-9 w-20 rounded-lg bg-gray-200" />
-                                            <div className="h-9 w-16 rounded-lg bg-gray-200" />
-                                        </div>
-                                    </td>
-
-                                    {/* qty */}
-                                    <td className="pr-4 py-4 text-right">
-                                        <div className="ml-auto h-9 w-14 rounded-lg bg-gray-200" />
-                                    </td>
-                                </tr>
-                            ))
-                        ) : products.length === 0 ? (
+                <div className='hidden md:block'>
+                    <table className="w-full text-sm">
+                        <thead className="border-b bg-gray-50 text-gray-600">
                             <tr>
-                                <td colSpan={4} className="p-8 text-center text-gray-500">
-                                    Không có sản phẩm
-                                </td>
+                                <th className="w-105 px-4 py-3 text-left">Sản phẩm</th>
+                                <th className="w-72 px-4 py-3 text-left">Tồn hiện tại</th>
+                                <th className="w-32 px-4 py-3 text-left">Số lượng</th>
+                                <th className="w-48 px-4 py-3 text-right">
+                                    {type === 'in' ? 'Nhập' : 'Xuất'} kho ({type === 'in' ? 'IN' : 'OUT'})
+                                </th>
                             </tr>
-                        ) : (
-                            products.map((p) => {
-                                const stock = p.stock_quantity ?? 0;
-                                const row = rowById[p.id];
-                                const qty = row?.qty ?? 0;
-                                const inputValue = row?.inputValue ?? '';
-                                const unit = row?.unit ?? 'ML';
+                        </thead>
 
-                                return (
-                                    <tr
-                                        key={p.id}
-                                        className={qty > 0 ? 'bg-blue-50/30' : 'hover:bg-gray-50'}
-                                    >
+                        <tbody className="divide-y divide-gray-100">
+                            {isLoading ? (
+                                Array.from({ length: 8 }).map((_, i) => (
+                                    <tr key={i} className="animate-pulse">
                                         {/* product */}
                                         <td className="px-4 py-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="h-20 w-20 overflow-hidden rounded-lg bg-gray-50">
-                                                    {p.image ? (
-                                                        <img
-                                                            src={getPublicImageUrl('products', p.image) ?? ''}
-                                                            alt={p.name}
-                                                            className="h-full w-full object-contain"
-                                                        />
-                                                    ) : (
-                                                        <div className="flex h-full w-full items-center justify-center text-xs text-gray-400">
-                                                            No image
-                                                        </div>
-                                                    )}
-                                                </div>
-
-                                                <div className="min-w-0">
-                                                    <div className="font-bold text-[#1c4273]">{p.name}</div>
+                                                <div className="h-20 w-20 rounded-lg bg-gray-200" />
+                                                <div className="min-w-0 flex-1 space-y-2">
+                                                    <div className="h-4 w-48 rounded bg-gray-200" />
+                                                    <div className="h-3 w-28 rounded bg-gray-200" />
                                                 </div>
                                             </div>
                                         </td>
 
                                         {/* stock */}
                                         <td className="px-4 py-6">
-                                            {stock <= 0 ? (
-                                                <span className="rounded-lg bg-red-100 px-3 py-2.5 text-xs font-semibold text-red-700">
-                                                    Out of stock
-                                                </span>
-                                            ) : (
-                                                <span className="rounded-lg bg-blue-100 px-3 py-2.5 text-xs font-semibold text-blue-700">
-                                                    Còn {stock}
-                                                </span>
-                                            )}
+                                            <div className="h-9 w-28 rounded-lg bg-gray-200" />
                                         </td>
 
                                         {/* input measurement */}
-                                        <td className="px-4">
-                                            <div className="flex w-72 gap-2">
-                                                <input
-                                                    value={inputValue}
-                                                    onChange={(e) => {
-                                                        const val = e.target.value;
-
-                                                        // allow decimal for kg/l if needed, also allow empty
-                                                        if (val !== '' && !/^\d*\.?\d*$/.test(val)) return;
-
-                                                        setRow(p.id, { inputValue: val });
-                                                    }}
-                                                    placeholder="0"
-                                                    inputMode="decimal"
-                                                    className="w-14 rounded-lg border border-gray-300 bg-gray-50 px-3 py-1.5 text-sm text-center outline-none focus:border-[#1b4f94] focus:bg-white"
-                                                />
-
-                                                <select
-                                                    value={unit}
-                                                    onChange={(e) =>
-                                                        setRow(p.id, { unit: e.target.value as InputUnit })
-                                                    }
-                                                    className="rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-sm outline-none focus:border-[#1b4f94]"
-                                                >
-                                                    {INPUT_UNITS.map((u) => (
-                                                        <option key={u} value={u}>
-                                                            {u}
-                                                        </option>
-                                                    ))}
-                                                </select>
-
-                                                <button
-                                                    onClick={() => clearRow(p.id)}
-                                                    className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-100"
-                                                >
-                                                    Xóa
-                                                </button>
+                                        <td className="px-4 py-4">
+                                            <div className="flex w-72 items-center gap-2">
+                                                <div className="h-9 w-14 rounded-lg bg-gray-200" />
+                                                <div className="h-9 w-20 rounded-lg bg-gray-200" />
+                                                <div className="h-9 w-16 rounded-lg bg-gray-200" />
                                             </div>
                                         </td>
 
-                                        {/* selected qty column */}
-                                        <td className="pr-4.5 py-4 text-right">
-                                            {qty > 0 ? (
-                                                <span className="rounded-lg bg-[#1b4f94] px-3 py-2 text-sm font-semibold text-white">
-                                                    {qty}
-                                                </span>
-                                            ) : (
-                                                <span className="text-sm text-gray-400">-</span>
-                                            )}
+                                        {/* qty */}
+                                        <td className="pr-4 py-4 text-right">
+                                            <div className="ml-auto h-9 w-14 rounded-lg bg-gray-200" />
                                         </td>
                                     </tr>
-                                );
-                            })
-                        )}
-                    </tbody>
-                </table>
+                                ))
+                            ) : products.length === 0 ? (
+                                <tr>
+                                    <td colSpan={4} className="p-8 text-center text-gray-500">
+                                        Không có sản phẩm
+                                    </td>
+                                </tr>
+                            ) : (
+                                products.map((p) => {
+                                    const stock = p.stock_quantity ?? 0;
+                                    const row = rowById[p.id];
+                                    const qty = row?.qty ?? 0;
+                                    const inputValue = row?.inputValue ?? '';
+                                    const unit = row?.unit ?? 'ML';
+
+                                    return (
+                                        <tr
+                                            key={p.id}
+                                            className={qty > 0 ? 'bg-blue-50/30' : 'hover:bg-gray-50'}
+                                        >
+                                            {/* product */}
+                                            <td className="px-4 py-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="h-20 w-20 overflow-hidden rounded-lg bg-gray-50">
+                                                        {p.image ? (
+                                                            <img
+                                                                src={getPublicImageUrl('products', p.image) ?? ''}
+                                                                alt={p.name}
+                                                                className="h-full w-full object-contain"
+                                                            />
+                                                        ) : (
+                                                            <div className="flex h-full w-full items-center justify-center text-xs text-gray-400">
+                                                                No image
+                                                            </div>
+                                                        )}
+                                                    </div>
+
+                                                    <div className="min-w-0">
+                                                        <div className="font-bold text-[#1c4273]">{p.name}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            {/* stock */}
+                                            <td className="px-4 py-6">
+                                                {stock <= 0 ? (
+                                                    <span className="rounded-lg bg-red-100 px-3 py-2.5 text-xs font-semibold text-red-700">
+                                                        Out of stock
+                                                    </span>
+                                                ) : (
+                                                    <span className="rounded-lg bg-blue-100 px-3 py-2.5 text-xs font-semibold text-blue-700">
+                                                        Còn {stock}
+                                                    </span>
+                                                )}
+                                            </td>
+
+                                            {/* input measurement */}
+                                            <td className="px-4">
+                                                <div className="flex w-72 gap-2">
+                                                    <input
+                                                        value={inputValue}
+                                                        onChange={(e) => {
+                                                            const val = e.target.value;
+
+                                                            // allow decimal for kg/l if needed, also allow empty
+                                                            if (val !== '' && !/^\d*\.?\d*$/.test(val)) return;
+
+                                                            setRow(p.id, { inputValue: val });
+                                                        }}
+                                                        placeholder="0"
+                                                        inputMode="decimal"
+                                                        className="w-14 rounded-lg border border-gray-300 bg-gray-50 px-3 py-1.5 text-sm text-center outline-none focus:border-[#1b4f94] focus:bg-white"
+                                                    />
+
+                                                    <select
+                                                        value={unit}
+                                                        onChange={(e) =>
+                                                            setRow(p.id, { unit: e.target.value as InputUnit })
+                                                        }
+                                                        className="rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-sm outline-none focus:border-[#1b4f94]"
+                                                    >
+                                                        {INPUT_UNITS.map((u) => (
+                                                            <option key={u} value={u}>
+                                                                {u}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+
+                                                    <button
+                                                        onClick={() => clearRow(p.id)}
+                                                        className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-100"
+                                                    >
+                                                        Xóa
+                                                    </button>
+                                                </div>
+                                            </td>
+
+                                            {/* selected qty column */}
+                                            <td className="pr-4.5 py-4 text-right">
+                                                {qty > 0 ? (
+                                                    <span className="rounded-lg bg-[#1b4f94] px-3 py-2 text-sm font-semibold text-white">
+                                                        {qty}
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-sm text-gray-400">-</span>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    );
+                                })
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
+        </div>
+    );
+}
+
+function BulkInventoryCard({
+    type,
+    product,
+    stock,
+    qty,
+    inputValue,
+    unit,
+    onChangeValue,
+    onChangeUnit,
+    onClear,
+}: {
+    type: BulkType;
+    product: any;
+    stock: number;
+    qty: number;
+    inputValue: string;
+    unit: InputUnit;
+    onChangeValue: (v: string) => void;
+    onChangeUnit: (u: InputUnit) => void;
+    onClear: () => void;
+}) {
+    return (
+        <div className={`rounded-2xl border bg-white p-4 shadow-sm ${qty > 0 ? 'border-blue-200 bg-blue-50/30' : 'border-gray-100'
+            }`}>
+            <div className="flex gap-3">
+                {/* Image */}
+                <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-gray-50">
+                    {product.image ? (
+                        <img
+                            src={getPublicImageUrl('products', product.image) ?? ''}
+                            alt={product.name}
+                            className="h-full w-full object-contain"
+                        />
+                    ) : (
+                        <div className="flex h-full w-full items-center justify-center text-xs text-gray-400">
+                            No image
+                        </div>
+                    )}
+                </div>
+
+                {/* Info */}
+                <div className="min-w-0 flex-1">
+                    <div className="font-bold text-[#1c4273] line-clamp-2">
+                        {product.name}
+                    </div>
+
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                        {stock <= 0 ? (
+                            <span className="rounded-lg bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
+                                Out of stock
+                            </span>
+                        ) : (
+                            <span className="rounded-lg bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+                                Còn {stock}
+                            </span>
+                        )}
+
+                        {qty > 0 ? (
+                            <span className="rounded-lg bg-[#1b4f94] px-3 py-1 text-xs font-semibold text-white">
+                                {type === 'in' ? 'Nhập' : 'Xuất'}: {qty}
+                            </span>
+                        ) : (
+                            <span className="text-xs text-gray-400">Chưa chọn</span>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* input */}
+            <div className="mt-3 grid grid-cols-3 gap-2">
+                <input
+                    value={inputValue}
+                    onChange={(e) => {
+                        const val = e.target.value;
+                        if (val !== '' && !/^\d*\.?\d*$/.test(val)) return;
+                        onChangeValue(val);
+                    }}
+                    placeholder="0"
+                    inputMode="decimal"
+                    className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-center outline-none focus:border-[#1b4f94] focus:bg-white"
+                />
+
+                <select
+                    value={unit}
+                    onChange={(e) => onChangeUnit(e.target.value as InputUnit)}
+                    className="w-full rounded-lg border border-gray-300 bg-white px-2 py-2 text-sm outline-none focus:border-[#1b4f94]"
+                >
+                    {INPUT_UNITS.map((u) => (
+                        <option key={u} value={u}>
+                            {u}
+                        </option>
+                    ))}
+                </select>
+
+                <button
+                    onClick={onClear}
+                    className="w-full rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-100"
+                >
+                    Xóa
+                </button>
+            </div>
+        </div>
+    );
+}
+
+function BulkMobileSkeleton({ count = 6 }: { count?: number }) {
+    return (
+        <div className="space-y-3">
+            {Array.from({ length: count }).map((_, idx) => (
+                <div
+                    key={idx}
+                    className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm animate-pulse"
+                >
+                    <div className="flex gap-3">
+                        <div className="h-20 w-20 rounded-xl bg-gray-200 shrink-0" />
+                        <div className="flex-1 space-y-2">
+                            <div className="h-4 w-3/4 rounded bg-gray-200" />
+                            <div className="h-3 w-1/2 rounded bg-gray-200" />
+                            <div className="h-6 w-32 rounded bg-gray-200" />
+                        </div>
+                    </div>
+
+                    <div className="mt-3 grid grid-cols-3 gap-2">
+                        <div className="h-10 rounded-lg bg-gray-200" />
+                        <div className="h-10 rounded-lg bg-gray-200" />
+                        <div className="h-10 rounded-lg bg-gray-200" />
+                    </div>
+                </div>
+            ))}
         </div>
     );
 }
