@@ -58,15 +58,11 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
       {/* Sidebar */}
       <aside
         className={`
-          fixed left-0 top-0 z-50 h-screen flex flex-col
+          fixed left-0 top-0 z-50 h-dvh flex flex-col
           transition-all duration-300
-          bg-[#1c4273] text-white
-
-          ${collapsed ? 'lg:w-14' : 'lg:w-64'}
-          w-64
-
-          lg:translate-x-0
-          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+          bg-[#1c4273] text-white w-64 
+          ${collapsed ? 'lg:w-14' : 'lg:w-64'} 
+          lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
       >
         {/* Top: toggle + logo */}
@@ -120,7 +116,7 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
         </div>
 
         {/* Menu */}
-        <nav className="mt-4 space-y-3 px-2 text-base flex-1">
+        <nav className="mt-4 space-y-3 px-2 text-base flex-1 overflow-auto-y overscroll-contain pb-6">
           {menuItems.map((item) => {
             const active = pathname.startsWith(item.href);
 
