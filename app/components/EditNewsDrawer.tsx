@@ -2,10 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/app/lib/supabase';
-import {
-  getPublicImageUrl,
-  uploadImageUnified,
-} from '@/app/lib/storage';
+import { getPublicImageUrl, uploadImageUnified } from '@/app/lib/storage';
 
 type Props = {
   newsId: string;
@@ -41,14 +38,10 @@ export default function EditNewsDrawer({
     type: 'Tin Tức',
   });
 
-  /* ---------- IMAGE STATE ---------- */
-  const [imageType, setImageType] =
-    useState<'upload' | 'link'>('upload');
-  const [newImage, setNewImage] =
-    useState<File | null>(null);
+  const [imageType, setImageType] = useState<'upload' | 'link'>('upload');
+  const [newImage, setNewImage] = useState<File | null>(null);
   const [imageLink, setImageLink] = useState('');
 
-  /* -------------------- FETCH NEWS -------------------- */
   useEffect(() => {
     const fetchNews = async () => {
       const { data } = await supabase
@@ -77,7 +70,6 @@ export default function EditNewsDrawer({
     fetchNews();
   }, [newsId]);
 
-  /* -------------------- ESC TO CLOSE -------------------- */
   useEffect(() => {
     const esc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -86,7 +78,6 @@ export default function EditNewsDrawer({
     return () => window.removeEventListener('keydown', esc);
   }, [onClose]);
 
-  /* -------------------- SUBMIT -------------------- */
   const handleSubmit = async () => {
     setSaving(true);
 
@@ -134,8 +125,6 @@ export default function EditNewsDrawer({
     }
   };
 
-
-  /* ===================== UI ===================== */
   return (
     <>
       {/* Overlay */}
@@ -145,10 +134,16 @@ export default function EditNewsDrawer({
       />
 
       {/* Drawer */}
-      <div className="fixed right-0 top-0 z-50 h-full w-200 bg-white shadow-2xl animate-slide-in">
+      <div
+        className="
+          fixed z-50 bg-white shadow-2xl animate-slide-in
+          inset-x-0 bottom-0 h-[92vh] w-full rounded-t-3xl
+          md:inset-y-0 md:right-0 md:left-auto md:h-full md:w-130 md:rounded-none
+        "
+      >
         <div className="flex h-full flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between border-b px-6 py-3">
+          <div className="flex items-center justify-between border-b px-4 py-3 md:px-6">
             <h2 className="text-lg font-semibold text-[#1c4273]">
               CẬP NHẬT TIN TỨC
             </h2>
@@ -163,8 +158,7 @@ export default function EditNewsDrawer({
 
           {/* Content */}
           <div
-            className={`flex-1 space-y-6 overflow-y-auto px-6 py-5 ${loading ? 'pointer-events-none opacity-50' : ''
-              }`}
+            className={`flex-1 space-y-6 overflow-y-auto px-4 py-4 md:px-6 md:py-5 ${loading ? 'pointer-events-none opacity-50' : ''}`}
           >
             {loading ? (
               <p className="text-sm text-gray-500">
@@ -365,18 +359,18 @@ export default function EditNewsDrawer({
           </div>
 
           {/* Footer */}
-          <div className="flex gap-3 border-t px-6 py-4 justify-end">
+          <div className="flex gap-3 border-t px-4 py-4 md:px-6">
             <button
               onClick={handleSubmit}
               disabled={saving}
-              className="rounded-lg bg-[#163f78] px-4 py-2 text-sm font-medium text-white hover:bg-[#1b4f94] disabled:opacity-50"
+              className="flex-1 rounded-lg bg-[#163f78] px-4 py-2 text-sm font-medium text-white hover:bg-[#1b4f94] disabled:opacity-50"
             >
               {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
             </button>
 
             <button
               onClick={onClose}
-              className="rounded-lg border px-4 py-2 text-sm hover:bg-gray-50"
+              className="flex-1 md:flex-none rounded-lg border px-4 py-2 text-sm hover:bg-gray-50"
             >
               Hủy
             </button>
