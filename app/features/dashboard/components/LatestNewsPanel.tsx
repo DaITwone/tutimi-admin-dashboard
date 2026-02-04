@@ -8,8 +8,6 @@ function formatTime(iso: string | null) {
     return new Date(iso).toLocaleString("vi-VN");
 }
 
-const STORAGE_BUCKET = "products"; // ✅ bucket của bạn
-
 export function LatestNewsPanel({
     data,
     isLoading,
@@ -20,7 +18,7 @@ export function LatestNewsPanel({
     return (
         <Card className="rounded-2xl">
             <CardHeader>
-                <CardTitle>Tin tức mới</CardTitle>
+                <CardTitle className="text-blue1 font-bold">Tin tức mới</CardTitle>
             </CardHeader>
 
             <CardContent>
@@ -50,7 +48,7 @@ export function LatestNewsPanel({
                                     </div>
 
                                     <div className="min-w-0 flex-1">
-                                        <div className="line-clamp-1 font-medium">{news.title}</div>
+                                        <div className="line-clamp-1 font-bold text-blue2">{news.title}</div>
 
                                         {news.description ? (
                                             <div className="line-clamp-2 text-xs text-muted-foreground">

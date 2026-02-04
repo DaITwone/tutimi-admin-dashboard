@@ -37,11 +37,6 @@ function getDefaultRangeByBucket(bucket: BucketType) {
   const now = new Date();
   const from = new Date(now);
 
-  // ✅ Rule theo yêu cầu của Dal:
-  // day = 1 ngày
-  // week = 7 ngày
-  // month = 30 ngày
-  // year = 12 tháng
   switch (bucket) {
     case "day":
       from.setDate(from.getDate() - 1);
@@ -96,7 +91,6 @@ export default function DashboardPage() {
   const recentInventoryQuery = useRecentInventoryTransactionsQuery(6);
   const topProductsQuery = useTopSellingProductsLast7DaysQuery(5);
   const latestNewsQuery = useLatestNewsQuery(4);
-
   const revenueChartQuery = useRevenueChartQuery(effectiveRange);
   const ordersChartQuery = useOrdersCountChartQuery(effectiveRange);
   const inventoryChartQuery = useInventoryInOutChartQuery(effectiveRange);
