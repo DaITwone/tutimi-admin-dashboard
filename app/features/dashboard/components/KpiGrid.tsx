@@ -7,7 +7,7 @@ type BucketType = "day" | "week" | "month" | "year";
 type DashboardRange = {
   from: string;
   to: string;
-  bucket: BucketType;
+  bucket: BucketType; // day, week, month, year
 };
 
 function formatVnd(n: number) {
@@ -19,7 +19,7 @@ function formatVnd(n: number) {
 }
 
 function getRangeLabel(range?: DashboardRange) {
-  if (!range) return "7 ngày"; // fallback cũ
+  if (!range) return "7 ngày";
 
   switch (range.bucket) {
     case "day":
@@ -40,9 +40,9 @@ export function KpiGrid({
   isLoading,
   range,
 }: {
-  data?: DashboardKpis;
+  data?: DashboardKpis; // totalOrders, revenue, confirmOrders, lowStockProducts
   isLoading: boolean;
-  range?: DashboardRange;
+  range?: DashboardRange; // from, to, bucket
 }) {
   const rangeLabel = getRangeLabel(range);
 

@@ -4,8 +4,8 @@ import type { DashboardInventorySummary, DashboardKpis, DashboardLatestNewsItem,
 export type DashboardBucket = "day" | "week" | "month" | "year";
 
 export type DashboardRange = {
-    from: string; // ISO string
-    to: string;   // ISO string
+    from: string; 
+    to: string; 
     bucket: DashboardBucket;
 };
 
