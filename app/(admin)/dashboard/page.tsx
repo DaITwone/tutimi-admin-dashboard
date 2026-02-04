@@ -88,7 +88,7 @@ export default function DashboardPage() {
   const kpisQuery = useDashboardKpisQuery(effectiveRange);
   const recentOrdersQuery = useRecentOrdersQuery(10);
   const inventorySummaryQuery = useInventorySummaryQuery(effectiveRange);
-  const recentInventoryQuery = useRecentInventoryTransactionsQuery(6);
+  const recentInventoryQuery = useRecentInventoryTransactionsQuery(5);
   const topProductsQuery = useTopSellingProductsLast7DaysQuery(5);
   const latestNewsQuery = useLatestNewsQuery(4);
   const revenueChartQuery = useRevenueChartQuery(effectiveRange);
