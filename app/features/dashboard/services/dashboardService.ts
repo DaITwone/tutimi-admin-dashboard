@@ -4,8 +4,8 @@ import type { DashboardInventorySummary, DashboardKpis, DashboardLatestNewsItem,
 export type DashboardBucket = "day" | "week" | "month" | "year";
 
 export type DashboardRange = {
-    from: string; 
-    to: string; 
+    from: string;
+    to: string;
     bucket: DashboardBucket;
 };
 
@@ -136,25 +136,24 @@ export const dashboardService = {
             .slice(0, limit);
     },
 
-    async getInventorySummaryLast7Days(): Promise<DashboardInventorySummary> {
-        const from7d = getISODateDaysAgo(7);
-
+    async getInventorySummary(range: DashboardRange): Promise<DashboardInventorySummary> {
         const { data, error } = await supabase
             .from("inventory_transactions")
             .select("type, applied_quantity")
-            .gte("created_at", from7d);
+            .gte("created_at", range.from)
+            .lt("created_at", range.to);
 
         if (error) throw error;
 
-        let totalInLast7Days = 0;
-        let totalOutLast7Days = 0;
+        let totalIn = 0;
+        let totalOut = 0;
 
         for (const row of data ?? []) {
-            if (row.type === "IN") totalInLast7Days += safeNumber(row.applied_quantity);
-            if (row.type === "OUT") totalOutLast7Days += safeNumber(row.applied_quantity);
+            if (row.type === "IN") totalIn += safeNumber(row.applied_quantity);
+            if (row.type === "OUT") totalOut += safeNumber(row.applied_quantity);
         }
 
-        return { totalInLast7Days, totalOutLast7Days };
+        return { totalIn, totalOut };
     },
 
     async getrecentInventoryTransactions(limit = 8): Promise<DashboardRecentInventoryTransaction[]> {

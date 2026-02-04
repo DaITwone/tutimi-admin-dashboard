@@ -5,6 +5,8 @@ import type {
   DashboardRecentInventoryTransaction,
 } from "../types/dashboard";
 
+type BucketType = "day" | "week" | "month" | "year";
+
 function formatTime(iso: string) {
   return new Date(iso).toLocaleString("vi-VN");
 }
@@ -13,21 +15,40 @@ function getTypeLabel(type: "IN" | "OUT") {
   return type === "IN" ? "Nhập" : "Xuất";
 }
 
+function getTitleByBucket(bucketType: BucketType) {
+  switch (bucketType) {
+    case "day":
+      return "Kho hàng (ngày)";
+    case "week":
+      return "Kho hàng (tuần)";
+    case "month":
+      return "Kho hàng (tháng)";
+    case "year":
+      return "Kho hàng (năm)";
+    default:
+      return "Kho hàng";
+  }
+}
+
 export function InventorySummaryCard({
   summary,
   recentTransactions,
   isLoadingSummary,
   isLoadingRecent,
+  bucketType = "day",
 }: {
   summary?: DashboardInventorySummary;
   recentTransactions?: DashboardRecentInventoryTransaction[];
   isLoadingSummary: boolean;
   isLoadingRecent: boolean;
+  bucketType?: BucketType;
 }) {
   return (
     <Card className="rounded-2xl">
       <CardHeader>
-        <CardTitle>Kho hàng (7 ngày)</CardTitle>
+        <CardTitle className="text-blue1 font-bold">
+          {getTitleByBucket(bucketType)}
+        </CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-4">
@@ -38,7 +59,7 @@ export function InventorySummaryCard({
               <Skeleton className="mt-2 h-6 w-16 rounded-lg" />
             ) : (
               <div className="mt-1 text-lg font-semibold">
-                {summary?.totalInLast7Days ?? 0}
+                {summary?.totalIn ?? 0}
               </div>
             )}
           </div>
@@ -49,7 +70,7 @@ export function InventorySummaryCard({
               <Skeleton className="mt-2 h-6 w-16 rounded-lg" />
             ) : (
               <div className="mt-1 text-lg font-semibold">
-                {summary?.totalOutLast7Days ?? 0}
+                {summary?.totalOut ?? 0}
               </div>
             )}
           </div>
@@ -72,7 +93,7 @@ export function InventorySummaryCard({
                   className="flex items-center justify-between gap-3 rounded-xl border p-3 text-sm"
                 >
                   <div className="min-w-0 flex-1">
-                    <div className="truncate font-medium">
+                    <div className="truncate font-medium text-blue2">
                       {tx.product_name ?? "Unknown product"}
                     </div>
                     <div className="text-xs text-muted-foreground">

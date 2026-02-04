@@ -14,4 +14,8 @@ export const dashboardQueryKeys = {
 
   inventoryInOutChart: (range: { from: string; to: string; bucket: string }) =>
     [...dashboardQueryKeys.all, "inventoryInOutChart", range] as const,
+
+  inventorySummary: (range: { from: string; to: string; bucket: string }) =>
+  [...dashboardQueryKeys.all, "inventorySummary", range] as const,
+
 };

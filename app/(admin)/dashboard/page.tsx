@@ -17,13 +17,13 @@ import { InventoryInOutChartCard } from "@/app/features/dashboard/components/Inv
 import {
   useDashboardKpisQuery,
   useRecentOrdersQuery,
-  useInventorySummaryLast7DaysQuery,
   useRecentInventoryTransactionsQuery,
   useTopSellingProductsLast7DaysQuery,
   useLatestNewsQuery,
   useRevenueChartQuery,
   useOrdersCountChartQuery,
   useInventoryInOutChartQuery,
+  useInventorySummaryQuery,
 } from "@/app/features/dashboard/api/useDashboardQuery";
 
 import {
@@ -87,7 +87,7 @@ export default function DashboardPage() {
 
   const kpisQuery = useDashboardKpisQuery(effectiveRange);
   const recentOrdersQuery = useRecentOrdersQuery(10);
-  const inventorySummaryQuery = useInventorySummaryLast7DaysQuery();
+  const inventorySummaryQuery = useInventorySummaryQuery(effectiveRange);
   const recentInventoryQuery = useRecentInventoryTransactionsQuery(6);
   const topProductsQuery = useTopSellingProductsLast7DaysQuery(5);
   const latestNewsQuery = useLatestNewsQuery(4);
@@ -138,6 +138,7 @@ export default function DashboardPage() {
           recentTransactions={recentInventoryQuery.data}
           isLoadingSummary={inventorySummaryQuery.isLoading}
           isLoadingRecent={recentInventoryQuery.isLoading}
+          bucketType={effectiveRange.bucket}
         />
       </div>
 

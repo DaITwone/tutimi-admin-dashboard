@@ -112,8 +112,8 @@ export type InventoryTransactionRow = {
 };
 
 export type DashboardInventorySummary = {
-  totalInLast7Days: number;
-  totalOutLast7Days: number;
+  totalIn: number;
+  totalOut: number;
 };
 
 export type DashboardRecentInventoryTransaction = Pick<

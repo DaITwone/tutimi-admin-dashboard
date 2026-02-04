@@ -25,10 +25,10 @@ export function useTopSellingProductsLast7DaysQuery(limit = 5) {
   });
 }
 
-export function useInventorySummaryLast7DaysQuery() {
+export function useInventorySummaryQuery(range: DashboardRange) {
   return useQuery({
-    queryKey: [...dashboardQueryKeys.all, "inventorySummaryLast7Days"],
-    queryFn: dashboardService.getInventorySummaryLast7Days,
+    queryKey: dashboardQueryKeys.inventorySummary(range),
+    queryFn: () => dashboardService.getInventorySummary(range),
   });
 }
 
