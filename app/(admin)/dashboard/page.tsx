@@ -21,6 +21,7 @@ import {
   useOrdersCountChartQuery,
   useInventoryInOutChartQuery,
   useTopSellingProductsQuery,
+  useLowStockProductsQuery,
 } from "@/app/features/dashboard/api/useDashboardQuery";
 
 import {
@@ -83,12 +84,14 @@ export default function DashboardPage() {
   }, [range]);
 
   const kpisQuery = useDashboardKpisQuery(effectiveRange);
+  const lowStockQuery = useLowStockProductsQuery(5);
   const recentOrdersQuery = useRecentOrdersQuery(10);
   const topProductsQuery = useTopSellingProductsQuery(effectiveRange, 5);
   const latestNewsQuery = useLatestNewsQuery(4);
   const revenueChartQuery = useRevenueChartQuery(effectiveRange);
   const ordersChartQuery = useOrdersCountChartQuery(effectiveRange);
   const inventoryChartQuery = useInventoryInOutChartQuery(effectiveRange);
+
 
   return (
     <div className="space-y-6">
@@ -100,7 +103,13 @@ export default function DashboardPage() {
       <DashboardRangeFilter value={range} onChange={setRange} />
 
       {/* KPI */}
-      <KpiGrid data={kpisQuery.data} isLoading={kpisQuery.isLoading} range={effectiveRange} />
+      <KpiGrid
+        data={kpisQuery.data}
+        isLoading={kpisQuery.isLoading}
+        range={effectiveRange}
+        lowStockProducts={lowStockQuery.data}
+        lowStockLoading={lowStockQuery.isLoading}
+      />
 
       {/* Revenue chart */}
       <RevenueLineChartCard

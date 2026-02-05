@@ -1,5 +1,5 @@
 import { supabase } from "@/app/lib/supabase";
-import type { DashboardInventorySummary, DashboardKpis, DashboardLatestNewsItem, DashboardRecentInventoryTransaction, DashboardRecentOrder, DashboardTopSellingProduct, InventoryInOutChartPoint, OrdersCountChartPoint, RevenueChartPoint } from "../types/dashboard";
+import type { DashboardKpis, DashboardLatestNewsItem, DashboardLowStockProduct, DashboardRecentOrder, DashboardTopSellingProduct, InventoryInOutChartPoint, OrdersCountChartPoint, RevenueChartPoint } from "../types/dashboard";
 
 export type DashboardBucket = "day" | "week" | "month" | "year";
 
@@ -67,6 +67,20 @@ export const dashboardService = {
             confirmedOrders: confirmedOrders ?? 0,
             lowStockProducts: lowStockProducts ?? 0,
         };
+    },
+
+    async getLowStockProducts(limit = 5): Promise<DashboardLowStockProduct[]> {
+        const { data, error } = await supabase
+            .from("products")
+            .select("id, name, image, stock_quantity, measure_unit")
+            .lte("stock_quantity", 5)
+            .order("stock_quantity", { ascending: true }) // ascending: tăng dần
+            .limit(limit);
+
+        if (error) throw error;
+
+        return (data ?? []) as DashboardLowStockProduct[];
+
     },
 
     async getRecentOrders(limit = 10): Promise<DashboardRecentOrder[]> {

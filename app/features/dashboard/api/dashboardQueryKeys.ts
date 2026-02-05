@@ -3,6 +3,10 @@ export const dashboardQueryKeys = {
 
   kpis: (range: { from: string; to: string; bucket: string }) =>
     [...dashboardQueryKeys.all, "kpis", range] as const,
+
+  lowStockProducts: (limit: number) =>
+    [...dashboardQueryKeys.all, "lowStockProducts", limit] as const,
+
   recentOrders: (limit: number) =>
     [...dashboardQueryKeys.all, "recentOrders", limit] as const,
 

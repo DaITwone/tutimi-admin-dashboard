@@ -73,6 +73,13 @@ export type DashboardKpis = {
   lowStockProducts: number;
 };
 
+export type DashboardLowStockProduct = {
+  id: string;
+  name: string;
+  image: string | null;
+  stock_quantity: number;
+}
+
 // Minimal order info for Recent Orders on Dashboard
 // Pick<> utility type is used to select specific fields from OrderRow
 export type DashboardRecentOrder = Pick<OrderRow, "id" | "created_at" | "total_price" | "status">;
