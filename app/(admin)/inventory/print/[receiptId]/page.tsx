@@ -196,7 +196,7 @@ export default function PrintReceiptPage() {
             <div className="grid grid-cols-2 gap-2 print:hidden md:flex md:items-center md:justify-between md:gap-3">
                 <button
                     onClick={() => router.back()}
-                    className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#1b4f94]/20 bg-[#1b4f94]/10 px-4 py-2 text-sm font-semibold text-[#1b4f94] hover:bg-[#1b4f94]/15 active:scale-95"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-[#1b4f94]/20 bg-[#1b4f94]/10 px-4 py-2 text-sm font-semibold text-[#1b4f94] hover:bg-[#1b4f94]/15 active:scale-95"
                 >
                     <ArrowLeft size={16} />
                     Quay lại
@@ -204,7 +204,7 @@ export default function PrintReceiptPage() {
 
                 <button
                     onClick={() => window.print()}
-                    className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-[#1b4f94] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1c4273] active:scale-95"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#1b4f94] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1c4273] active:scale-95"
                 >
                     <Printer size={16} />
                     In
