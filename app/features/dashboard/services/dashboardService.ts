@@ -72,7 +72,7 @@ export const dashboardService = {
     async getLowStockProducts(limit = 5): Promise<DashboardLowStockProduct[]> {
         const { data, error } = await supabase
             .from("products")
-            .select("id, name, image, stock_quantity, measure_unit")
+            .select("id, name, image, stock_quantity")
             .lte("stock_quantity", 5)
             .order("stock_quantity", { ascending: true }) // ascending: tăng dần
             .limit(limit);

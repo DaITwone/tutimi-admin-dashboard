@@ -6,9 +6,7 @@ import { KpiGrid } from "@/app/features/dashboard/components/KpiGrid";
 import { RecentOrders } from "@/app/features/dashboard/components/RecentOrders";
 import { TopSellingProductsTable } from "@/app/features/dashboard/components/TopSellingProductsTable";
 import { LatestNewsPanel } from "@/app/features/dashboard/components/LatestNewsPanel";
-
 import { useDashboardRealtimeSync } from "@/app/features/dashboard/hooks/useDashboardRealtimeSync";
-
 import { RevenueLineChartCard } from "@/app/features/dashboard/components/RevenueLineChartCard";
 import { OrdersStatusBarChartCard } from "@/app/features/dashboard/components/OrdersStatusBarChartCard";
 import { InventoryInOutChartCard } from "@/app/features/dashboard/components/InventoryInOutChartCard";
@@ -24,10 +22,7 @@ import {
   useLowStockProductsQuery,
 } from "@/app/features/dashboard/api/useDashboardQuery";
 
-import {
-  DashboardRangeFilter,
-  type DashboardRange,
-} from "@/app/features/dashboard/components/DashboardRangeFilter";
+import { DashboardRangeFilter, type DashboardRange } from "@/app/features/dashboard/components/DashboardRangeFilter";
 
 type BucketType = "day" | "week" | "month" | "year";
 
@@ -37,24 +32,24 @@ function getDefaultRangeByBucket(bucket: BucketType) {
 
   switch (bucket) {
     case "day":
-      from.setDate(from.getDate() - 1);
+      from.setHours(0, 0, 0, 0); // today only
       break;
 
     case "week":
       from.setDate(from.getDate() - 7);
+      from.setHours(0, 0, 0, 0);
       break;
 
     case "month":
       from.setDate(from.getDate() - 30);
+      from.setHours(0, 0, 0, 0);
       break;
 
     case "year":
       from.setMonth(from.getMonth() - 12);
+      from.setHours(0, 0, 0, 0);
       break;
   }
-
-  // cố định đầu ngày cho stable
-  from.setHours(0, 0, 0, 0);
 
   return {
     from: from.toISOString(),
@@ -91,7 +86,6 @@ export default function DashboardPage() {
   const revenueChartQuery = useRevenueChartQuery(effectiveRange);
   const ordersChartQuery = useOrdersCountChartQuery(effectiveRange);
   const inventoryChartQuery = useInventoryInOutChartQuery(effectiveRange);
-
 
   return (
     <div className="space-y-6">
