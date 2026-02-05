@@ -15,7 +15,7 @@ A modern admin dashboard for managing the Tutimi Coffee & Tea e-commerce platfor
 
 # [LINK DEMO🔗](https://tutimi-admin-dashboard.vercel.app/)
 
-**Test Credentials:** `admin_demo@gmail.com` / `admin@123456`
+**Test Credentials:** `admin@gmail.com` / `Admin@123456`
 
 
 ## Project Overview

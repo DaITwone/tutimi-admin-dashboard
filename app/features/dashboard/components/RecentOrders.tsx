@@ -26,7 +26,7 @@ function formatVnd(n: number) {
 function getStatusMeta(status: OrderStatus) {
   switch (status) {
     case "confirmed":
-      return { label: "Đã xác nhận", variant: "secondary" as const, className: "bg-blue2 text-white hover:bg-blue1" };
+      return { label: "Đã xác nhận", variant: "secondary" as const, className: "bg-blue-600 text-white hover:bg-blue-500" };
     case "completed":
       return { label: "Hoàn thành", variant: "default" as const, className: "bg-green-600 text-white hover:bg-green-600", };
     case "cancelled":
@@ -73,7 +73,7 @@ export function RecentOrders({
 
                 return (
                   <TableRow key={order.id}>
-                    <TableCell className="font-medium text-blue2">
+                    <TableCell className="font-bold text-blue2">
                       #{order.id.slice(0, 8)}
                     </TableCell>
                     <TableCell>{formatTime(order.created_at)}</TableCell>
