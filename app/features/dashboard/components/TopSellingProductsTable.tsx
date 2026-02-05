@@ -4,17 +4,36 @@ import type { DashboardTopSellingProduct } from "../types/dashboard";
 import { formatVnd } from "@/app/lib/formatMoney";
 import { getPublicImageUrl } from "@/app/lib/storage";
 
+type BucketType = "day" | "week" | "month" | "year";
+
+
 export function TopSellingProductsTable({
   data,
   isLoading,
+  bucketType = "day"
 }: {
   data?: DashboardTopSellingProduct[];
   isLoading: boolean;
+  bucketType?: BucketType
 }) {
+
+  function getBucketLabel(bucket: BucketType) {
+    switch (bucket) {
+      case "day":
+        return "Hôm nay";
+      case "week":
+        return "7 ngày gần đây";
+      case "month":
+        return "30 ngày gần đây";
+      case "year":
+        return "12 tháng gần đây";
+    }
+  }
+
   return (
     <Card className="rounded-2xl">
       <CardHeader>
-        <CardTitle>Sản phẩm bán chạy (7 ngày)</CardTitle>
+        <CardTitle className="text-blue1 font-bold">Top Sản phẩm bán chạy ({getBucketLabel(bucketType)}) </CardTitle>
       </CardHeader>
 
       <CardContent>
@@ -42,7 +61,7 @@ export function TopSellingProductsTable({
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <div className="truncate font-medium">{p.product_name}</div>
+                  <div className="truncate text-sm font-medium text-blue2">{p.product_name}</div>
                   <div className="text-xs text-muted-foreground">
                     Đã bán: <span className="font-medium">{p.sold_quantity}</span>
                   </div>

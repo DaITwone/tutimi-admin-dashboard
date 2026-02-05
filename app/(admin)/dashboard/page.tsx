@@ -18,12 +18,12 @@ import {
   useDashboardKpisQuery,
   useRecentOrdersQuery,
   useRecentInventoryTransactionsQuery,
-  useTopSellingProductsLast7DaysQuery,
   useLatestNewsQuery,
   useRevenueChartQuery,
   useOrdersCountChartQuery,
   useInventoryInOutChartQuery,
   useInventorySummaryQuery,
+  useTopSellingProductsQuery,
 } from "@/app/features/dashboard/api/useDashboardQuery";
 
 import {
@@ -89,7 +89,7 @@ export default function DashboardPage() {
   const recentOrdersQuery = useRecentOrdersQuery(10);
   const inventorySummaryQuery = useInventorySummaryQuery(effectiveRange);
   const recentInventoryQuery = useRecentInventoryTransactionsQuery(5);
-  const topProductsQuery = useTopSellingProductsLast7DaysQuery(5);
+  const topProductsQuery = useTopSellingProductsQuery(effectiveRange,5);
   const latestNewsQuery = useLatestNewsQuery(4);
   const revenueChartQuery = useRevenueChartQuery(effectiveRange);
   const ordersChartQuery = useOrdersCountChartQuery(effectiveRange);
@@ -147,6 +147,7 @@ export default function DashboardPage() {
           <TopSellingProductsTable
             data={topProductsQuery.data}
             isLoading={topProductsQuery.isLoading}
+            bucketType={effectiveRange.bucket}
           />
         </div>
 

@@ -18,11 +18,11 @@ export function useRecentOrdersQuery(limit = 10) {
   });
 }
 
-export function useTopSellingProductsLast7DaysQuery(limit = 5) {
+export function useTopSellingProductsQuery(range: DashboardRange, limit=5) {
   return useQuery({
-    queryKey: [...dashboardQueryKeys.all, "topSellingProductsLast7Days", limit],
-    queryFn: () => dashboardService.getTopSellingProductsLastDays(limit),
-  });
+    queryKey: dashboardQueryKeys.topSellingProducts(range, limit),
+    queryFn: () => dashboardService.getTopSellingProducts(range, limit),
+  })
 }
 
 export function useInventorySummaryQuery(range: DashboardRange) {

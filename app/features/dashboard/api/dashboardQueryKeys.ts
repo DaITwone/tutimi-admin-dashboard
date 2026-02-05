@@ -16,6 +16,8 @@ export const dashboardQueryKeys = {
     [...dashboardQueryKeys.all, "inventoryInOutChart", range] as const,
 
   inventorySummary: (range: { from: string; to: string; bucket: string }) =>
-  [...dashboardQueryKeys.all, "inventorySummary", range] as const,
+    [...dashboardQueryKeys.all, "inventorySummary", range] as const,
 
+  topSellingProducts: (range: { from: string, to: string, bucket: string }, limit: number) =>
+    [...dashboardQueryKeys.all, "topSellingProducts", range, limit] as const,
 };

@@ -81,40 +81,36 @@ export const dashboardService = {
         return (data ?? []) as DashboardRecentOrder[];
     },
 
-    async getTopSellingProductsLastDays(limit = 5): Promise<DashboardTopSellingProduct[]> {
-        const from7d = getISODateDaysAgo(7);
-
-        // 1. get completed orders
+    async getTopSellingProducts(range: DashboardRange, limit = 5): Promise<DashboardTopSellingProduct[]> {
+        // 1. get completed orders in range
         const { data: completedOrders, error: ordersError } = await supabase
             .from("orders")
             .select("id")
             .eq("status", "completed")
-            .gte("created_at", from7d);
+            .gte("created_at", range.from)
+            .lt("created_at", range.to);
 
         if (ordersError) throw ordersError;
 
-        const orderIds = (completedOrders ?? []).map(order => order.id);
+        const orderIds = (completedOrders ?? []).map(o => o.id);
 
         if (orderIds.length === 0) return [];
 
-        // 2. get order items for those orders
+        // 2. get order items
         const { data: items, error: itemsError } = await supabase
             .from("order_items")
             .select("product_id, product_name, product_image, quantity, total_price")
-            .in("order_id", orderIds); // Chỉ lấy item của những order completed 7 ngày gần đây.
+            .in("order_id", orderIds);
 
         if (itemsError) throw itemsError;
 
         // 3. aggregate client-side
-        // Map<Key, Value>
-        const productMap = new Map<string, DashboardTopSellingProduct>();
+        const productMap = new Map<String, DashboardTopSellingProduct>();
 
         for (const it of items ?? []) {
             const productId = it.product_id;
 
-            // .has(key) kiểm tra key có tồn tại trong Map hay không
             if (!productMap.has(productId)) {
-                // .set(key, value) thêm hoặc update một entry trong Map
                 productMap.set(productId, {
                     product_id: productId,
                     product_name: it.product_name ?? "Unknown",
@@ -125,13 +121,11 @@ export const dashboardService = {
             }
 
             const row = productMap.get(productId)!;
-
             row.sold_quantity += safeNumber(it.quantity);
             row.revenue += safeNumber(it.total_price);
         }
 
         return [...productMap.values()]
-            // sort descending by sold_quantity
             .sort((a, b) => b.sold_quantity - a.sold_quantity)
             .slice(0, limit);
     },
