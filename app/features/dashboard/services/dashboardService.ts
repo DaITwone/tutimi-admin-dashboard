@@ -130,58 +130,6 @@ export const dashboardService = {
             .slice(0, limit);
     },
 
-    async getInventorySummary(range: DashboardRange): Promise<DashboardInventorySummary> {
-        const { data, error } = await supabase
-            .from("inventory_transactions")
-            .select("type, applied_quantity")
-            .gte("created_at", range.from)
-            .lt("created_at", range.to);
-
-        if (error) throw error;
-
-        let totalIn = 0;
-        let totalOut = 0;
-
-        for (const row of data ?? []) {
-            if (row.type === "IN") totalIn += safeNumber(row.applied_quantity);
-            if (row.type === "OUT") totalOut += safeNumber(row.applied_quantity);
-        }
-
-        return { totalIn, totalOut };
-    },
-
-    async getrecentInventoryTransactions(limit = 8): Promise<DashboardRecentInventoryTransaction[]> {
-        const { data, error } = await supabase
-            .from("inventory_transactions")
-            .select(
-                `
-                id,
-                created_at,
-                product_id,
-                type,
-                applied_quantity,
-                delta,
-                note,
-                products:product_id ( name )
-            `
-            )
-            .order("created_at", { ascending: false })
-            .limit(limit);
-
-        if (error) throw error;
-
-        return (data ?? []).map((row: any) => ({
-            id: row.id,
-            created_at: row.created_at,
-            product_id: row.product_id,
-            product_name: row.products?.name ?? null,
-            type: row.type,
-            applied_quantity: safeNumber(row.applied_quantity),
-            delta: safeNumber(row.delta),
-            note: row.note ?? null,
-        }));
-    },
-
     async getLatestNews(limit = 5): Promise<DashboardLatestNewsItem[]> {
         const { data, error } = await supabase
             .from("news")

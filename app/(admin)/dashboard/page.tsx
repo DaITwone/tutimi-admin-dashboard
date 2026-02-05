@@ -4,7 +4,6 @@ import * as React from "react";
 
 import { KpiGrid } from "@/app/features/dashboard/components/KpiGrid";
 import { RecentOrders } from "@/app/features/dashboard/components/RecentOrders";
-import { InventorySummaryCard } from "@/app/features/dashboard/components/InventorySummaryCard";
 import { TopSellingProductsTable } from "@/app/features/dashboard/components/TopSellingProductsTable";
 import { LatestNewsPanel } from "@/app/features/dashboard/components/LatestNewsPanel";
 
@@ -17,12 +16,10 @@ import { InventoryInOutChartCard } from "@/app/features/dashboard/components/Inv
 import {
   useDashboardKpisQuery,
   useRecentOrdersQuery,
-  useRecentInventoryTransactionsQuery,
   useLatestNewsQuery,
   useRevenueChartQuery,
   useOrdersCountChartQuery,
   useInventoryInOutChartQuery,
-  useInventorySummaryQuery,
   useTopSellingProductsQuery,
 } from "@/app/features/dashboard/api/useDashboardQuery";
 
@@ -87,9 +84,7 @@ export default function DashboardPage() {
 
   const kpisQuery = useDashboardKpisQuery(effectiveRange);
   const recentOrdersQuery = useRecentOrdersQuery(10);
-  const inventorySummaryQuery = useInventorySummaryQuery(effectiveRange);
-  const recentInventoryQuery = useRecentInventoryTransactionsQuery(5);
-  const topProductsQuery = useTopSellingProductsQuery(effectiveRange,5);
+  const topProductsQuery = useTopSellingProductsQuery(effectiveRange, 5);
   const latestNewsQuery = useLatestNewsQuery(4);
   const revenueChartQuery = useRevenueChartQuery(effectiveRange);
   const ordersChartQuery = useOrdersCountChartQuery(effectiveRange);
@@ -133,13 +128,8 @@ export default function DashboardPage() {
           <RecentOrders data={recentOrdersQuery.data} isLoading={recentOrdersQuery.isLoading} />
         </div>
 
-        <InventorySummaryCard
-          summary={inventorySummaryQuery.data}
-          recentTransactions={recentInventoryQuery.data}
-          isLoadingSummary={inventorySummaryQuery.isLoading}
-          isLoadingRecent={recentInventoryQuery.isLoading}
-          bucketType={effectiveRange.bucket}
-        />
+        <LatestNewsPanel data={latestNewsQuery.data} isLoading={latestNewsQuery.isLoading} />
+
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -151,7 +141,6 @@ export default function DashboardPage() {
           />
         </div>
 
-        <LatestNewsPanel data={latestNewsQuery.data} isLoading={latestNewsQuery.isLoading} />
       </div>
     </div>
   );

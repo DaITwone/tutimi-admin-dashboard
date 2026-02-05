@@ -25,20 +25,6 @@ export function useTopSellingProductsQuery(range: DashboardRange, limit=5) {
   })
 }
 
-export function useInventorySummaryQuery(range: DashboardRange) {
-  return useQuery({
-    queryKey: dashboardQueryKeys.inventorySummary(range),
-    queryFn: () => dashboardService.getInventorySummary(range),
-  });
-}
-
-export function useRecentInventoryTransactionsQuery(limit = 8) {
-  return useQuery({
-    queryKey: [...dashboardQueryKeys.all, "recentInventoryTransactions", limit],
-    queryFn: () => dashboardService.getrecentInventoryTransactions(limit),
-  });
-}
-
 export function useLatestNewsQuery(limit = 5) {
   return useQuery({
     queryKey: [...dashboardQueryKeys.all, "latestNews", limit],
