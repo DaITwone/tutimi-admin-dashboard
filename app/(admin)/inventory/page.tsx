@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/app/lib/supabase';
 import { getPublicImageUrl } from '@/app/lib/storage';
-import { Search } from 'lucide-react';
+import { ChevronDown, ChevronsUpDown, ChevronUp, Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useProductsQuery } from '@/app/hooks/useProductsQuery';
 import { InventoryHistoryDrawer, useInventoryUI } from '@/app/features/inventory';
@@ -14,73 +14,7 @@ type Category = {
   title: string;
 };
 
-/* ===================== HELPERS ===================== */
-/**
- * Tổng định lượng/ĐVT dựa vào stock_quantity + measure_unit theo rule bạn define:
- * - ML: 500ml = 1 stock => total_ml = stock * 500
- * - L: 1L = 2 stock     => total_l = stock / 2
- * - G: 100g = 1 stock   => total_g = stock * 100
- * - Kg: 1Kg = 10 stock  => total_kg = stock / 10
- * - Cái: 1 cái = 1 stock => total = stock
- * - Lốc: 1 lốc = 6 cái = 6 stock => ưu tiên show Lốc nếu chia hết 6
- *
- * Display rule:
- * - >= 1000ml => L
- * - >= 1000g  => Kg
- */
-function formatTotalMeasurement(stock: number, unit: string | null) {
-  const qty = Number(stock ?? 0);
-  if (!Number.isFinite(qty) || qty <= 0) return '-';
-
-  const u = (unit ?? '').trim().toLowerCase();
-
-  // default fallback => show stock
-  if (!u) return `${qty}`;
-
-  // Cái
-  if (u === 'cái' || u === 'cai') return `${qty} Cái`;
-
-  // Lốc
-  if (u === 'lốc' || u === 'loc') {
-    if (qty >= 6 && qty % 6 === 0) return `${qty / 6} Lốc`;
-    return `${qty} Cái`;
-  }
-
-  // ML
-  if (u === 'ml') {
-    const totalMl = qty * 500;
-    if (totalMl >= 1000) {
-      const totalL = totalMl / 1000;
-      return `${Number.isInteger(totalL) ? totalL : totalL.toFixed(1)} L`;
-    }
-    return `${totalMl} ML`;
-  }
-
-  // L
-  if (u === 'l') {
-    const totalL = qty / 2;
-    return `${Number.isInteger(totalL) ? totalL : totalL.toFixed(1)} L`;
-  }
-
-  // G
-  if (u === 'g') {
-    const totalG = qty * 100;
-    if (totalG >= 1000) {
-      const totalKg = totalG / 1000;
-      return `${Number.isInteger(totalKg) ? totalKg : totalKg.toFixed(1)} Kg`;
-    }
-    return `${totalG} G`;
-  }
-
-  // Kg
-  if (u === 'kg') {
-    const totalKg = qty / 10;
-    return `${Number.isInteger(totalKg) ? totalKg : totalKg.toFixed(1)} Kg`;
-  }
-
-  // unknown
-  return `${qty}`;
-}
+type SortKey = 'name' | 'stock';
 
 /* ===================== COMPONENT ===================== */
 export default function InventoryPage() {
@@ -91,6 +25,17 @@ export default function InventoryPage() {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const SKELETON_ROWS = 5;
   const invUI = useInventoryUI();
+  const [sortKey, setSortKey] = useState<SortKey | null>(null);
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortOrder(prev => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortKey(key);
+      setSortOrder('asc');
+    }
+  }
 
   /* -------------------- SEARCH DEBOUNCE -------------------- */
   useEffect(() => {
@@ -124,8 +69,29 @@ export default function InventoryPage() {
 
   const error = productsError ? 'Không thể tải danh sách sản phẩm' : null;
 
-  // STT stable theo list hiện tại
-  const rows = useMemo(() => products, [products]);
+  const rows = useMemo(() => {
+    if (!sortKey) return products;
+
+    return [...products].sort((a, b) => {
+      let aValue: any;
+      let bValue: any;
+
+      if (sortKey === 'stock') {
+        aValue = a.stock_quantity ?? 0;
+        bValue = b.stock_quantity ?? 0;
+      }
+
+      if (sortKey === 'name') {
+        aValue = a.name?.toLowerCase() ?? '';
+        bValue = b.name?.toLowerCase() ?? '';
+      }
+
+      if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1; // a đứng trước b
+      if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1; // b đứng trước a
+
+      return 0; // giữ nguyên
+    });
+  }, [products, sortKey, sortOrder]);
 
   /* ===================== UI ===================== */
   return (
@@ -237,8 +203,60 @@ export default function InventoryPage() {
             <thead className="border-b bg-gray-50 text-gray-600">
               <tr>
                 <th className="w-16 pl-5 pr-2 py-3 text-center">STT</th>
-                <th className="w-100 px-4 py-3 text-left">Sản phẩm</th>
-                <th className="w-44 px-4 py-3 text-center">Tồn kho</th>
+                <th
+                  onClick={() => toggleSort('name')}
+                  className="group cursor-pointer select-none px-4 py-3 text-left text-gray-600 hover:text-[#1b4f94]"
+                >
+                  <div className="inline-flex items-center gap-1">
+                    <span>Sản phẩm</span>
+
+                    {/* Icon */}
+                    <span className="flex h-4 w-4 items-center justify-center">
+                      {sortKey !== 'name' && (
+                        <ChevronsUpDown
+                          size={14}
+                          className="opacity-0 transition-opacity group-hover:opacity-50"
+                        />
+                      )}
+
+                      {sortKey === 'name' && sortOrder === 'asc' && (
+                        <ChevronUp size={14} />
+                      )}
+
+                      {sortKey === 'name' && sortOrder === 'desc' && (
+                        <ChevronDown size={14} />
+                      )}
+                    </span>
+                  </div>
+                </th>
+
+                <th
+                  onClick={() => toggleSort('stock')}
+                  className="group cursor-pointer select-none px-4 py-3 text-center text-gray-600 hover:text-[#1b4f94]"
+                >
+                  <div className="inline-flex items-center justify-center gap-1">
+                    <span>Tồn kho</span>
+
+                    {/* Sort icon */}
+                    <span className="flex h-4 w-4 items-center justify-center">
+                      {sortKey !== 'stock' && (
+                        <ChevronsUpDown
+                          size={14}
+                          className="opacity-0 transition-opacity group-hover:opacity-50"
+                        />
+                      )}
+
+                      {sortKey === 'stock' && sortOrder === 'asc' && (
+                        <ChevronUp size={14} />
+                      )}
+
+                      {sortKey === 'stock' && sortOrder === 'desc' && (
+                        <ChevronDown size={14} />
+                      )}
+                    </span>
+                  </div>
+                </th>
+
                 <th className="w-56 px-4 py-3 text-center">Tổng định lượng/ĐVT</th>
                 <th className="w-40 px-4 py-3 text-right">Thao tác</th>
               </tr>
@@ -290,7 +308,7 @@ export default function InventoryPage() {
                 rows.map((product, idx) => {
                   const stock = product.stock_quantity ?? 0;
                   const outOfStock = stock <= 0;
-                  const totalText = formatTotalMeasurement(stock, product.measure_unit);
+                  const totalText = product.measure_unit;
 
                   return (
                     <tr key={product.id} className="hover:bg-gray-50">
@@ -379,7 +397,7 @@ function InventoryCard({
 }) {
   const stock = product.stock_quantity ?? 0;
   const outOfStock = stock <= 0;
-  const totalText = formatTotalMeasurement(stock, product.measure_unit);
+  const totalText = product.measure_unit;
 
   return (
     <div className="rounded-2xl bg-white p-4 shadow-sm border border-gray-100">
