@@ -5,6 +5,7 @@ import * as React from "react";
 import Link from "next/link";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { getPublicImageUrl } from "@/app/lib/storage";
+import { useRouter } from "next/navigation";
 
 type BucketType = "day" | "week" | "month" | "year";
 
@@ -71,6 +72,8 @@ export function KpiGrid({
 
   const [lowStockOpen, setLowStockOpen] = React.useState(false);
 
+  const router = useRouter();
+
   return (
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
       {items.map((item) => (
@@ -127,6 +130,7 @@ export function KpiGrid({
           sideOffset={8}
           onMouseEnter={() => setLowStockOpen(true)}
           onMouseLeave={() => setLowStockOpen(false)}
+          onClick={()=>router.push('/inventory')}
           className="w-72"
         >
           {lowStockLoading ? (
