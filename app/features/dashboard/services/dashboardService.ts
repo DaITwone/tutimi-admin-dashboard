@@ -57,7 +57,7 @@ export const dashboardService = {
         const { count: lowStockProducts, error: lowStockError } = await supabase
             .from("products")
             .select("id", { count: "exact", head: true })
-            .lte("stock_quantity", 5);
+            .lte("stock_quantity", 4);
 
         if (lowStockError) throw lowStockError;
 

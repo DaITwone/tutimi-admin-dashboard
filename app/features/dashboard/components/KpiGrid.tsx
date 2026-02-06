@@ -70,8 +70,6 @@ export function KpiGrid({
     },
   ];
 
-  const [lowStockOpen, setLowStockOpen] = React.useState(false);
-
   const router = useRouter();
 
   return (
@@ -96,41 +94,30 @@ export function KpiGrid({
         </Card>
       ))}
 
-      <Popover open={lowStockOpen} onOpenChange={setLowStockOpen}>
+      <Popover>
         <PopoverTrigger asChild>
-          <Link
-            href="/inventory"
-            onMouseEnter={() => setLowStockOpen(true)}
-            onMouseLeave={() => setLowStockOpen(false)}
-            onFocus={() => setLowStockOpen(true)}
-            onBlur={() => setLowStockOpen(false)}
-            className="block"
-          >
-            <Card className="rounded-2xl">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Sắp hết hàng
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {isLoading ? (
-                  <Skeleton className="h-8 w-24 rounded-xl" />
-                ) : (
-                  <div className="text-2xl font-bold text-blue2 tracking-tight">
-                    {data?.lowStockProducts ?? 0}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </Link>
+          <Card className="rounded-2xl cursor-pointer transition hover:bg-muted/50">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Sắp hết hàng
+              </CardTitle>
+            </CardHeader>
+
+            <CardContent>
+              {isLoading ? (
+                <Skeleton className="h-8 w-24 rounded-xl" />
+              ) : (
+                <div className="text-2xl font-bold text-blue2 tracking-tight">
+                  {data?.lowStockProducts ?? 0}
+                </div>
+              )}
+            </CardContent>
+          </Card> 
         </PopoverTrigger>
 
         <PopoverContent
           align="end"
           sideOffset={8}
-          onMouseEnter={() => setLowStockOpen(true)}
-          onMouseLeave={() => setLowStockOpen(false)}
-          onClick={()=>router.push('/inventory')}
           className="w-72"
         >
           {lowStockLoading ? (
@@ -146,7 +133,11 @@ export function KpiGrid({
           ) : (
             <div className="space-y-2">
               {(lowStockProducts ?? []).map((p) => (
-                <div key={p.id} className="flex items-center gap-2 rounded-md border p-2">
+                <div
+                  key={p.id}
+                  className="flex items-center gap-2 rounded-md border p-2 hover:bg-muted cursor-pointer"
+                  onClick={() => router.push("/inventory")}
+                >
                   <div className="h-8 w-8 overflow-hidden rounded bg-muted">
                     {p.image ? (
                       <img
@@ -156,8 +147,11 @@ export function KpiGrid({
                       />
                     ) : null}
                   </div>
+
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm text-blue2 font-medium">{p.name}</div>
+                    <div className="truncate text-sm text-blue2 font-medium">
+                      {p.name}
+                    </div>
                     <div className="text-xs text-muted-foreground">
                       Tồn kho: <span className="font-medium">{p.stock_quantity}</span>
                     </div>
@@ -168,6 +162,7 @@ export function KpiGrid({
           )}
         </PopoverContent>
       </Popover>
+
     </div>
   );
 }
