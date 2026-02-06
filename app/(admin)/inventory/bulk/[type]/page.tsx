@@ -440,7 +440,7 @@ export default function BulkInventoryPage() {
                                     <div className='inline-flex items-center gap-1'>
                                         <span>Tồn hiện tại</span>
                                         <span className='flex h-4 w-4 items-center justify-center'>
-                                            {sortStock === null && <ChevronsUpDown size={14} className='opacity-0 transition-opacity group-hover:opacity-70' />}
+                                            {sortStock === null && <ChevronsUpDown size={14} className='opacity-50 transition-opacity group-hover:opacity-100' />}
                                             {sortStock === 'asc' && <ChevronUp size={14} />}
                                             {sortStock === 'desc' && <ChevronDown size={14} />}
 
@@ -782,7 +782,7 @@ function BulkMobileSkeleton({ count = 6 }: { count?: number }) {
 
 function QuantityHintPopover({
   side = 'right',
-  align = 'start',
+  align = 'end',
 }: {
   side?: 'top' | 'bottom' | 'left' | 'right';
   align?: 'start' | 'center' | 'end';
@@ -801,8 +801,8 @@ function QuantityHintPopover({
       <PopoverContent
         side={side}
         align={align}
-        sideOffset={8}
-        className="w-64 max-w-[calc(100vw-2rem)] text-sm"
+        sideOffset={12} // khoảng cách giữa trigger & ...
+        className="w-40 max-w-[calc(100vw-2rem)] text-sm"
       >
         <div className="space-y-1">
           <div className="font-bold text-blue2">
