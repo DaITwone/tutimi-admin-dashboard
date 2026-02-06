@@ -5,9 +5,23 @@ import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/app/lib/supabase';
 import { getPublicImageUrl } from '@/app/lib/storage';
 import { useProductsQuery } from '@/app/hooks/useProductsQuery';
-import { ArrowLeft, Save, Search } from 'lucide-react';
+import { ArrowLeft, ChevronDown, ChevronsUpDown, ChevronUp, Save, Search, Lightbulb } from 'lucide-react';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover";
+
 
 type BulkType = 'in' | 'out';
+
+type SortDirection = 'asc' | 'desc' | null;
 
 const REASON_PRESETS = [
     'Kho giao',
@@ -60,18 +74,13 @@ type RowState = {
 export default function BulkInventoryPage() {
     const router = useRouter();
     const params = useParams<{ type: string }>();
-
     const type = (params.type === 'in' ? 'in' : 'out') as BulkType;
     const title = type === 'in' ? 'Nhập Hàng' : 'Xuất Hàng';
-
-    // fetch list
     const [search, setSearch] = useState('');
-
     const { data: products = [], isLoading } = useProductsQuery({
         categoryId: 'all',
         search,
     });
-
     // row state per product
     const [rowById, setRowById] = useState<Record<string, RowState>>({});
 
@@ -223,6 +232,47 @@ export default function BulkInventoryPage() {
         router.push(`/inventory/print/${lastReceiptId}?type=${type}`);
     };
 
+    const [sortStock, setSortStock] = useState<SortDirection>(null);
+
+    const toggleStockSort = () => {
+        setSortStock((prev) => {
+            if (prev === null) return 'asc';
+            if (prev === 'asc') return 'desc';
+            return null;
+        });
+    };
+
+    const sortedProducts = useMemo(() => {
+        if (!sortStock) return products;
+
+        return [...products].sort((a, b) => {
+            const stockA = a.stock_quantity ?? 0;
+            const stockB = b.stock_quantity ?? 0;
+
+            return sortStock === 'asc' ? stockA - stockB : stockB - stockA;
+        })
+    }, [products, sortStock]);
+
+    const adjustInput = (productId: string, delta: number) => {
+        setRowById((prev) => {
+            const current = prev[productId] ?? {
+                inputValue: '',
+                unit: 'ML',
+                qty: 0,
+            };
+
+            const currentValue = Number(current.inputValue || 0);
+            const nextValue = Math.max(0, currentValue + delta);
+
+            return {
+                ...prev,
+                [productId]: {
+                    ...current,
+                    inputValue: nextValue === 0 ? '' : String(nextValue),
+                },
+            };
+        });
+    };
 
     return (
         <div className="mt-6 space-y-4">
@@ -334,6 +384,9 @@ export default function BulkInventoryPage() {
                         <span className="rounded-lg bg-blue-50 px-3 py-1 text-md font-semibold text-[#1b4f94]">
                             {selectedItems.length}
                         </span>
+                        <div className="sm:hidden">
+                            <QuantityHintPopover side="bottom" align="center" />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -368,6 +421,7 @@ export default function BulkInventoryPage() {
                                     onChangeValue={(val) => setRow(p.id, { inputValue: val })}
                                     onChangeUnit={(u) => setRow(p.id, { unit: u })}
                                     onClear={() => clearRow(p.id)}
+                                    adjustInput={adjustInput}
                                 />
                             );
                         })
@@ -379,8 +433,27 @@ export default function BulkInventoryPage() {
                         <thead className="border-b bg-gray-50 text-gray-600">
                             <tr>
                                 <th className="w-105 px-4 py-3 text-left">Sản phẩm</th>
-                                <th className="w-72 px-4 py-3 text-left">Tồn hiện tại</th>
-                                <th className="w-32 px-4 py-3 text-left">Số lượng</th>
+                                <th
+                                    onClick={toggleStockSort}
+                                    className='group w-72 cursor-pointer select-none px-4 py-3 text-left text-gray-600 hover:text-[#1b4f94]'
+                                >
+                                    <div className='inline-flex items-center gap-1'>
+                                        <span>Tồn hiện tại</span>
+                                        <span className='flex h-4 w-4 items-center justify-center'>
+                                            {sortStock === null && <ChevronsUpDown size={14} className='opacity-0 transition-opacity group-hover:opacity-70' />}
+                                            {sortStock === 'asc' && <ChevronUp size={14} />}
+                                            {sortStock === 'desc' && <ChevronDown size={14} />}
+
+                                        </span>
+
+                                    </div>
+                                </th>
+                                <th className='w-32 px-4 py-3 text-left'>
+                                    <div className='inline-flex items-center gap-1'>
+                                        <span>Số lượng</span>
+                                        <QuantityHintPopover />
+                                    </div>
+                                </th>
                                 <th className="w-48 px-4 py-3 text-right">
                                     {type === 'in' ? 'Nhập' : 'Xuất'} kho ({type === 'in' ? 'IN' : 'OUT'})
                                 </th>
@@ -429,7 +502,7 @@ export default function BulkInventoryPage() {
                                     </td>
                                 </tr>
                             ) : (
-                                products.map((p) => {
+                                sortedProducts.map((p) => {
                                     const stock = p.stock_quantity ?? 0;
                                     const row = rowById[p.id];
                                     const qty = row?.qty ?? 0;
@@ -479,21 +552,32 @@ export default function BulkInventoryPage() {
 
                                             {/* input measurement */}
                                             <td className="px-4">
-                                                <div className="flex w-72 gap-2">
+                                                <div className="flex w-72 items-center gap-2">
+                                                    <button
+                                                        onClick={() => adjustInput(p.id, -1)}
+                                                        className="h-9 w-9 rounded-lg border bg-gray-50 text-lg hover:bg-gray-100"
+                                                    >
+                                                        −
+                                                    </button>
+
                                                     <input
                                                         value={inputValue}
                                                         onChange={(e) => {
                                                             const val = e.target.value;
-
-                                                            // allow decimal for kg/l if needed, also allow empty
                                                             if (val !== '' && !/^\d*\.?\d*$/.test(val)) return;
-
                                                             setRow(p.id, { inputValue: val });
                                                         }}
-                                                        placeholder="0"
-                                                        inputMode="decimal"
-                                                        className="w-14 rounded-lg border border-gray-300 bg-gray-50 px-3 py-1.5 text-sm text-center outline-none focus:border-[#1b4f94] focus:bg-white"
+                                                        placeholder='0'
+                                                        inputMode='decimal'
+                                                        className="w-12 rounded-lg border border-gray-300 bg-gray-50 px-2 py-1.5 text-center text-sm outline-none focus:border-[#1b4f94]"
                                                     />
+
+                                                    <button
+                                                        onClick={() => adjustInput(p.id, 1)}
+                                                        className="h-9 w-9 rounded-lg border bg-gray-50 text-lg hover:bg-gray-100"
+                                                    >
+                                                        +
+                                                    </button>
 
                                                     <select
                                                         value={unit}
@@ -550,6 +634,7 @@ function BulkInventoryCard({
     onChangeValue,
     onChangeUnit,
     onClear,
+    adjustInput,
 }: {
     type: BulkType;
     product: any;
@@ -560,7 +645,9 @@ function BulkInventoryCard({
     onChangeValue: (v: string) => void;
     onChangeUnit: (u: InputUnit) => void;
     onClear: () => void;
+    adjustInput: (productId: string, delta: number) => void;
 }) {
+
     return (
         <div className={`rounded-2xl border bg-white p-4 shadow-sm ${qty > 0 ? 'border-blue-200 bg-blue-50/30' : 'border-gray-100'
             }`}>
@@ -609,7 +696,16 @@ function BulkInventoryCard({
             </div>
 
             {/* input */}
-            <div className="mt-3 grid grid-cols-3 gap-2">
+            <div className="mt-3 grid grid-cols-4 gap-2 items-center">
+                {/* minus */}
+                <button
+                    onClick={() => adjustInput(product.id, -1)}
+                    className="h-10 rounded-lg border bg-gray-50 text-lg font-semibold hover:bg-gray-100"
+                >
+                    −
+                </button>
+
+                {/* input */}
                 <input
                     value={inputValue}
                     onChange={(e) => {
@@ -619,13 +715,22 @@ function BulkInventoryCard({
                     }}
                     placeholder="0"
                     inputMode="decimal"
-                    className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-center outline-none focus:border-[#1b4f94] focus:bg-white"
+                    className="h-10 w-full rounded-lg border border-gray-300 bg-gray-50 text-center text-sm outline-none focus:border-[#1b4f94]"
                 />
 
+                {/* plus */}
+                <button
+                    onClick={() => adjustInput(product.id, 1)}
+                    className="h-10 rounded-lg border bg-gray-50 text-lg font-semibold hover:bg-gray-100"
+                >
+                    +
+                </button>
+
+                {/* unit */}
                 <select
                     value={unit}
                     onChange={(e) => onChangeUnit(e.target.value as InputUnit)}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-2 py-2 text-sm outline-none focus:border-[#1b4f94]"
+                    className="h-10 rounded-lg border border-gray-300 bg-white px-2 text-sm outline-none focus:border-[#1b4f94]"
                 >
                     {INPUT_UNITS.map((u) => (
                         <option key={u} value={u}>
@@ -633,14 +738,16 @@ function BulkInventoryCard({
                         </option>
                     ))}
                 </select>
-
-                <button
-                    onClick={onClear}
-                    className="w-full rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-100"
-                >
-                    Xóa
-                </button>
             </div>
+
+            {/* delete */}
+            <button
+                onClick={onClear}
+                className="mt-2 w-full rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-100"
+            >
+                Xóa
+            </button>
+
         </div>
     );
 }
@@ -671,4 +778,44 @@ function BulkMobileSkeleton({ count = 6 }: { count?: number }) {
             ))}
         </div>
     );
+}
+
+function QuantityHintPopover({
+  side = 'right',
+  align = 'start',
+}: {
+  side?: 'top' | 'bottom' | 'left' | 'right';
+  align?: 'start' | 'center' | 'end';
+}) {
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className="ml-1 inline-flex h-7 w-7 items-center justify-center rounded-full border bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-[#1b4f94]"
+        >
+          <Lightbulb size={14} />
+        </button>
+      </PopoverTrigger>
+
+      <PopoverContent
+        side={side}
+        align={align}
+        sideOffset={8}
+        className="w-64 max-w-[calc(100vw-2rem)] text-sm"
+      >
+        <div className="space-y-1">
+          <div className="font-bold text-blue2">
+            Quy đổi số lượng
+          </div>
+          <div>500 ML = <b>1</b></div>
+          <div>1 L = <b>2</b></div>
+          <div>100 G = <b>1</b></div>
+          <div>1 Kg = <b>10</b></div>
+          <div>1 Cái = <b>1</b></div>
+          <div>1 Lốc = <b>6</b></div>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
 }
