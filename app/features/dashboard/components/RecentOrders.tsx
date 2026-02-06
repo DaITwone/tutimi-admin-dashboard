@@ -52,42 +52,83 @@ export function RecentOrders({
       <CardContent>
         {isLoading ? (
           <div className="space-y-2">
-            <Skeleton className="h-8 w-full rounded-xl" />
-            <Skeleton className="h-8 w-full rounded-xl" />
-            <Skeleton className="h-8 w-full rounded-xl" />
+            <Skeleton className="h-20 w-full rounded-xl lg:hidden" />
+            <Skeleton className="h-20 w-full rounded-xl lg:hidden" />
+
+            <Skeleton className="h-8 w-full rounded-xl hidden lg:block" />
+            <Skeleton className="h-8 w-full rounded-xl hidden lg:block" />
           </div>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Mã đơn</TableHead>
-                <TableHead>Thời gian</TableHead>
-                <TableHead>Trạng thái</TableHead>
-                <TableHead className="text-right">Tổng</TableHead>
-              </TableRow>
-            </TableHeader>
+          <>
+            {/* Desktop table */}
+            <div className="hidden lg:block">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Mã đơn</TableHead>
+                    <TableHead>Thời gian</TableHead>
+                    <TableHead>Trạng thái</TableHead>
+                    <TableHead className="text-right">Tổng</TableHead>
+                  </TableRow>
+                </TableHeader>
 
-            <TableBody>
+                <TableBody>
+                  {(data ?? []).map((order) => {
+                    const meta = getStatusMeta(order.status);
+
+                    return (
+                      <TableRow key={order.id}>
+                        <TableCell className="font-bold text-blue2">
+                          #{order.id.slice(0, 8)}
+                        </TableCell>
+                        <TableCell>{formatTime(order.created_at)}</TableCell>
+                        <TableCell>
+                          <Badge variant={meta.variant} className={meta.className}>{meta.label}</Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {formatVnd(order.total_price)}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Mobile cards */}
+            <div className="space-y-3 lg:hidden">
               {(data ?? []).map((order) => {
                 const meta = getStatusMeta(order.status);
 
                 return (
-                  <TableRow key={order.id}>
-                    <TableCell className="font-bold text-blue2">
-                      #{order.id.slice(0, 8)}
-                    </TableCell>
-                    <TableCell>{formatTime(order.created_at)}</TableCell>
-                    <TableCell>
-                      <Badge variant={meta.variant} className={meta.className}>{meta.label}</Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
+                  <div
+                    key={order.id}
+                    className="rounded-xl border p-4 space-y-2"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="font-bold text-blue2">
+                        #{order.id.slice(0, 8)}
+                      </div>
+                      <Badge
+                        variant={meta.variant}
+                        className={meta.className}
+                      >
+                        {meta.label}
+                      </Badge>
+                    </div>
+
+                    <div className="text-sm text-muted-foreground">
+                      {formatTime(order.created_at)}
+                    </div>
+
+                    <div className="font-semibold text-right">
                       {formatVnd(order.total_price)}
-                    </TableCell>
-                  </TableRow>
+                    </div>
+                  </div>
                 );
               })}
-            </TableBody>
-          </Table>
+            </div>
+          </>
         )}
 
         {!isLoading && (!data || data.length === 0) && (
