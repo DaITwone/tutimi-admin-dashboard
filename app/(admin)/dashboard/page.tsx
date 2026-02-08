@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useMemo, useState } from "react";
 
 import { KpiGrid } from "@/app/features/dashboard/components/KpiGrid";
 import { RecentOrders } from "@/app/features/dashboard/components/RecentOrders";
@@ -10,6 +10,7 @@ import { useDashboardRealtimeSync } from "@/app/features/dashboard/hooks/useDash
 import { RevenueLineChartCard } from "@/app/features/dashboard/components/RevenueLineChartCard";
 import { OrdersStatusBarChartCard } from "@/app/features/dashboard/components/OrdersStatusBarChartCard";
 import { InventoryInOutChartCard } from "@/app/features/dashboard/components/InventoryInOutChartCard";
+import { DashboardRangeFilter, type DashboardRange } from "@/app/features/dashboard/components/DashboardRangeFilter";
 
 import {
   useDashboardKpisQuery,
@@ -22,9 +23,11 @@ import {
   useLowStockProductsQuery,
 } from "@/app/features/dashboard/api/useDashboardQuery";
 
-import { DashboardRangeFilter, type DashboardRange } from "@/app/features/dashboard/components/DashboardRangeFilter";
+import { DashboardAIDrawer, type Message } from "@/app/components/DashboardAIDrawer";
+import { DashboardAIButton } from "@/app/components/DashboardAIButton";
 
 type BucketType = "day" | "week" | "month" | "year";
+
 
 function getDefaultRangeByBucket(bucket: BucketType) {
   const now = new Date();
@@ -61,14 +64,14 @@ export default function DashboardPage() {
   useDashboardRealtimeSync();
 
   // allow null dates so input can be empty/cleared
-  const [range, setRange] = React.useState<DashboardRange>(() => ({
+  const [range, setRange] = useState<DashboardRange>(() => ({
     bucket: "day",
     from: null,
     to: null,
   }));
 
   // fallback theo bucket nếu user chưa chọn from/to
-  const effectiveRange = React.useMemo(() => {
+  const effectiveRange = useMemo(() => {
     const defaults = getDefaultRangeByBucket(range.bucket);
 
     return {
@@ -86,6 +89,80 @@ export default function DashboardPage() {
   const revenueChartQuery = useRevenueChartQuery(effectiveRange);
   const ordersChartQuery = useOrdersCountChartQuery(effectiveRange);
   const inventoryChartQuery = useInventoryInOutChartQuery(effectiveRange);
+
+  const [aiOpen, setAiOpen] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleQuickAction = async (id: string) => {
+    setIsLoading(true);
+
+    const typingId = crypto.randomUUID();
+
+    setMessages((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), role: "user", content: `Quick: ${id}` },
+      { id: typingId, role: "assistant", isTyping: true },
+    ]);
+
+    await new Promise((r) => setTimeout(r, 1000));
+
+    setMessages((prev) =>
+      prev.map((m) =>
+        m.id === typingId
+          ? { ...m, isTyping: false, content: "Kết quả (demo)" }
+          : m
+      )
+    );
+
+    setIsLoading(false);
+  };
+
+
+  const handleSendMessage = async (text: string) => {
+    setIsLoading(true);
+
+    const typingId = crypto.randomUUID();
+
+    // 1. user message
+    setMessages((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), role: "user", content: text },
+
+      // 2. assistant typing
+      { id: typingId, role: "assistant", isTyping: true },
+    ]);
+
+    // 3. fake delay / API call
+    await new Promise((r) => setTimeout(r, 1200));
+
+    // 4. replace typing bằng kết quả thật
+    setMessages((prev) =>
+      prev.map((m) =>
+        m.id === typingId
+          ? {
+            ...m,
+            isTyping: false,
+            content: "Kết quả (demo)",
+          }
+          : m
+      )
+    );
+
+    setIsLoading(false);
+  };
+
+
+  function handleResetChart() {
+    if (!messages.length) return;
+
+    const ok = confirm("Bạn muốn xóa toàn bộ đoạn chat?");
+
+    if (!ok) return;
+
+    setMessages([]);
+    setIsLoading(false);
+  }
 
   return (
     <div className="space-y-6">
@@ -143,6 +220,26 @@ export default function DashboardPage() {
             bucketType={effectiveRange.bucket}
           />
         </div>
+
+        {/* Floating AI Chat Widget */}
+        <div className="fixed bottom-2 right-2 z-50">
+          <div className="relative">
+            {/* Chat box (popover – bên trái button) */}
+            <DashboardAIDrawer
+              open={aiOpen}
+              onClose={() => setAiOpen(false)}
+              onQuickAction={handleQuickAction}
+              onSendMessage={handleSendMessage}
+              onReset={handleResetChart}
+              messages={messages}
+              isLoading={isLoading}
+            />
+
+            {/* Chat button */}
+            <DashboardAIButton onClick={() => setAiOpen((prev) => !prev)} />
+          </div>
+        </div>
+
 
       </div>
     </div>
