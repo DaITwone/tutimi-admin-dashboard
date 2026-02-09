@@ -135,14 +135,12 @@ export function InventoryInOutChartCard({
                     name="Nhập" 
                     fill="#1b4f94" 
                     radius={[4, 4, 0, 0]} 
-                    barSize={20}
                   />
                   <Bar 
                     dataKey="total_out" 
                     name="Xuất" 
                     fill="#ef4444" 
                     radius={[4, 4, 0, 0]} 
-                    barSize={20}
                   />
                 </BarChart>
               </ResponsiveContainer>

@@ -35,19 +35,16 @@ function getDefaultRangeByBucket(bucket: BucketType) {
 
   switch (bucket) {
     case "day":
-      from.setHours(0, 0, 0, 0); // today only
+      from.setHours(0, 0, 0, 0);
       break;
-
     case "week":
       from.setDate(from.getDate() - 7);
       from.setHours(0, 0, 0, 0);
       break;
-
     case "month":
       from.setDate(from.getDate() - 30);
       from.setHours(0, 0, 0, 0);
       break;
-
     case "year":
       from.setMonth(from.getMonth() - 12);
       from.setHours(0, 0, 0, 0);
@@ -63,17 +60,14 @@ function getDefaultRangeByBucket(bucket: BucketType) {
 export default function DashboardPage() {
   useDashboardRealtimeSync();
 
-  // allow null dates so input can be empty/cleared
   const [range, setRange] = useState<DashboardRange>(() => ({
     bucket: "day",
     from: null,
     to: null,
   }));
 
-  // fallback theo bucket nếu user chưa chọn from/to
   const effectiveRange = useMemo(() => {
     const defaults = getDefaultRangeByBucket(range.bucket);
-
     return {
       bucket: range.bucket,
       from: range.from ?? defaults.from,
@@ -94,67 +88,75 @@ export default function DashboardPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleQuickAction = async (id: string) => {
-    const action = QUICK_ACTIONS.find(a => a.id === id);
-    const displayLabel = action ? action.label : id;
-      setIsLoading(true);
-
-    const typingId = crypto.randomUUID();
-
-    setMessages((prev) => [
-      ...prev,
-      { id: crypto.randomUUID(), role: "user", content: `${displayLabel}` },
-
-      { id: typingId, role: "assistant", content: "", isTyping: true },
-    ]);
-
-    await new Promise((r) => setTimeout(r, 1000));
-
-    setMessages((prev) =>
-      prev.map((m) =>
-        m.id === typingId
-          ? { ...m, isTyping: false, content: "Kết quả (demo)" }
-          : m
-      )
-    );
-
-    setIsLoading(false);
-  };
-
-
-  const handleSendMessage = async (text: string) => {
+  // Hàm trung tâm để gọi Gemini API
+  const askGemini = async (userText: string) => {
     setIsLoading(true);
-
     const typingId = crypto.randomUUID();
 
-    // 1. user message
+    // 1. Thêm tin nhắn user và loading state vào UI
     setMessages((prev) => [
       ...prev,
-      { id: crypto.randomUUID(), role: "user", content: text },
-
-      // 2. assistant typing
+      { id: crypto.randomUUID(), role: "user", content: userText },
       { id: typingId, role: "assistant", content: "", isTyping: true },
     ]);
 
-    // 3. fake delay / API call
-    await new Promise((r) => setTimeout(r, 1200));
+    try {
+      // 2. Gom dữ liệu hiện tại làm context
+      const systemContext = {
+        kpi: kpisQuery.data,
+        lowStock: lowStockQuery.data,
+        topProducts: topProductsQuery.data,
+        currentRange: effectiveRange
+      };
 
-    // 4. replace typing bằng kết quả thật
-    setMessages((prev) =>
-      prev.map((m) =>
-        m.id === typingId
-          ? {
-            ...m,
-            isTyping: false,
-            content: "Kết quả (demo)",
-          }
-          : m
-      )
-    );
+      // 3. Chuẩn bị lịch sử chat theo định dạng của Gemini SDK
+      const history = messages.map(m => ({
+        role: m.role === "user" ? "user" : "model",
+        parts: [{ text: m.content }]
+      }));
 
-    setIsLoading(false);
+      // 4. Gọi API Route
+      const response = await fetch("/api/dashboard-ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          prompt: userText, 
+          history,
+          systemContext 
+        }),
+      });
+
+      const data = await response.json();
+
+      // 5. Cập nhật kết quả thật từ AI
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === typingId
+            ? { ...m, isTyping: false, content: data.content }
+            : m
+        )
+      );
+    } catch (error) {
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === typingId
+            ? { ...m, isTyping: false, content: "Lỗi kết nối rồi bạn ơi, check lại API nhé!" }
+            : m
+        )
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
+  const handleQuickAction = (id: string) => {
+    const action = QUICK_ACTIONS.find(a => a.id === id);
+    if (action) askGemini(action.label);
+  };
+
+  const handleSendMessage = (text: string) => {
+    askGemini(text);
+  };
 
   function handleResetChart() {
     setMessages([]);
@@ -163,14 +165,12 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* header */}
       <div>
         <p className="text-sm text-muted-foreground">Tổng quan hoạt động gần đây.</p>
       </div>
 
       <DashboardRangeFilter value={range} onChange={setRange} />
 
-      {/* KPI */}
       <KpiGrid
         data={kpisQuery.data}
         isLoading={kpisQuery.isLoading}
@@ -179,7 +179,6 @@ export default function DashboardPage() {
         lowStockLoading={lowStockQuery.isLoading}
       />
 
-      {/* Revenue chart */}
       <RevenueLineChartCard
         data={revenueChartQuery.data}
         isLoading={revenueChartQuery.isLoading}
@@ -192,7 +191,6 @@ export default function DashboardPage() {
           isLoading={ordersChartQuery.isLoading}
           bucketType={effectiveRange.bucket}
         />
-
         <InventoryInOutChartCard
           data={inventoryChartQuery.data}
           isLoading={inventoryChartQuery.isLoading}
@@ -204,9 +202,7 @@ export default function DashboardPage() {
         <div className="lg:col-span-2">
           <RecentOrders data={recentOrdersQuery.data} isLoading={recentOrdersQuery.isLoading} />
         </div>
-
         <LatestNewsPanel data={latestNewsQuery.data} isLoading={latestNewsQuery.isLoading} />
-
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -218,10 +214,8 @@ export default function DashboardPage() {
           />
         </div>
 
-        {/* Floating AI Chat Widget */}
         <div className="fixed bottom-2 right-2 z-50">
           <div className="relative">
-            {/* Chat box (popover – bên trái button) */}
             <DashboardAIDrawer
               open={aiOpen}
               onClose={() => setAiOpen(false)}
@@ -231,8 +225,6 @@ export default function DashboardPage() {
               messages={messages}
               isLoading={isLoading}
             />
-
-            {/* Chat button */}
             <DashboardAIButton onClick={() => setAiOpen((prev) => !prev)} />
           </div>
         </div>

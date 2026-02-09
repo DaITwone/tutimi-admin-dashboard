@@ -129,12 +129,12 @@ export function OrdersStatusBarChartCard({
                       return `Năm ${rawBucket}`;
                     }}
                   />
-                  <Legend verticalAlign="top" align="right" iconType="circle" />
+                  <Legend />
                   
                   {/* Giải pháp 3: Stacked bars với màu sắc đồng nhất UI */}
-                  <Bar dataKey="completed" stackId="a" name="Hoàn thành" fill="#22c55e" radius={[0, 0, 0, 0]} />
-                  <Bar dataKey="confirmed" stackId="a" name="Đã xác nhận" fill="#1b4f94" radius={[0, 0, 0, 0]} />
-                  <Bar dataKey="cancelled" stackId="a" name="Đã huỷ" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="completed" stackId="a" name="Hoàn thành" fill="#22c55e"/>
+                  <Bar dataKey="confirmed" stackId="a" name="Đã xác nhận" fill="#1b4f94"/>
+                  <Bar dataKey="cancelled" stackId="a" name="Đã huỷ" fill="#ef4444"/>
                 </BarChart>
               </ResponsiveContainer>
             ) : (

@@ -2,11 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { Send, X, RotateCcw, Bot, User, AlertCircle } from "lucide-react";
+import { Send, X, RotateCcw, Bot, User, AlertCircle, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import ReactMarkdown from 'react-markdown';
 
 export type Message = {
     id: string;
@@ -93,8 +94,13 @@ export function DashboardAIDrawer({
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-primary-foreground hover:bg-primary-foreground/20" onClick={handleResetRequest}>
                         <RotateCcw className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-primary-foreground hover:bg-primary-foreground/20" onClick={onClose}>
-                        <X className="h-4 w-4" />
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-primary-foreground hover:bg-primary-foreground/20"
+                        onClick={onClose}
+                    >
+                        <Minus className="h-4 w-4" />
                     </Button>
                 </div>
             </CardHeader>
@@ -172,7 +178,9 @@ export function DashboardAIDrawer({
                                             <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></span>
                                         </div>
                                     ) : (
-                                        m.content
+                                        <div className="prose prose-sm max-w-none dark:prose-invert">
+                                            <ReactMarkdown>{m.content}</ReactMarkdown>
+                                        </div>
                                     )}
                                 </div>
                             </div>
