@@ -34,10 +34,10 @@ export async function POST(req: Request) {
           parts: [
             {
               text: `DỮ LIỆU HỆ THỐNG (JSON):
-${JSON.stringify(systemContext)}
+              ${JSON.stringify(systemContext)}
 
-CÂU HỎI:
-${prompt}`,
+              CÂU HỎI:
+              ${prompt}`,
             },
           ],
         },
