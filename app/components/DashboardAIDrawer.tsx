@@ -1,275 +1,197 @@
-import { useEffect, useRef, useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { cn } from "@/lib/utils"
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import { Send, X, RotateCcw, Bot, User, AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 export type Message = {
-    id: string
-    role: "user" | "assistant"
-    content?: string
-    isTyping?: boolean
-    table?: {
-        columns: string[]
-        rows: (string | number)[][]
-    }
-    actions?: { id: string; label: string }[]
+    id: string;
+    role: "user" | "assistant";
+    content: string;
+    isTyping?: boolean;
 }
 
-const QUICK_ACTIONS = [
-    { id: "summary", label: "Tóm tắt dashboard" },
-    { id: "top", label: "Top bán chạy (7 ngày)" },
-    { id: "low-stock", label: "Tồn kho thấp" },
-    { id: "inout", label: "Nhập/Xuất kho (30 ngày)" },
-];
-
-type Props = {
-    open: boolean
-    onClose: () => void
-    messages: Message[]
-    onSendMessage: (text: string) => void
-    onQuickAction: (id: string) => void
+interface DashboardAIDrawerProps {
+    open: boolean;
+    onClose: () => void;
+    onQuickAction: (id: string) => void;
+    onSendMessage: (text: string) => void;
     onReset: () => void;
-    isLoading?: boolean
+    messages: Message[];
+    isLoading: boolean;
 }
+
+export const QUICK_ACTIONS = [
+    { id: "sales_report", label: "Báo cáo doanh thu hôm nay" },
+    { id: "inventory_check", label: "Sản phẩm sắp hết hàng" },
+    { id: "news_summary", label: "Tóm tắt tin tức mới" },
+];
 
 export function DashboardAIDrawer({
     open,
     onClose,
-    messages,
-    onSendMessage,
     onQuickAction,
+    onSendMessage,
     onReset,
+    messages,
     isLoading,
-}: Props) {
-    const [input, setInput] = useState("")
-    const bottomRef = useRef<HTMLDivElement>(null)
+}: DashboardAIDrawerProps) {
+    const [showConfirmReset, setShowConfirmReset] = useState(false);
+    const scrollRef = useRef<HTMLDivElement>(null);
 
+    // Tự động cuộn xuống cuối khi có tin nhắn mới
     useEffect(() => {
-        bottomRef.current?.scrollIntoView({ behavior: "smooth" })
-    }, [messages, isLoading])
+        if (scrollRef.current) {
+            const scrollContainer = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]');
+            if (scrollContainer) {
+                scrollContainer.scrollTop = scrollContainer.scrollHeight;
+            }
+        }
+    }, [messages, isLoading]);
 
-    if (!open) return null
+    if (!open) return null;
+
+    const handleResetRequest = () => {
+        if (messages.length > 0) {
+            setShowConfirmReset(true);
+        }
+    }
+
+    const handleConfirmReset = () => {
+        onReset();
+        setShowConfirmReset(false);
+    }
+
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        const text = formData.get("message")?.toString();
+        if (text?.trim()) {
+            onSendMessage(text);
+            e.currentTarget.reset();
+        }
+    };
 
     return (
-        <div className="fixed bottom-25 right-8 z-50 w-90 h-130">
-            <Card className="flex h-full flex-col rounded-2xl shadow-xl border">
-                {/* Header */}
-                <div className="flex items-center justify-between border-b px-4 py-3">
-                    <div>
-                        <div className="font-semibold text-[#1b4f94] text-sm">
-                            Tutimi AI
-                        </div>
-                        <div className="text-[11px] text-gray-500">
-                            Dashboard assistant
+        <div className="absolute bottom-20 right-5 w-100 h-137.5 rounded-2xl shadow-2xl flex flex-col animate-in slide-in-from-bottom-5">
+            {/* Header */}
+            <CardHeader className="flex flex-row items-center justify-between py-3 px-4 bg-blue2 text-primary-foreground rounded-t-xl">
+                <div className="flex items-center gap-2">
+                    <CardTitle className="text-sm font-bold">TUTIMI Assistant</CardTitle>
+                </div>
+                <div className="flex items-center gap-1">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-primary-foreground hover:bg-primary-foreground/20" onClick={handleResetRequest}>
+                        <RotateCcw className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-primary-foreground hover:bg-primary-foreground/20" onClick={onClose}>
+                        <X className="h-4 w-4" />
+                    </Button>
+                </div>
+            </CardHeader>
+
+            {/* Chat Content */}
+            <CardContent className="flex-1 p-0 overflow-hidden bg-slate-50 relative">
+                {showConfirmReset && (
+                    <div className="absolute inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/20 backdrop-blur-[2px] animate-in fade-in duration-200">
+                        <div className="bg-white rounded-2xl p-6 shadow-2xl border text-center space-y-4 max-w-[80%] animate-in zoom-in-95 duration-200">
+                            <div className="mx-auto w-12 h-12 bg-red-50 rounded-full flex items-center justify-center">
+                                <AlertCircle className="text-red-500 h-6 w-6" />
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-slate-900 text-sm">Xóa lịch sử chat?</h4>
+                                <p className="text-xs text-slate-500 mt-1">Hành động này sẽ xóa toàn bộ tin nhắn hiện tại của bạn.</p>
+                            </div>
+                            <div className="flex gap-2">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="flex-1 rounded-xl text-xs"
+                                    onClick={() => setShowConfirmReset(false)}
+                                >
+                                    Hủy
+                                </Button>
+                                <Button
+                                    size="sm"
+                                    className="flex-1 rounded-xl text-xs bg-red-500 hover:bg-red-600 text-white border-none"
+                                    onClick={handleConfirmReset}
+                                >
+                                    Xóa
+                                </Button>
+                            </div>
                         </div>
                     </div>
-                    <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={onReset}
-                        className="text-xs"
-                    >
-                        Reset
-                    </Button>
-                    <button
-                        onClick={onClose}
-                        className="text-xs rounded-md border px-2 py-1 hover:bg-gray-50"
-                    >
-                        ✕
-                    </button>
-                </div>
-
-                {/* Chat body */}
-                <ScrollArea className="flex-1 px-3 py-3">
-                    <div className="flex flex-col gap-3">
+                )}
+                <ScrollArea className="h-full p-4" ref={scrollRef}>
+                    <div className="space-y-3">
                         {messages.length === 0 && (
-                            <ChatBubble
-                                role="assistant"
-                                content="Mình có thể giúp bạn nhanh bằng các gợi ý sau:"
-                                actions={QUICK_ACTIONS}
-                                onAction={onQuickAction}
-                            />
+                            <div className="text-center space-y-3">
+                                <p className="text-sm text-muted-foreground">Chào Dat! Hôm nay tớ có thể giúp gì cho TUTIMI?</p>
+                                <div className="flex flex-wrap gap-2 justify-center">
+                                    {QUICK_ACTIONS.map((action) => (
+                                        <Button
+                                            key={action.id}
+                                            variant="outline"
+                                            size="sm"
+                                            className="text-xs text-blue2 rounded-full bg-white"
+                                            onClick={() => onQuickAction(action.id)}
+                                        >
+                                            {action.label}
+                                        </Button>
+                                    ))}
+                                </div>
+                            </div>
                         )}
 
                         {messages.map((m) => (
-                            <ChatBubble
-                                key={m.id}
-                                role={m.role}
-                                content={m.content}
-                                table={m.table}
-                                actions={m.actions}
-                                isTyping={m.isTyping}
-                                onAction={onQuickAction}
-                            />
+                            <div key={m.id} className={`flex items-start gap-2 ${m.role === "user" ? "flex-row-reverse" : ""}`}>
+                                <div className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 border overflow-hidden bg-white`}>
+                                    {m.role === "assistant" ? (
+                                        <Image src="/images/whale.png" alt="AI" width={32} height={32} />
+                                    ) : (
+                                        <Image src="/images/avt.png" alt="User" width={32} height={32} />
+                                    )}
+                                </div>
+                                <div className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm shadow-sm ${m.role === "user"
+                                    ? "bg-blue2 text-primary-foreground"
+                                    : "bg-white text-foreground border"
+                                    }`}>
+                                    {m.isTyping ? (
+                                        <div className="flex gap-1 py-1 px-2">
+                                            <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                                            <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                                            <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></span>
+                                        </div>
+                                    ) : (
+                                        m.content
+                                    )}
+                                </div>
+                            </div>
                         ))}
-
-                        {isLoading && <TypingIndicator />}
-
-                        <div ref={bottomRef} />
                     </div>
                 </ScrollArea>
+            </CardContent>
 
-                {/* Composer */}
-                <div className="border-t px-3 py-2">
-                    <div className="flex gap-2">
-                        <input
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            placeholder="Nhập tin nhắn..."
-                            disabled={isLoading}
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter" && input.trim()) {
-                                    onSendMessage(input.trim())
-                                    setInput("")
-                                }
-                            }}
-                            className="h-9 flex-1 rounded-xl border px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#1b4f94]/30"
-                        />
-                        <Button
-                            size="sm"
-                            disabled={!input.trim() || isLoading}
-                            onClick={() => {
-                                onSendMessage(input.trim())
-                                setInput("")
-                            }}
-                            className="rounded-xl bg-[#1b4f94] text-white"
-                        >
-                            Gửi
-                        </Button>
-                    </div>
-                </div>
-            </Card>
+            <Separator />
+
+            {/* Footer / Input */}
+            <CardFooter className="p-4 bg-white rounded-2xl">
+                <form onSubmit={handleSubmit} className="flex w-full items-center gap-2">
+                    <input
+                        name="message"
+                        autoComplete="off"
+                        placeholder="Mình có thể hỗ trợ gì được cho bạn..."
+                        className="flex-1 bg-slate-100 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                        disabled={isLoading}
+                    />
+                    <Button type="submit" size="icon" className="rounded-full shrink-0 bg-blue2" disabled={isLoading}>
+                        <Send className="h-4 w-4" />
+                    </Button>
+                </form>
+            </CardFooter>
         </div>
-    )
-}
-
-/* ----------- Chat parts ----------- */
-
-function ChatBubble({
-    role,
-    content,
-    isTyping,
-    table,
-    actions,
-    onAction,
-}: {
-    role: "user" | "assistant"
-    content?: string
-    isTyping?: boolean
-    table?: Message["table"]
-    actions?: Message["actions"]
-    onAction?: (id: string) => void
-}) {
-    const isUser = role === "user"
-
-    return (
-        <div
-            className={cn(
-                "flex gap-2 max-w-[90%]",
-                isUser ? "self-end flex-row-reverse" : "self-start"
-            )}
-        >
-            <Avatar role={role} />
-
-            <div
-                className={cn(
-                    "rounded-2xl px-3 py-2 text-sm",
-                    isUser
-                        ? "bg-[#1b4f94] text-white"
-                        : "bg-gray-100 text-gray-800"
-                )}
-            >
-                {isTyping ? (
-                    <TypingDots />
-                ) : (
-                    <>
-                        {content && <div>{content}</div>}
-
-                        {table && (
-                            <Card className="mt-2 p-2 rounded-xl">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            {table.columns.map((c) => (
-                                                <TableHead key={c}>{c}</TableHead>
-                                            ))}
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {table.rows.map((row, i) => (
-                                            <TableRow key={i}>
-                                                {row.map((cell, j) => (
-                                                    <TableCell key={`${i}-${j}`}>
-                                                        {cell}
-                                                    </TableCell>
-                                                ))}
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </Card>
-                        )}
-
-                        {actions && (
-                            <div className="mt-2 flex flex-wrap gap-2">
-                                {actions.map((a) => (
-                                    <Button
-                                        key={a.id}
-                                        size="sm"
-                                        variant="secondary"
-                                        className="rounded-full text-xs"
-                                        onClick={() => onAction?.(a.id)}
-                                    >
-                                        {a.label}
-                                    </Button>
-                                ))}
-                            </div>
-                        )}
-                    </>
-                )}
-            </div>
-        </div>
-    )
-}
-
-function TypingIndicator() {
-    return (
-        <div className="self-start rounded-xl bg-gray-100 px-3 py-2 text-xs text-gray-500">
-            Tutimi AI đang nhập…
-        </div>
-    )
-}
-
-function TypingDots() {
-    return (
-        <div className="flex items-center gap-1 px-1 py-1">
-            <span className="h-1.5 w-1.5 rounded-full bg-gray-500 animate-bounce [animation-delay:-0.3s]"></span>
-            <span className="h-1.5 w-1.5 rounded-full bg-gray-500 animate-bounce [animation-delay:-0.15s]"></span>
-            <span className="h-1.5 w-1.5 rounded-full bg-gray-500 animate-bounce"></span>
-        </div>
-    )
-}
-
-function Avatar({ role }: { role: 'user' | 'assistant' }) {
-    return (
-        <div
-            className={cn(
-                "h-8 w-8 rounded-full flex items-center justify-center text-xs font-semibold",
-                role === "user"
-                    ? "bg-[#1b4f94] text-white"
-                    : "bg-gray-300 text-gray-700"
-            )}
-        >
-            {role === "user" ? "U" : "AI"}
-        </div>
-    )
+    );
 }

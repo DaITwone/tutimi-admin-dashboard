@@ -23,7 +23,7 @@ import {
   useLowStockProductsQuery,
 } from "@/app/features/dashboard/api/useDashboardQuery";
 
-import { DashboardAIDrawer, type Message } from "@/app/components/DashboardAIDrawer";
+import { DashboardAIDrawer, QUICK_ACTIONS, type Message } from "@/app/components/DashboardAIDrawer";
 import { DashboardAIButton } from "@/app/components/DashboardAIButton";
 
 type BucketType = "day" | "week" | "month" | "year";
@@ -95,14 +95,17 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleQuickAction = async (id: string) => {
-    setIsLoading(true);
+    const action = QUICK_ACTIONS.find(a => a.id === id);
+    const displayLabel = action ? action.label : id;
+      setIsLoading(true);
 
     const typingId = crypto.randomUUID();
 
     setMessages((prev) => [
       ...prev,
-      { id: crypto.randomUUID(), role: "user", content: `Quick: ${id}` },
-      { id: typingId, role: "assistant", isTyping: true },
+      { id: crypto.randomUUID(), role: "user", content: `${displayLabel}` },
+
+      { id: typingId, role: "assistant", content: "", isTyping: true },
     ]);
 
     await new Promise((r) => setTimeout(r, 1000));
@@ -130,7 +133,7 @@ export default function DashboardPage() {
       { id: crypto.randomUUID(), role: "user", content: text },
 
       // 2. assistant typing
-      { id: typingId, role: "assistant", isTyping: true },
+      { id: typingId, role: "assistant", content: "", isTyping: true },
     ]);
 
     // 3. fake delay / API call
@@ -154,12 +157,6 @@ export default function DashboardPage() {
 
 
   function handleResetChart() {
-    if (!messages.length) return;
-
-    const ok = confirm("Bạn muốn xóa toàn bộ đoạn chat?");
-
-    if (!ok) return;
-
     setMessages([]);
     setIsLoading(false);
   }
@@ -239,8 +236,6 @@ export default function DashboardPage() {
             <DashboardAIButton onClick={() => setAiOpen((prev) => !prev)} />
           </div>
         </div>
-
-
       </div>
     </div>
   );

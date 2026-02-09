@@ -29,7 +29,7 @@ export function DashboardAIButton({ onClick }: { onClick: () => void }) {
                     </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                    <p>AI Assistant</p>
+                    <p>TUTIMI Assistant</p>
                 </TooltipContent>
             </Tooltip>
         </TooltipProvider>
