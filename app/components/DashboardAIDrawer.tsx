@@ -78,9 +78,9 @@ export function DashboardAIDrawer({
     };
 
     return (
-        <div className="absolute bottom-20 right-6 w-96 h-125 rounded-2xl shadow-2xl flex flex-col animate-in slide-in-from-bottom-5">
+        <div className="fixed bottom-0 right-0 z-50 w-full h-dvh md:bottom-20 md:right-6 md:w-96 md:h-125 lg:h-150 flex flex-col bg-white shadow-2xl md:rounded-2xl animate-in slide-in-from-bottom-5">
             {/* Header */}
-            <CardHeader className="flex flex-row items-center justify-between py-3 px-4 bg-blue2 text-primary-foreground rounded-t-xl">
+            <CardHeader className="flex flex-row items-center justify-between py-3 px-4 bg-blue2 text-primary-foreground md:rounded-t-xl shrink-0">
                 <div className="flex items-center gap-2">
                     <span className="relative flex h-2 w-2">
                         {/* Hiệu ứng sóng (Ping) - có thể bỏ nếu muốn nút đứng yên */}
@@ -106,37 +106,36 @@ export function DashboardAIDrawer({
             </CardHeader>
 
             {/* Chat Content */}
-            <CardContent className="flex-1 p-0 overflow-hidden bg-slate-50 relative">
-                {showConfirmReset && (
-                    <div className="absolute inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/20 backdrop-blur-[2px] animate-in fade-in duration-200">
-                        <div className="bg-white rounded-2xl p-6 shadow-2xl border text-center space-y-4 max-w-[80%] animate-in zoom-in-95 duration-200">
-                            <div className="mx-auto w-12 h-12 bg-red-50 rounded-full flex items-center justify-center">
-                                <AlertCircle className="text-red-500 h-6 w-6" />
-                            </div>
-                            <div>
-                                <h4 className="font-bold text-slate-900 text-sm">Xóa lịch sử chat?</h4>
-                                <p className="text-xs text-slate-500 mt-1">Hành động này sẽ xóa toàn bộ tin nhắn hiện tại của bạn.</p>
-                            </div>
-                            <div className="flex gap-2">
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="flex-1 rounded-xl text-xs"
-                                    onClick={() => setShowConfirmReset(false)}
-                                >
-                                    Hủy
-                                </Button>
-                                <Button
-                                    size="sm"
-                                    className="flex-1 rounded-xl text-xs bg-red-500 hover:bg-red-600 text-white border-none"
-                                    onClick={handleConfirmReset}
-                                >
-                                    Xóa
-                                </Button>
-                            </div>
+            <CardContent className="flex-1 p-0 overflow-hidden bg-slate-50 relative min-h-0">                {showConfirmReset && (
+                <div className="absolute inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/20 backdrop-blur-[2px] animate-in fade-in duration-200">
+                    <div className="bg-white rounded-2xl p-6 shadow-2xl border text-center space-y-4 max-w-[80%] animate-in zoom-in-95 duration-200">
+                        <div className="mx-auto w-12 h-12 bg-red-50 rounded-full flex items-center justify-center">
+                            <AlertCircle className="text-red-500 h-6 w-6" />
+                        </div>
+                        <div>
+                            <h4 className="font-bold text-slate-900 text-sm">Xóa lịch sử chat?</h4>
+                            <p className="text-xs text-slate-500 mt-1">Hành động này sẽ xóa toàn bộ tin nhắn hiện tại của bạn.</p>
+                        </div>
+                        <div className="flex gap-2">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="flex-1 rounded-xl text-xs"
+                                onClick={() => setShowConfirmReset(false)}
+                            >
+                                Hủy
+                            </Button>
+                            <Button
+                                size="sm"
+                                className="flex-1 rounded-xl text-xs bg-red-500 hover:bg-red-600 text-white border-none"
+                                onClick={handleConfirmReset}
+                            >
+                                Xóa
+                            </Button>
                         </div>
                     </div>
-                )}
+                </div>
+            )}
                 <ScrollArea className="h-full p-4" ref={scrollRef}>
                     <div className="space-y-3">
                         {messages.length === 0 && (
@@ -192,19 +191,18 @@ export function DashboardAIDrawer({
             <Separator />
 
             {/* Footer / Input */}
-            <CardFooter className="p-4 bg-white rounded-b-2xl">
-                <form onSubmit={handleSubmit} className="flex w-full items-center gap-2">
-                    <input
-                        name="message"
-                        autoComplete="off"
-                        placeholder="Mình có thể hỗ trợ gì được cho bạn..."
-                        className="flex-1 bg-slate-100 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-                        disabled={isLoading}
-                    />
-                    <Button type="submit" size="icon" className="rounded-full shrink-0 bg-blue2" disabled={isLoading}>
-                        <Send className="h-4 w-4" />
-                    </Button>
-                </form>
+            <CardFooter className="p-4 bg-white md:rounded-b-2xl pb-6 md:pb-4">                <form onSubmit={handleSubmit} className="flex w-full items-center gap-2">
+                <input
+                    name="message"
+                    autoComplete="off"
+                    placeholder="Mình có thể hỗ trợ gì được cho bạn..."
+                    className="flex-1 bg-slate-100 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                    disabled={isLoading}
+                />
+                <Button type="submit" size="icon" className="rounded-full shrink-0 bg-blue2" disabled={isLoading}>
+                    <Send className="h-4 w-4" />
+                </Button>
+            </form>
             </CardFooter>
         </div>
     );
