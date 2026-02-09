@@ -65,6 +65,13 @@ export function InventoryInOutChartCard({
   isLoading: boolean;
   bucketType?: BucketType;
 }) {
+  
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const chartData = React.useMemo(
     () => normalizeInventoryData(data ?? [], bucketType),
     [data, bucketType]
@@ -81,43 +88,69 @@ export function InventoryInOutChartCard({
   return (
     <Card className="rounded-2xl">
       <CardHeader>
-        <CardTitle className="text-blue1 font-bold">{getTitleByBucketType(bucketType)}</CardTitle>
+        <CardTitle className="text-blue1 font-bold">
+          {getTitleByBucketType(bucketType)}
+        </CardTitle>
         <div className="mt-1 text-sm text-muted-foreground">
-          IN: <span className="font-semibold">{totalIn}</span> • OUT:{" "}
-          <span className="font-semibold">{totalOut}</span>
+          IN: <span className="font-semibold text-blue-700">{totalIn}</span> • OUT:{" "}
+          <span className="font-semibold text-red-600">{totalOut}</span>
         </div>
       </CardHeader>
 
       <CardContent>
         {isLoading ? (
-          <Skeleton className="h-65 w-full rounded-2xl" />
+          <Skeleton className="h-80 w-full rounded-2xl" />
         ) : (
-          <div className="h-65 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} margin={{ top: 12, right: 18, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-
-                <XAxis dataKey="label" tickLine={false} axisLine={false} />
-
-                <YAxis tickLine={false} axisLine={false} />
-
-                <Tooltip
-                  labelFormatter={(_, payload) => {
-                    const rawBucket = payload?.[0]?.payload?.bucket as string | undefined;
-                    if (!rawBucket) return "";
-
-                    if (bucketType === "day") return `Ngày ${formatDateShort(rawBucket)}`;
-                    if (bucketType === "week") return `Tuần ${rawBucket.replace("-W", " ")}`;
-                    if (bucketType === "month") return `Tháng ${rawBucket}`;
-                    return `Năm ${rawBucket}`;
-                  }}
-                />
-
-                <Legend />
-                <Bar dataKey="total_in" name="Nhập" fill="#1b4f94" />
-                <Bar dataKey="total_out" name="Xuất" fill="#ef4444" />
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="h-80 w-full min-h-80">
+            {/* ✅ Chỉ render chart khi component đã mount và có dữ liệu */}
+            {mounted && chartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData} margin={{ top: 12, right: 18, left: 0, bottom: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis 
+                    dataKey="label" 
+                    tickLine={false} 
+                    axisLine={false}
+                    tick={{ fontSize: 12, fill: "#6b7280" }}
+                  />
+                  <YAxis 
+                    tickLine={false} 
+                    axisLine={false}
+                    tick={{ fontSize: 12, fill: "#6b7280" }}
+                  />
+                  <Tooltip
+                    cursor={{ fill: "rgba(0, 0, 0, 0.05)" }}
+                    labelFormatter={(_, payload) => {
+                      const rawBucket = payload?.[0]?.payload?.bucket as string | undefined;
+                      if (!rawBucket) return "";
+                      if (bucketType === "day") return `Ngày ${formatDateShort(rawBucket)}`;
+                      if (bucketType === "week") return `Tuần ${rawBucket.replace("-W", " ")}`;
+                      if (bucketType === "month") return `Tháng ${rawBucket}`;
+                      return `Năm ${rawBucket}`;
+                    }}
+                  />
+                  <Legend verticalAlign="top" align="right" iconType="rect" />
+                  <Bar 
+                    dataKey="total_in" 
+                    name="Nhập" 
+                    fill="#1b4f94" 
+                    radius={[4, 4, 0, 0]} 
+                    barSize={20}
+                  />
+                  <Bar 
+                    dataKey="total_out" 
+                    name="Xuất" 
+                    fill="#ef4444" 
+                    radius={[4, 4, 0, 0]} 
+                    barSize={20}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex h-full items-center justify-center text-muted-foreground text-sm italic">
+                {mounted ? "Không có dữ liệu tồn kho" : ""}
+              </div>
+            )}
           </div>
         )}
       </CardContent>

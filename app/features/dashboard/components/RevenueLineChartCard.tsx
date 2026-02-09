@@ -97,8 +97,8 @@ export function RevenueLineChartCard({
       <CardContent>
         {isLoading ? (
           <Skeleton className="h-65 w-full rounded-2xl" />
-        ) : (
-          <div className="h-65 w-full">
+        ) : chartData.length > 0 ? (
+          <div className="h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData} margin={{ top: 12, right: 18, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -149,6 +149,10 @@ export function RevenueLineChartCard({
                 />
               </LineChart>
             </ResponsiveContainer>
+          </div>
+        ) : (
+          <div className="h-80 w-full flex items-center justify-center text-muted-foreground">
+            Không có dữ liệu doanh thu cho khoảng thời gian này.
           </div>
         )}
       </CardContent>

@@ -42,7 +42,7 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
 
   const handleNavigate = (href: string) => {
     router.push(href);
-    closeSidebar(); // mobile drawer auto-close
+    closeSidebar();
   };
 
   return (
@@ -65,41 +65,40 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
           lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
       >
-        {/* Top: toggle + logo */}
         <div className={`relative px-4 ${collapsed ? 'py-4' : 'py-6'}`}>
-          {/* Desktop toggle collapse */}
+          {/* Desktop toggle */}
           <button
             onClick={() => setCollapsed(!collapsed)}
             className="hidden lg:block absolute right-4 top-4 text-white/70 hover:text-white transition"
-            aria-label="Toggle sidebar (desktop)"
+            aria-label="Toggle sidebar"
           >
-            <FontAwesomeIcon icon={faBars} className="h-5 w-5" />
+            <FontAwesomeIcon icon={faBars} style={{ width: '1.25rem' }} />
           </button>
 
-          {/* Mobile close button */}
+          {/* Mobile close */}
           <button
             onClick={closeSidebar}
             className="lg:hidden absolute right-4 top-4 text-white/70 hover:text-white transition"
-            aria-label="Close sidebar (mobile)"
+            aria-label="Close sidebar"
           >
-            <FontAwesomeIcon icon={faXmark} className="h-5 w-5" />
+            <FontAwesomeIcon icon={faXmark} style={{ width: '1.25rem' }} />
           </button>
 
-          {/* Logo */}
+          {/* Logo Section - Đã fix cảnh báo Image */}
           <div className="mt-5 -mb-5 flex justify-center">
-            {/* Mobile/tablet: always show */}
+            {/* Mobile/Tablet logo */}
             <div className="lg:hidden">
               <Image
                 src="/images/logo.png"
                 alt="Tutimi Coffee & Tea"
                 width={180}
-                height={180}
-                className="transition-all duration-300"
+                height={50}
+                className="w-auto h-auto" // Đảm bảo tỉ lệ luôn đúng
                 priority
               />
             </div>
 
-            {/* Desktop: show only when not collapsed */}
+            {/* Desktop logo */}
             {!collapsed && (
               <div className="hidden lg:block">
                 <Image
@@ -107,7 +106,7 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                   alt="Tutimi Coffee & Tea"
                   width={180}
                   height={180}
-                  className="transition-all duration-300"
+                  className="w-auto h-auto" // Fix lỗi width/height modified
                   priority
                 />
               </div>
@@ -116,7 +115,7 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
         </div>
 
         {/* Menu */}
-        <nav className="mt-4 space-y-3 px-2 text-base flex-1 overflow-auto-y overscroll-contain pb-6">
+        <nav className="mt-4 space-y-3 px-2 text-base flex-1 overflow-y-auto overscroll-contain pb-6">
           {menuItems.map((item) => {
             const active = pathname.startsWith(item.href);
 
@@ -129,14 +128,18 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                   ${active ? 'bg-white/15' : 'hover:bg-white/5'}
                 `}
               >
-                <FontAwesomeIcon
-                  icon={item.icon}
-                  className={`h-4 w-4 ${active ? 'text-white' : 'text-white/70'}`}
-                />
+                {/* Fix SVG width bằng style để tránh nhảy Layout */}
+                <div className="flex items-center justify-center w-5">
+                  <FontAwesomeIcon
+                    icon={item.icon}
+                    style={{ width: '1rem' }} 
+                    className={active ? 'text-white' : 'text-white/70'}
+                  />
+                </div>
 
-                {/* Hide label on desktop collapsed only */}
                 <span
                   className={`
+                    whitespace-nowrap
                     ${active ? 'text-white' : 'text-white/80'}
                     ${collapsed ? 'lg:hidden' : ''}
                   `}
