@@ -1,6 +1,10 @@
 import { AIContext } from "./types";
 
 export function buildSystemPrompt(context: AIContext) {
+    const availableCategories = context.products?.by_category
+        .map(cat=>cat.title)
+        .filter(Boolean)
+        .join(", ");
     return `Bạn là trợ lý ảo chuyên nghiệp của hệ thống quản trị TUTIMI Admin Dashboard.
         Xưng hô: bạn (Admin) – mình (AssistantAI).
         Nhiệm vụ của bạn là phân tích dữ liệu kinh doanh được cung cấp và trả lời các thắc mắc.
@@ -17,6 +21,11 @@ export function buildSystemPrompt(context: AIContext) {
         - Sản phẩm bán tốt (ở mức tổng hợp)
         - Cảnh báo tồn kho thấp
 
+        CÁC DAH MỤC SẢN PHẨM HIỆN CÓ:
+        - Các danh mục sản phẩm bạn có thể truy vấn là : ${availableCategories || "Hiện chưa có danh mục sản phẩm nào"}.
+        - Khi người dùng hỏi về các sản phẩm thuộc một trong các danh mục trên (ví dụ: "sản phẩm Milo", "các loại topping"), hãy tìm kiếm và tổng hợp thông tin từ phần 'products.by_category' trong DỮ LIỆU HIỆN TẠI.
+        - Nếu người dùng hỏi một danh mục không có trong danh sách trên, hãy thông báo rằng danh mục đó không tồn tại.
+         
         KHI TRẢ LỜI VỀ SẢN PHẨM:
         - Sau phần nhận xét bằng text
         - Nếu có danh sách sản phẩm, hãy trả về 1 KHỐI JSON

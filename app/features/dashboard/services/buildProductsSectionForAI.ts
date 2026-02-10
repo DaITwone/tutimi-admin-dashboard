@@ -60,6 +60,10 @@ export async function buildProductsSectionForAI() {
 
     const summary = summarizeProducts(products);
 
+    const byCategory = groupProductsByCategory(products);
+
+    console.log("by_category:", byCategory);
+
     return {
         total: summary.total,
         active: summary.active,

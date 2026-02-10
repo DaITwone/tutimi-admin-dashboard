@@ -24,8 +24,10 @@ export async function buildProductsAIContext(): Promise<AIProduct[]> {
     if (error) throw error;
 
     return (data ?? []).map((p) => {
-        const category = Array.isArray(p.category)
-            ? p.category[0] ?? null
+        const category = p.category;
+
+        const processedCategory = (category && typeof category === 'object' && 'id' in category && 'title' in category)
+            ? { id: category.id as string, title: category.title as string }
             : null;
         return {
             id: p.id,
@@ -37,9 +39,7 @@ export async function buildProductsAIContext(): Promise<AIProduct[]> {
             is_active: p.is_active ?? true,
             is_best_seller: p.is_best_seller,
             stats: p.stats,
-            category: category
-                ? { id: category.id, title: category.title }
-                : null,
+            category: processedCategory,
         }
     })
 }
