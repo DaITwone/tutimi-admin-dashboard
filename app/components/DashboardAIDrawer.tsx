@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import ReactMarkdown from 'react-markdown';
+import { getPublicImageUrl } from "../lib/storage";
 
 export type Message = {
     id: string;
@@ -168,33 +169,58 @@ export function DashboardAIDrawer({
                             </div>
                         )}
 
-                        {messages.map((m) => (
-                            <div key={m.id} className={`flex items-start gap-2 ${m.role === "user" ? "flex-row-reverse" : ""}`}>
-                                <div className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 border overflow-hidden bg-white`}>
-                                    {m.role === "assistant" ? (
-                                        <Image src="/images/whale.png" alt="AI" width={32} height={32} />
-                                    ) : (
-                                        <Image src="/images/avt.png" alt="User" width={32} height={32} />
-                                    )}
+                        {messages.map((m) => {
+                            const cards = extractProductCards(m.content);
+
+                            return (
+                                <div key={m.id} className={`flex items-start gap-2 ${m.role === "user" ? "flex-row-reverse" : ""}`}>
+                                    <div className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 border overflow-hidden bg-white`}>
+                                        {m.role === "assistant" ? (
+                                            <Image src="/images/whale.png" alt="AI" width={32} height={32} />
+                                        ) : (
+                                            <Image src="/images/avt.png" alt="User" width={32} height={32} />
+                                        )}
+                                    </div>
+                                    <div className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm shadow-sm ${m.role === "user"
+                                        ? "bg-blue2 text-primary-foreground"
+                                        : "bg-white text-foreground border"
+                                        }`}>
+                                        {m.isTyping ? (
+                                            <div className="flex gap-1 py-1 px-2">
+                                                <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                                                <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                                                <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></span>
+                                            </div>
+                                        ) : (
+                                            <div className="prose prose-sm max-w-none dark:prose-invert">
+                                                <ReactMarkdown>
+                                                    {m.content.replace(/<PRODUCT_CARDS_JSON>[\s\S]*?<\/PRODUCT_CARDS_JSON>/, "")}
+                                                </ReactMarkdown>
+                                                {cards && (
+                                                    <div className="grid grid-cols-2 gap-3 mt-3">
+                                                        {cards.map((p) => (
+                                                            <div key={p.id} className="border rounded-xl p-2">
+                                                                <img
+                                                                    src={p.image ?? "/images/placeholder.png"}
+                                                                    className="rounded-lg"
+                                                                />
+                                                                <div className="text-xs font-bold text-blue2 mt-1">{p.name}</div>
+                                                                <div className="text-xs font-bold text-muted-foreground">
+                                                                    {p.sale_price ?? p.price} đ
+                                                                </div>
+                                                                {p.stats && (
+                                                                    <div className="text-xs text-gray-400">{p.stats}</div>
+                                                                )}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                                <div className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm shadow-sm ${m.role === "user"
-                                    ? "bg-blue2 text-primary-foreground"
-                                    : "bg-white text-foreground border"
-                                    }`}>
-                                    {m.isTyping ? (
-                                        <div className="flex gap-1 py-1 px-2">
-                                            <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
-                                            <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
-                                            <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></span>
-                                        </div>
-                                    ) : (
-                                        <div className="prose prose-sm max-w-none dark:prose-invert">
-                                            <ReactMarkdown>{m.content}</ReactMarkdown>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        ))}
+                            )
+                        })}
                     </div>
                 </ScrollArea>
             </CardContent>
@@ -219,3 +245,27 @@ export function DashboardAIDrawer({
         </div>
     );
 }
+
+type AIProductCard = {
+    id: string;
+    name: string;
+    image: string | null;
+    price: number;
+    sale_price?: number | null;
+    stats?: string | null;
+};
+
+function extractProductCards(content: string): AIProductCard[] | null {
+    const match = content.match(
+        /<PRODUCT_CARDS_JSON>([\s\S]*?)<\/PRODUCT_CARDS_JSON>/
+    );
+
+    if (!match) return null;
+
+    try {
+        return JSON.parse(match[1]) as AIProductCard[];
+    } catch {
+        return null;
+    }
+}
+

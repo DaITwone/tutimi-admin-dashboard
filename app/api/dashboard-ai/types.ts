@@ -4,16 +4,18 @@ export type AICategory = {
   title: string;
 };
 
-// Product context (map 1:1 với table products)
+// Product context 
 export type AIProduct = {
   id: string;
   name: string;
   price: number;
   sale_price?: number | null;
-  image?: string | null;
+  image: string | null;
   stock_quantity: number;
   is_active: boolean;
   is_best_seller: boolean;
+  stats?: string | null;
+
   category?: {
     id: string;
     title: string;
@@ -75,7 +77,19 @@ export type AIContext = {
 
   products?: {
     total: number;
-    items: AIProduct[];
+    active: number;
+    inactive: number;
+
+    inactive_products: AIProduct[];
+    top_selling: AIProduct[];
+
+    by_category: {
+      id: string;
+      title: string;
+      total: number;
+      active: number;
+      items: AIProduct[];
+    }[];
   };
 
   inventory?: {

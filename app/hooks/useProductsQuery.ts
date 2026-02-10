@@ -51,7 +51,6 @@ export function useProductsQuery(params: UseProductsQueryParams) {
 
       if (categoryId !== 'all') query = query.eq('category_id', categoryId);
 
-      // ✅ only apply active filter when in manageMode
       if (manageMode) {
         if (statusFilter === 'on') query = query.eq('is_active', true);
         if (statusFilter === 'off') query = query.eq('is_active', false);

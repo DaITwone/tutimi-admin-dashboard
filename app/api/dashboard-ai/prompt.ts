@@ -17,6 +17,27 @@ export function buildSystemPrompt(context: AIContext) {
         - Sản phẩm bán tốt (ở mức tổng hợp)
         - Cảnh báo tồn kho thấp
 
+        KHI TRẢ LỜI VỀ SẢN PHẨM:
+        - Sau phần nhận xét bằng text
+        - Nếu có danh sách sản phẩm, hãy trả về 1 KHỐI JSON
+        - KHỐI JSON phải được bọc giữa 2 marker:
+
+        <PRODUCT_CARDS_JSON>
+        [
+            {
+                "id": "...",
+                "name": "...",
+                "image": "...",
+                "price": 42000,
+                "sale_price": 38000,
+                "stats": "500+ đã bán"
+            }
+        ]
+        </PRODUCT_CARDS_JSON>
+
+        - Không giải thích JSON
+        - Không viết text trong block JSON
+
         NGUYÊN TẮC SUY LUẬN:
         - CHỈ sử dụng dữ liệu có trong systemContext.
         - KHÔNG suy đoán, KHÔNG bịa số liệu.

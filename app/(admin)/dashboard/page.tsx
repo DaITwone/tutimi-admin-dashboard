@@ -102,13 +102,11 @@ export default function DashboardPage() {
 
     try {
       // 2. Gom dữ liệu hiện tại làm context
-      const systemContext = {
-        dashboard: {
-          kpi: kpisQuery.data,
-          lowStock: lowStockQuery.data,
-          topProducts: topProductsQuery.data,
-          currentRange: effectiveRange
-        }
+      const dashboardContext = {
+        kpi: kpisQuery.data,
+        lowStock: lowStockQuery.data,
+        topProducts: topProductsQuery.data,
+        currentRange: effectiveRange,
       };
 
       // 3. Chuẩn bị lịch sử chat theo định dạng của Gemini SDK
@@ -124,7 +122,7 @@ export default function DashboardPage() {
         body: JSON.stringify({
           prompt: userText,
           history,
-          systemContext
+          dashboardContext,
         }),
       });
 
@@ -132,7 +130,7 @@ export default function DashboardPage() {
 
       // 5. Cập nhật kết quả thật từ AI
       setMessages((prev) => prev.map((m) => m.id === typingId ? { ...m, isTyping: false, content: data.content } : m));
-      
+
     } catch (error) {
       setMessages((prev) => prev.map((m) => m.id === typingId ? { ...m, isTyping: false, content: "Lỗi kết nối rồi bạn ơi, check lại API nhé!" } : m));
     } finally {
