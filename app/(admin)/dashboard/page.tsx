@@ -103,10 +103,12 @@ export default function DashboardPage() {
     try {
       // 2. Gom dữ liệu hiện tại làm context
       const systemContext = {
-        kpi: kpisQuery.data,
-        lowStock: lowStockQuery.data,
-        topProducts: topProductsQuery.data,
-        currentRange: effectiveRange
+        dashboard: {
+          kpi: kpisQuery.data,
+          lowStock: lowStockQuery.data,
+          topProducts: topProductsQuery.data,
+          currentRange: effectiveRange
+        }
       };
 
       // 3. Chuẩn bị lịch sử chat theo định dạng của Gemini SDK
@@ -119,10 +121,10 @@ export default function DashboardPage() {
       const response = await fetch("/api/dashboard-ai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          prompt: userText, 
+        body: JSON.stringify({
+          prompt: userText,
           history,
-          systemContext 
+          systemContext
         }),
       });
 

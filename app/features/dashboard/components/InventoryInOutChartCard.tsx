@@ -129,18 +129,16 @@ export function InventoryInOutChartCard({
                       return `Năm ${rawBucket}`;
                     }}
                   />
-                  <Legend verticalAlign="top" align="right" iconType="rect" />
+                  <Legend iconType="rect" />
                   <Bar 
                     dataKey="total_in" 
                     name="Nhập" 
                     fill="#1b4f94" 
-                    radius={[4, 4, 0, 0]} 
                   />
                   <Bar 
                     dataKey="total_out" 
                     name="Xuất" 
                     fill="#ef4444" 
-                    radius={[4, 4, 0, 0]} 
                   />
                 </BarChart>
               </ResponsiveContainer>

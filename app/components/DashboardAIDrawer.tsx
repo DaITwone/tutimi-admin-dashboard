@@ -27,9 +27,10 @@ interface DashboardAIDrawerProps {
 }
 
 export const QUICK_ACTIONS = [
-    { id: "sales_report", label: "Báo cáo doanh thu hôm nay" },
-    { id: "inventory_check", label: "Sản phẩm sắp hết hàng" },
-    { id: "news_summary", label: "Tóm tắt tin tức mới" },
+    { id: "dashboard_overview", label: "Tổng quan tình hình hôm nay" },
+    { id: "revenue_summary", label: "Doanh thu theo thời gian" },
+    { id: "low_stock_alert", label: "Cảnh báo tồn kho thấp" },
+    { id: "top_products", label: "Sản phẩm bán tốt" },
 ];
 
 export function DashboardAIDrawer({
@@ -72,8 +73,12 @@ export function DashboardAIDrawer({
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        if (isLoading) return;
+
         const formData = new FormData(e.currentTarget); // <form>
         const text = formData.get("message")?.toString();
+        
         if (text?.trim()) {
             onSendMessage(text);
             e.currentTarget.reset();
