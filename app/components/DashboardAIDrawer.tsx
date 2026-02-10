@@ -42,7 +42,9 @@ export function DashboardAIDrawer({
     messages,
     isLoading,
 }: DashboardAIDrawerProps) {
+
     const [showConfirmReset, setShowConfirmReset] = useState(false);
+
     const scrollRef = useRef<HTMLDivElement>(null);
 
     // Tự động cuộn xuống cuối khi có tin nhắn mới
@@ -78,7 +80,7 @@ export function DashboardAIDrawer({
 
         const formData = new FormData(e.currentTarget); // <form>
         const text = formData.get("message")?.toString();
-        
+
         if (text?.trim()) {
             onSendMessage(text);
             e.currentTarget.reset();
@@ -86,7 +88,7 @@ export function DashboardAIDrawer({
     };
 
     return (
-        <div className="fixed bottom-0 right-0 z-50 w-full h-dvh md:bottom-20 md:right-6 md:w-96 md:h-125 lg:h-150 flex flex-col bg-white shadow-2xl md:rounded-2xl animate-in slide-in-from-bottom-5">
+        <div className="fixed bottom-0 right-0 z-50 w-full h-dvh md:bottom-20 md:right-8 md:w-96 md:h-125 lg:h-150 flex flex-col bg-white shadow-2xl md:rounded-2xl animate-in slide-in-from-bottom-5">
             {/* Header */}
             <CardHeader className="flex flex-row items-center justify-between py-3 px-4 bg-blue2 text-primary-foreground md:rounded-t-xl shrink-0">
                 <div className="flex items-center gap-2">
@@ -149,7 +151,7 @@ export function DashboardAIDrawer({
                     <div className="space-y-3">
                         {messages.length === 0 && (
                             <div className="text-center space-y-3">
-                                <p className="text-sm text-muted-foreground">Chào Dat! Hôm nay tớ có thể giúp gì cho TUTIMI?</p>
+                                <p className="text-sm text-muted-foreground">Xin chào👋, Hôm nay tớ có thể giúp gì cho bạn?</p>
                                 <div className="flex flex-wrap gap-2 justify-center">
                                     {QUICK_ACTIONS.map((action) => (
                                         <Button

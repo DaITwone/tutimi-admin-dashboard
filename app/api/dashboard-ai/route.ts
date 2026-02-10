@@ -2,9 +2,7 @@ import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 import { buildSystemPrompt } from "./prompt";
 
-const client = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY!,
-});
+const client = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
 export async function POST(req: Request) {
   try {
@@ -18,25 +16,22 @@ export async function POST(req: Request) {
           parts: [
             {
               text: `
-${buildSystemPrompt(systemContext)}
+              ${buildSystemPrompt(systemContext)}
 
---------------------------------
-CÂU HỎI CỦA ADMIN:
-${prompt}
-          `,
+              CÂU HỎI CỦA ADMIN: ${prompt}`,
             },
           ],
         },
       ],
     });
 
-    return NextResponse.json({
-      content: response.text,
-    });
+    return NextResponse.json({ content: response.text });
+
   } catch (err) {
     console.error("Gemini API Error:", err);
+
     return NextResponse.json(
-      { content: "Lỗi khi kết nối với Gemini AI." },
+      { content: "Lỗi khi kết nối với AssistantAI." },
       { status: 500 }
     );
   }

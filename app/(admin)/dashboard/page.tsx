@@ -131,21 +131,10 @@ export default function DashboardPage() {
       const data = await response.json();
 
       // 5. Cập nhật kết quả thật từ AI
-      setMessages((prev) =>
-        prev.map((m) =>
-          m.id === typingId
-            ? { ...m, isTyping: false, content: data.content }
-            : m
-        )
-      );
+      setMessages((prev) => prev.map((m) => m.id === typingId ? { ...m, isTyping: false, content: data.content } : m));
+      
     } catch (error) {
-      setMessages((prev) =>
-        prev.map((m) =>
-          m.id === typingId
-            ? { ...m, isTyping: false, content: "Lỗi kết nối rồi bạn ơi, check lại API nhé!" }
-            : m
-        )
-      );
+      setMessages((prev) => prev.map((m) => m.id === typingId ? { ...m, isTyping: false, content: "Lỗi kết nối rồi bạn ơi, check lại API nhé!" } : m));
     } finally {
       setIsLoading(false);
     }
