@@ -21,6 +21,7 @@ A production-grade admin dashboard for a coffee and tea e-commerce platform. The
 - Inventory system with bulk IN/OUT, unit conversion, receipt history, and A4 print-ready receipts.
 - Responsive UI with desktop tables and mobile cards, plus drawer-based editing flows.
 - Analytics dashboard with KPI cards and multiple chart types.
+- AI dashboard assistant with quick actions, chat history, and product card rendering.
 
 ## Feature Tour
 
@@ -31,6 +32,13 @@ A production-grade admin dashboard for a coffee and tea e-commerce platform. The
 - Orders status distribution and inventory in/out trends.
 - Recent orders list, top-selling products, and latest news preview.
 - Date range filter with optional manual from/to selection.
+- AI assistant for dashboard insights (revenue, low stock, top products) with Gemini-backed responses.
+
+## Dashboard AI Assistant
+
+- Floating whale button that opens a full chat drawer.
+- Quick actions for overview, revenue summary, low stock alerts, and top products.
+- Uses live dashboard + inventory context and renders product cards in chat.
 
 ## Inventory Management
 
@@ -90,6 +98,7 @@ Unit conversion rules implemented in bulk flow:
 - Supabase (Auth, Database, Storage, Realtime, RPC)
 - Recharts
 - FontAwesome, Lucide
+- Google Gemini (GenAI SDK)
 
 ## Architecture Notes
 
@@ -98,6 +107,9 @@ Unit conversion rules implemented in bulk flow:
 - Supabase Realtime channels trigger dashboard and inventory refreshes.
 - Inventory writes are implemented via Supabase RPC functions for atomicity.
 - A4 printing uses dedicated print styles in `app/globals.css`.
+- Dashboard AI is served by `app/api/dashboard-ai`, building context from products + inventory and a strict system prompt.
+- AI route flow: `app/api/dashboard-ai/route.ts` builds context via `buildProductsSectionForAI` + `buildInventorySectionForAI`, then injects into `buildSystemPrompt` for Gemini responses.
+- Inventory AI context clamps transaction history to recent 7 days to keep responses relevant and fast.
 
 ## Decisions & Trade-offs
 
@@ -161,6 +173,7 @@ Prerequisites:
    - Add:
      - NEXT_PUBLIC_SUPABASE_URL
      - NEXT_PUBLIC_SUPABASE_ANON_KEY
+     - GEMINI_API_KEY
 
 3. Run the app
    - npm run dev
@@ -200,6 +213,9 @@ public/
 
 ## Screenshots
 
+### 🤖 Dashboard AI Assistant
+![Dashboard AI Assistant](./public/screenshots/dashboard_ai.png)
+
 ### 🛒 Create Product
 ![Create Product](./public/screenshots/product.png)
 
@@ -214,6 +230,8 @@ public/
 
 ### 🎨 Theme Management
 ![Theme Management](./public/screenshots/theme.png)
+
+
 
 ## 👨‍💻 My Role
 
