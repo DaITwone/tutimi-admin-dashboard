@@ -8,3 +8,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
   return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 }
+
+
+/* 
+  React.ReactNode:
+    string - number - boolean - null - undefined - JSX.element - ReactElement
+(Anything React can render)
+*/

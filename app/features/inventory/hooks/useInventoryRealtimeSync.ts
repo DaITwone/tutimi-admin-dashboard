@@ -9,7 +9,7 @@ export function useInventoryRealtimeSync() {
   const qc = useQueryClient();
 
   useEffect(() => {
-    // ✅ Subscribe thay đổi bảng products
+    // Subscribe thay đổi bảng products
     const productsChannel = supabase
       .channel('rt-products-inventory')
       .on(
