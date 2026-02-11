@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/app/lib/supabase';
+import { queryKeys } from '@/app/lib/queryKeys';
 
 export function useInventoryRealtimeSync() {
   const qc = useQueryClient();
@@ -21,7 +22,7 @@ export function useInventoryRealtimeSync() {
       )
       .subscribe();
 
-    // ✅ Subscribe thay đổi bảng inventory_transactions
+    // Subscribe thay đổi bảng inventory_transactions
     const txChannel = supabase
       .channel('rt-inventory-transactions')
       .on(
@@ -35,7 +36,7 @@ export function useInventoryRealtimeSync() {
           const productId = (payload.new as any)?.product_id;
           if (productId) {
             qc.invalidateQueries({
-              queryKey: ['inventoryTransactions', productId],
+              queryKey: queryKeys.inventoryTransactions(productId),
             });
           }
         }

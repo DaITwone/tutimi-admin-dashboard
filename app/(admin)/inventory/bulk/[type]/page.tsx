@@ -6,12 +6,7 @@ import { supabase } from '@/app/lib/supabase';
 import { getPublicImageUrl } from '@/app/lib/storage';
 import { useProductsQuery } from '@/app/hooks/useProductsQuery';
 import { ArrowLeft, ChevronDown, ChevronsUpDown, ChevronUp, Save, Search, Lightbulb } from 'lucide-react';
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from "@/components/ui/tooltip";
+
 import {
     Popover,
     PopoverContent,

@@ -189,11 +189,7 @@ export default function InventoryPage() {
                 key={product.id}
                 index={idx}
                 product={product}
-                onOpenHistory={() =>
-                  invUI.openHistory({
-                    productId: product.id,
-                  })
-                }
+                onOpenHistory={() => invUI.openHistory({ productId: product.id, })}
               />
             ))
           )}
@@ -379,7 +375,7 @@ export default function InventoryPage() {
           </table>
         </div>
 
-        {/* ✅ Keep drawer if your /inventory/[id] page uses it; otherwise can remove */}
+        {/* Keep drawer if your /inventory/[id] page uses it; otherwise can remove */}
         <InventoryHistoryDrawer />
       </div>
     </div>
