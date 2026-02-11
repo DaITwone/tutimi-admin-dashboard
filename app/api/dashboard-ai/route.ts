@@ -2,6 +2,7 @@ import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 import { buildSystemPrompt } from "./prompt";
 import { buildProductsSectionForAI } from "@/app/features/dashboard/services/buildProductsSectionForAI";
+import { buildInventorySectionForAI } from "@/app/features/dashboard/services/buildInventorySectionForAI";
 
 
 const client = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
@@ -12,12 +13,22 @@ export async function POST(req: Request) {
 
     const productsContext = await buildProductsSectionForAI();
 
+    // normalize range nếu bạn cần query theo range
+    const range = dashboardContext?.currentRange ?? dashboardContext?.range;
+
+    const inventoryContext = await buildInventorySectionForAI({
+      lowStockLimit: 5,
+      highStockLimit: 5,
+      recentTransactionLimit: 20,
+    });
+
     const systemContext = {
-      dashboard: dashboardContext,
+      dashboard: { kpi: dashboardContext?.kpi, range },
       products: productsContext,
+      inventory: inventoryContext,
     }
 
-    // 1️⃣ System message (đặt ở đầu)
+    // System message (đặt ở đầu)
     const systemMessage = {
       role: "user" as const,
       parts: [
@@ -27,7 +38,7 @@ export async function POST(req: Request) {
       ],
     };
 
-    // 2️⃣ Ghép history + câu hỏi mới
+    // Ghép history + câu hỏi mới
     const contents = [
       systemMessage,
       ...history,

@@ -26,11 +26,12 @@ export type AIProduct = {
 export type AIInventoryTransaction = {
   product_id: string;
   product_name: string;
-  type: "IN" | "OUT" | "ADJUST";
+  type: "IN" | "OUT";
   requested_quantity: number;
   applied_quantity: number;
   delta: number;
   created_at: string;
+  receipt_id?: string | null;
 };
 
 // News
