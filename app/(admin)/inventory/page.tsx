@@ -8,7 +8,6 @@ import { useRouter } from 'next/navigation';
 import { useProductsQuery } from '@/app/hooks/useProductsQuery';
 import { InventoryHistoryDrawer, useInventoryUI } from '@/app/features/inventory';
 
-/* ===================== TYPES ===================== */
 type Category = {
   id: string;
   title: string;
@@ -16,13 +15,12 @@ type Category = {
 
 type SortKey = 'name' | 'stock';
 
-/* ===================== COMPONENT ===================== */
 export default function InventoryPage() {
   const router = useRouter();
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [activeCategory, setActiveCategory] = useState<string>('all');
+  const [categories, setCategories] = useState<Category[]>([]); // lấy danh mục sản phẩm (Cà phê, matcha, milo,...)
+  const [activeCategory, setActiveCategory] = useState<string>('all'); // category filter
   const [search, setSearch] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState(''); // giảm số lần gọi API khi người dùng đang gõ search.
   const SKELETON_ROWS = 5;
   const invUI = useInventoryUI();
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
@@ -37,10 +35,10 @@ export default function InventoryPage() {
     }
   }
 
-  /* -------------------- SEARCH DEBOUNCE -------------------- */
+  // Debounce giá trị search 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(search.trim()), 400);
-    return () => clearTimeout(t);
+    return () => clearTimeout(t); // user gõ liên tục -> timeout liên tục bị hủy -> user ngừng gõ chờ đủ 400ms -> update setDebouncedSearch (giúp giữ lại timeout cuối cùng)
   }, [search]);
 
   /* -------------------- FETCH CATEGORIES -------------------- */
@@ -93,7 +91,6 @@ export default function InventoryPage() {
     });
   }, [products, sortKey, sortOrder]);
 
-  /* ===================== UI ===================== */
   return (
     <div className="space-y-3">
       {/* Category filter */}

@@ -56,6 +56,11 @@ export function useProductsQuery(params: UseProductsQueryParams) {
         if (statusFilter === 'off') query = query.eq('is_active', false);
       }
 
+      /* 
+        - Lọc sản phẩm theo tên khi search từ khóa.
+        - ilike case-insensitive LIKE trong postgreSQL không phân biệt chữ hoa/thường.
+        - % widlcard ký tự đại diện
+      */
       if (search.trim()) query = query.ilike('name', `%${search.trim()}%`);
 
       const { data, error } = await query;
