@@ -301,6 +301,7 @@ export default function InventoryPage() {
                 rows.map((product, idx) => {
                   const stock = product.stock_quantity ?? 0;
                   const outOfStock = stock <= 0;
+                  const lowStock = stock > 0 && stock <= 5;
                   const totalText = product.measure_unit;
 
                   return (
@@ -333,15 +334,16 @@ export default function InventoryPage() {
 
                       {/* Stock */}
                       <td className="px-4 py-4 text-center">
-                        {outOfStock ? (
-                          <span className="rounded-lg bg-red-100 px-3 py-2 text-xs font-semibold text-red-700">
-                            Hết hàng
-                          </span>
-                        ) : (
-                          <span className="rounded-lg bg-blue-100 px-3 py-2 text-xs font-semibold text-blue-700">
-                            {stock}
-                          </span>
-                        )}
+                        <span
+                          className={`rounded-lg px-3 py-2 text-xs font-semibold ${outOfStock
+                            ? 'bg-red-100 text-red-700'
+                            : lowStock
+                              ? 'bg-yellow-100 text-yellow-600'
+                              : 'bg-blue-100 text-blue-700'
+                            }`}
+                        >
+                          {outOfStock ? 'Hết hàng' : stock}
+                        </span>
                       </td>
 
                       {/* Total measurement */}
@@ -390,7 +392,9 @@ function InventoryCard({
 }) {
   const stock = product.stock_quantity ?? 0;
   const outOfStock = stock <= 0;
+  const lowStock = stock > 0 && stock <= 5;
   const totalText = product.measure_unit;
+
 
   return (
     <div className="rounded-2xl bg-white p-4 shadow-sm border border-gray-100">
@@ -426,15 +430,16 @@ function InventoryCard({
             <div className="rounded-xl bg-gray-50 p-3">
               <div className="text-xs text-gray-500">Tồn kho</div>
               <div className="mt-1">
-                {outOfStock ? (
-                  <span className="inline-flex rounded-lg bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
-                    Hết hàng
-                  </span>
-                ) : (
-                  <span className="inline-flex rounded-lg bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
-                    {stock}
-                  </span>
-                )}
+                <span
+                  className={`inline-flex rounded-lg px-3 py-1 text-xs font-semibold ${outOfStock
+                      ? 'bg-red-100 text-red-700'
+                      : lowStock
+                        ? 'bg-yellow-100 text-yellow-600'
+                        : 'bg-blue-100 text-blue-700'
+                    }`}
+                >
+                  {outOfStock ? 'Hết hàng' : stock}
+                </span>
               </div>
             </div>
 
