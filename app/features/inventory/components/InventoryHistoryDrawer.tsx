@@ -132,10 +132,10 @@ export default function InventoryHistoryDrawer() {
       />
 
       {/* Drawer */}
-      <div className="fixed right-0 top-0 z-50 h-full w-100 bg-white shadow-2xl animate-slide-in">
+      <div className="fixed right-0 top-0 z-50 h-full w-full sm:w-105w-[480px] lg:w-140 bg-white shadow-2xl animate-slide-in">
         <div className="flex h-full flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between border-b px-6 pt-3 pb-3">
+          <div className="flex items-center justify-between border-b px-4 sm:px-6 pt-3 pb-3">
             <div className="min-w-0">
               <h2 className="text-lg font-semibold text-[#1c4273]">
                 LỊCH SỬ TỒN KHO
@@ -153,7 +153,7 @@ export default function InventoryHistoryDrawer() {
 
           {/* Bộ lọc */}
           <div className="px-4 pt-4">
-            <div className="flex flex-nowrap gap-2">
+            <div className="flex flex-nowrap gap-2 overflow-x-auto pb-1">
               {([
                 { value: 'ALL', label: 'Tất cả' },
                 { value: 'IN', label: 'Nhập kho' },
@@ -174,7 +174,7 @@ export default function InventoryHistoryDrawer() {
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto px-6 py-5 space-y-3">
+          <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-5 space-y-3">
             <p className="text-md text-gray-500 italic">
               {product?.name ?? '---'}
             </p>
@@ -223,7 +223,7 @@ export default function InventoryHistoryDrawer() {
 
                 return (
                   <div key={tx.id} className="rounded-xl border bg-white p-4 shadow-sm">
-                    <div className="flex items-start justify-between gap-3">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                       <div className="space-y-1">
                         <div className="flex flex-wrap items-center gap-2">
                           <span
@@ -250,7 +250,7 @@ export default function InventoryHistoryDrawer() {
                       </div>
 
                       <div
-                        className={`rounded-lg px-3 py-2 text-sm font-bold ${isZero
+                        className={`shrink-0 self-start sm:self-auto rounded-lg px-3 py-2 text-sm font-bold ${isZero
                           ? 'bg-gray-100 text-gray-600'
                           : isPlus
                             ? 'bg-green-100 text-green-700'
@@ -267,7 +267,7 @@ export default function InventoryHistoryDrawer() {
           </div>
 
           {/* Footer */}
-          <div className="border-t px-6 py-4">
+          <div className="border-t px-4 sm:px-6 py-4">
             <button
               onClick={invUI.closeHistory}
               className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50"
