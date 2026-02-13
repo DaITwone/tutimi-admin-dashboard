@@ -264,7 +264,7 @@ export default function ProductsPage() {
         {/* Top Bar */}
         <div className="mx-4 mt-4.5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           {/* LEFT */}
-          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+          <div className="flex flex-col mt-4.5 gap-2 sm:flex-row sm:flex-wrap sm:items-center">
             {/* Add */}
             <button
               onClick={() => router.push('/products/create')}
@@ -313,7 +313,7 @@ export default function ProductsPage() {
           </div>
 
           {/* RIGHT */}
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end sm:gap-3">
+          <div className="flex flex-col sm:mt-4.5 gap-2 sm:flex-row sm:items-center sm:justify-end sm:gap-3">
             {/* Search */}
             <div className="relative w-full sm:w-72">
               <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
