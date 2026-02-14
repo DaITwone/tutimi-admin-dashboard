@@ -208,7 +208,7 @@ export default function InventoryPage() {
                       {sortKey !== 'name' && (
                         <ChevronsUpDown
                           size={14}
-                          className="opacity-0 transition-opacity group-hover:opacity-50"
+                          className="opacity-50 transition-opacity group-hover:opacity-100"
                         />
                       )}
 
@@ -235,7 +235,7 @@ export default function InventoryPage() {
                       {sortKey !== 'stock' && (
                         <ChevronsUpDown
                           size={14}
-                          className="opacity-0 transition-opacity group-hover:opacity-50"
+                          className="opacity-50 transition-opacity group-hover:opacity-100"
                         />
                       )}
 
