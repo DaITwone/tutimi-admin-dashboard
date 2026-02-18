@@ -116,15 +116,6 @@ export default function UsersPage() {
   );
 }
 
-/* ===================== MOBILE COMPONENTS ===================== */
-function MobileState({ text }: { text: string }) {
-  return (
-    <div className="rounded-xl bg-white p-4 text-center text-sm text-gray-400 shadow-sm">
-      {text}
-    </div>
-  );
-}
-
 function UserCard({ user, active }: { user: User; active: boolean }) {
   const displayName = user.full_name || user.username || 'Unnamed';
   const usernameText = user.username ? `@${user.username}` : '—';
