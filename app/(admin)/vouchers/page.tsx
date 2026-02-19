@@ -1,8 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import VouchersView from './components/VouchersView';
-import { useVouchers } from './hooks/useVoucher';
+import { VouchersView, useVouchers } from '@/app/features/vouchers';
 
 export default function VouchersPage() {
   const router = useRouter();
