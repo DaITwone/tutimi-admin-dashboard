@@ -1,12 +1,13 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { supabase } from '@/app/lib/supabase';
-import { getPublicImageUrl } from '@/app/lib/storage';
-import { Search } from 'lucide-react';
-import ConfirmDeleteDrawer from '@/app/components/ConfirmDeleteDrawer';
-import EditNewsDrawer from '@/app/components/EditNewsDrawer';
+import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/app/lib/supabase";
+import { getPublicImageUrl } from "@/app/lib/storage";
+import { Search } from "lucide-react";
+import ConfirmDeleteDrawer from "@/app/components/ConfirmDeleteDrawer";
+import EditNewsDrawer from "@/app/components/EditNewsDrawer";
+import Image from "next/image";
 
 type News = {
   id: string;
@@ -23,65 +24,59 @@ export default function NewsPage() {
   const router = useRouter();
   const [news, setNews] = useState<News[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const SKELETON_ROWS = 5;
 
-  const fetchNews = async () => {
+  const fetchNews = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     let query = supabase
-      .from('news')
+      .from("news")
       .select(
-        'id, title, description, type, image, is_active, hashtag, created_at'
+        "id, title, description, type, image, is_active, hashtag, created_at",
       )
-      .order('created_at', { ascending: false });
+      .order("created_at", { ascending: false });
 
     if (search.trim()) {
-      query = query.ilike('title', `%${search.trim()}%`);
+      query = query.ilike("title", `%${search.trim()}%`);
     }
 
     const { data, error } = await query;
 
     if (error) {
-      console.error(error);
-      setError('Không thể tải danh sách tin tức');
+      setError("Không thể tải danh sách tin tức");
       setNews([]);
     } else {
       setNews(data || []);
     }
 
     setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchNews();
-  }, []);
-
-  /* -------------------- SEARCH DEBOUNCE -------------------- */
-  useEffect(() => {
-    const delay = setTimeout(fetchNews, 400);
-    return () => clearTimeout(delay);
   }, [search]);
+
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      fetchNews();
+    }, 400);
+
+    return () => clearTimeout(delay);
+  }, [fetchNews]);
 
   const confirmDelete = async () => {
     if (!deleteId) return;
 
     setDeleting(true);
 
-    const { error } = await supabase
-      .from('news')
-      .delete()
-      .eq('id', deleteId);
+    const { error } = await supabase.from("news").delete().eq("id", deleteId);
 
     setDeleting(false);
 
     if (error) {
-      alert('Xóa thất bại');
+      alert("Xóa thất bại");
       return;
     }
 
@@ -93,16 +88,14 @@ export default function NewsPage() {
   return (
     <div className="space-y-3 mt-6">
       {error && (
-        <div className="rounded-lg bg-red-50 p-4 text-red-600">
-          {error}
-        </div>
+        <div className="rounded-lg bg-red-50 p-4 text-red-600">{error}</div>
       )}
 
       <div className="overflow-hidden rounded-xl bg-white shadow-sm">
         {/* Header */}
         <div className="mx-4 mt-4.5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <button
-            onClick={() => router.push('/news/create')}
+            onClick={() => router.push("/news/create")}
             className="w-full md:w-auto rounded-lg bg-[#1b4f94] px-4 py-2 text-white hover:bg-[#1c4273]"
           >
             + Thêm tin tức
@@ -190,12 +183,16 @@ export default function NewsPage() {
                   <tr key={item.id} className="hover:bg-gray-50">
                     <td className="px-3 pt-3">
                       <div className="flex gap-3">
-                        <div className="h-36 w-28 overflow-hidden rounded">
+                        <div className="relative h-36 w-28 overflow-hidden rounded">
                           {item.image ? (
-                            <img
-                              src={getPublicImageUrl('products', item.image) ?? ''}
+                            <Image
+                              src={
+                                getPublicImageUrl("products", item.image) ?? ""
+                              }
                               alt={item.title}
-                              className="h-full w-full object-cover"
+                              fill
+                              className="object-cover"
+                              sizes="112px"
                             />
                           ) : (
                             <div className="flex h-full items-center justify-center text-xs text-gray-400">
@@ -221,10 +218,11 @@ export default function NewsPage() {
                     <td className="p-4 text-gray-500">
                       {item.type && (
                         <span
-                          className={`inline-block rounded-lg px-2 py-0.5 text-sm text-white ${item.type === 'Khuyến Mãi'
-                            ? 'bg-yellow-400'
-                            : 'bg-blue-500'
-                            }`}
+                          className={`inline-block rounded-lg px-2 py-0.5 text-sm text-white ${
+                            item.type === "Khuyến Mãi"
+                              ? "bg-yellow-400"
+                              : "bg-blue-500"
+                          }`}
                         >
                           {item.type}
                         </span>
@@ -233,16 +231,15 @@ export default function NewsPage() {
 
                     <td className="p-4">
                       <span
-                        className={`rounded-lg px-3 py-1 text-sm ${item.is_active
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-gray-200 text-gray-500'
-                          }`}
+                        className={`rounded-lg px-3 py-1 text-sm ${
+                          item.is_active
+                            ? "bg-green-100 text-green-700"
+                            : "bg-gray-200 text-gray-500"
+                        }`}
                       >
-                        {item.is_active ? 'Đang hiển thị' : 'Ẩn'}
+                        {item.is_active ? "Đang hiển thị" : "Ẩn"}
                       </span>
                     </td>
-
-
 
                     <td className="px-8 text-right">
                       <div className="flex justify-end gap-2">
@@ -311,12 +308,14 @@ function NewsCard({
     <div className="rounded-2xl bg-white p-4 shadow-sm border border-gray-100">
       <div className="flex gap-3">
         {/* IMAGE */}
-        <div className="h-24 w-20 shrink-0 overflow-hidden rounded-xl bg-gray-50">
+        <div className="relative h-24 w-20 shrink-0 overflow-hidden rounded-xl bg-gray-50">
           {item.image ? (
-            <img
-              src={getPublicImageUrl('products', item.image) ?? ''}
+            <Image
+              src={getPublicImageUrl("products", item.image) ?? ""}
               alt={item.title}
-              className="h-full w-full object-cover"
+              fill
+              className="object-cover"
+              sizes="80px"
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center text-xs text-gray-400">
@@ -340,22 +339,22 @@ function NewsCard({
           <div className="mt-2 flex flex-wrap items-center gap-2">
             {item.type ? (
               <span
-                className={`inline-flex rounded-lg px-2 py-0.5 text-xs text-white ${item.type === 'Khuyến Mãi'
-                    ? 'bg-yellow-400'
-                    : 'bg-blue-500'
-                  }`}
+                className={`inline-flex rounded-lg px-2 py-0.5 text-xs text-white ${
+                  item.type === "Khuyến Mãi" ? "bg-yellow-400" : "bg-blue-500"
+                }`}
               >
                 {item.type}
               </span>
             ) : null}
 
             <span
-              className={`inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ${item.is_active
-                  ? 'bg-green-100 text-green-700'
-                  : 'bg-gray-200 text-gray-500'
-                }`}
+              className={`inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ${
+                item.is_active
+                  ? "bg-green-100 text-green-700"
+                  : "bg-gray-200 text-gray-500"
+              }`}
             >
-              {item.is_active ? 'Đang hiển thị' : 'Ẩn'}
+              {item.is_active ? "Đang hiển thị" : "Ẩn"}
             </span>
           </div>
         </div>
