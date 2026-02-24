@@ -1,41 +1,52 @@
-'use client';
+"use client";
 
-import { useEffect, useMemo, useState } from 'react';
-import { supabase } from '@/app/lib/supabase';
-import { getPublicImageUrl } from '@/app/lib/storage';
-import { ChevronDown, ChevronsUpDown, ChevronUp, Search } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useProductsQuery } from '@/app/hooks/useProductsQuery';
-import { InventoryHistoryDrawer, useInventoryUI } from '@/app/features/inventory';
+import { useEffect, useMemo, useState } from "react";
+import { supabase } from "@/app/lib/supabase";
+import { getPublicImageUrl } from "@/app/lib/storage";
+import { ChevronDown, ChevronsUpDown, ChevronUp, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useProductsQuery } from "@/app/hooks/useProductsQuery";
+import {
+  InventoryHistoryDrawer,
+  useInventoryUI,
+} from "@/app/features/inventory";
 
 type Category = {
   id: string;
   title: string;
 };
 
-type SortKey = 'name' | 'stock';
+type SortKey = "name" | "stock";
+
+type Product = {
+  id: string;
+  name: string;
+  stock_quantity: number | null;
+  image: string | null;
+  measure_unit: string | null;
+};
 
 export default function InventoryPage() {
   const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]); // lấy danh mục sản phẩm (Cà phê, matcha, milo,...)
-  const [activeCategory, setActiveCategory] = useState<string>('all'); // category filter
-  const [search, setSearch] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState(''); // giảm số lần gọi API khi người dùng đang gõ search.
+  const [activeCategory, setActiveCategory] = useState<string>("all"); // category filter
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState(""); // giảm số lần gọi API khi người dùng đang gõ search.
   const SKELETON_ROWS = 5;
   const invUI = useInventoryUI();
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
-      setSortOrder(prev => (prev === 'asc' ? 'desc' : 'asc'));
+      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
     } else {
       setSortKey(key);
-      setSortOrder('asc');
+      setSortOrder("asc");
     }
-  }
+  };
 
-  // Debounce giá trị search 
+  // Debounce giá trị search
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(search.trim()), 400);
     return () => clearTimeout(t); // user gõ liên tục -> timeout liên tục bị hủy -> user ngừng gõ chờ đủ 400ms -> update setDebouncedSearch (giúp giữ lại timeout cuối cùng)
@@ -45,9 +56,9 @@ export default function InventoryPage() {
   useEffect(() => {
     const fetchCategories = async () => {
       const { data } = await supabase
-        .from('categories')
-        .select('id, title')
-        .order('sort_order', { ascending: true });
+        .from("categories")
+        .select("id, title")
+        .order("sort_order", { ascending: true });
 
       if (data) setCategories(data);
     };
@@ -65,29 +76,28 @@ export default function InventoryPage() {
     search: debouncedSearch,
   });
 
-  const error = productsError ? 'Không thể tải danh sách sản phẩm' : null;
+  const error = productsError ? "Không thể tải danh sách sản phẩm" : null;
 
   const rows = useMemo(() => {
     if (!sortKey) return products;
 
-    return [...products].sort((a, b) => {
-      let aValue: any;
-      let bValue: any;
+    return [...products].sort((a: Product, b: Product) => {
+      if (sortKey === "stock") {
+        const aValue = a.stock_quantity ?? 0;
+        const bValue = b.stock_quantity ?? 0;
 
-      if (sortKey === 'stock') {
-        aValue = a.stock_quantity ?? 0;
-        bValue = b.stock_quantity ?? 0;
+        if (aValue < bValue) return sortOrder === "asc" ? -1 : 1;
+        if (aValue > bValue) return sortOrder === "asc" ? 1 : -1;
+        return 0;
       }
 
-      if (sortKey === 'name') {
-        aValue = a.name?.toLowerCase() ?? '';
-        bValue = b.name?.toLowerCase() ?? '';
-      }
+      // sort by name
+      const aValue = a.name?.toLowerCase() ?? "";
+      const bValue = b.name?.toLowerCase() ?? "";
 
-      if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1; // a đứng trước b
-      if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1; // b đứng trước a
-
-      return 0; // giữ nguyên
+      if (aValue < bValue) return sortOrder === "asc" ? -1 : 1;
+      if (aValue > bValue) return sortOrder === "asc" ? 1 : -1;
+      return 0;
     });
   }, [products, sortKey, sortOrder]);
 
@@ -97,11 +107,12 @@ export default function InventoryPage() {
       <div className="sticky top-0 z-10 -mx-6 bg-gray-50 px-6">
         <div className="flex gap-2 overflow-x-auto py-2">
           <button
-            onClick={() => setActiveCategory('all')}
-            className={`whitespace-nowrap rounded-full px-4 py-2 text-sm shadow-sm ${activeCategory === 'all'
-              ? 'bg-[#1b4f94] text-white'
-              : 'bg-gray-100 text-[#1c4273]'
-              }`}
+            onClick={() => setActiveCategory("all")}
+            className={`whitespace-nowrap rounded-full px-4 py-2 text-sm shadow-sm ${
+              activeCategory === "all"
+                ? "bg-[#1b4f94] text-white"
+                : "bg-gray-100 text-[#1c4273]"
+            }`}
           >
             Tất cả
           </button>
@@ -110,10 +121,11 @@ export default function InventoryPage() {
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
-              className={`whitespace-nowrap rounded-full px-4 py-2 text-sm shadow-sm ${activeCategory === cat.id
-                ? 'bg-[#1b4f94] text-white'
-                : 'bg-gray-100 text-[#1c4273]'
-                }`}
+              className={`whitespace-nowrap rounded-full px-4 py-2 text-sm shadow-sm ${
+                activeCategory === cat.id
+                  ? "bg-[#1b4f94] text-white"
+                  : "bg-gray-100 text-[#1c4273]"
+              }`}
             >
               {cat.title}
             </button>
@@ -122,7 +134,9 @@ export default function InventoryPage() {
       </div>
 
       {/* Error */}
-      {error && <div className="rounded-lg bg-red-50 p-4 text-red-600">{error}</div>}
+      {error && (
+        <div className="rounded-lg bg-red-50 p-4 text-red-600">{error}</div>
+      )}
 
       {/* Table */}
       <div className="overflow-hidden rounded-xl bg-white shadow-sm">
@@ -131,21 +145,21 @@ export default function InventoryPage() {
           {/* LEFT (✅ giữ nguyên 3 nút) */}
           <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-row sm:flex-wrap sm:items-center">
             <button
-              onClick={() => router.push('/inventory/bulk/in')}
+              onClick={() => router.push("/inventory/bulk/in")}
               className="w-full sm:w-auto rounded-lg bg-[#1b4f94] px-4 py-2 text-white hover:bg-[#1c4273]"
             >
               Nhập Hàng
             </button>
 
             <button
-              onClick={() => router.push('/inventory/bulk/out')}
+              onClick={() => router.push("/inventory/bulk/out")}
               className="w-full sm:w-auto rounded-lg border border-gray-300 bg-white px-4 py-2 text-[#1c4273] font-semibold hover:bg-gray-50"
             >
               Xuất Hàng
             </button>
 
             <button
-              onClick={() => router.push('/inventory/history')}
+              onClick={() => router.push("/inventory/history")}
               className="col-span-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 font-semibold text-[#1c4273] hover:bg-gray-50 sm:col-span-1 sm:w-auto"
             >
               Phiếu In
@@ -186,18 +200,20 @@ export default function InventoryPage() {
                 key={product.id}
                 index={idx}
                 product={product}
-                onOpenHistory={() => invUI.openHistory({ productId: product.id, })}
+                onOpenHistory={() =>
+                  invUI.openHistory({ productId: product.id })
+                }
               />
             ))
           )}
         </div>
-        <div className='hidden md:block'>
+        <div className="hidden md:block">
           <table className="mt-2 w-full text-sm">
             <thead className="border-b bg-gray-50 text-gray-600">
               <tr>
                 <th className="w-16 pl-5 pr-2 py-3 text-center">STT</th>
                 <th
-                  onClick={() => toggleSort('name')}
+                  onClick={() => toggleSort("name")}
                   className="group cursor-pointer select-none px-4 py-3 text-left text-gray-600 hover:text-[#1b4f94]"
                 >
                   <div className="inline-flex items-center gap-1">
@@ -205,18 +221,18 @@ export default function InventoryPage() {
 
                     {/* Icon */}
                     <span className="flex h-4 w-4 items-center justify-center">
-                      {sortKey !== 'name' && (
+                      {sortKey !== "name" && (
                         <ChevronsUpDown
                           size={14}
                           className="opacity-50 transition-opacity group-hover:opacity-100"
                         />
                       )}
 
-                      {sortKey === 'name' && sortOrder === 'asc' && (
+                      {sortKey === "name" && sortOrder === "asc" && (
                         <ChevronUp size={14} />
                       )}
 
-                      {sortKey === 'name' && sortOrder === 'desc' && (
+                      {sortKey === "name" && sortOrder === "desc" && (
                         <ChevronDown size={14} />
                       )}
                     </span>
@@ -224,7 +240,7 @@ export default function InventoryPage() {
                 </th>
 
                 <th
-                  onClick={() => toggleSort('stock')}
+                  onClick={() => toggleSort("stock")}
                   className="group cursor-pointer select-none px-4 py-3 text-center text-gray-600 hover:text-[#1b4f94]"
                 >
                   <div className="inline-flex items-center justify-center gap-1">
@@ -232,25 +248,27 @@ export default function InventoryPage() {
 
                     {/* Sort icon */}
                     <span className="flex h-4 w-4 items-center justify-center">
-                      {sortKey !== 'stock' && (
+                      {sortKey !== "stock" && (
                         <ChevronsUpDown
                           size={14}
                           className="opacity-50 transition-opacity group-hover:opacity-100"
                         />
                       )}
 
-                      {sortKey === 'stock' && sortOrder === 'asc' && (
+                      {sortKey === "stock" && sortOrder === "asc" && (
                         <ChevronUp size={14} />
                       )}
 
-                      {sortKey === 'stock' && sortOrder === 'desc' && (
+                      {sortKey === "stock" && sortOrder === "desc" && (
                         <ChevronDown size={14} />
                       )}
                     </span>
                   </div>
                 </th>
 
-                <th className="w-56 px-4 py-3 text-center">Tổng định lượng/ĐVT</th>
+                <th className="w-56 px-4 py-3 text-center">
+                  Tổng định lượng/ĐVT
+                </th>
                 <th className="w-40 px-4 py-3 text-right">Thao tác</th>
               </tr>
             </thead>
@@ -307,7 +325,9 @@ export default function InventoryPage() {
                   return (
                     <tr key={product.id} className="hover:bg-gray-50">
                       {/* STT */}
-                      <td className="pl-5 pr-2 py-4 text-gray-600 text-center">{idx + 1}</td>
+                      <td className="pl-5 pr-2 py-4 text-gray-600 text-center">
+                        {idx + 1}
+                      </td>
 
                       {/* Product */}
                       <td className="px-4 py-4">
@@ -315,7 +335,12 @@ export default function InventoryPage() {
                           <div className="h-24 w-20 overflow-hidden rounded-lg bg-gray-50">
                             {product.image ? (
                               <img
-                                src={getPublicImageUrl('products', product.image) ?? ''}
+                                src={
+                                  getPublicImageUrl(
+                                    "products",
+                                    product.image,
+                                  ) ?? ""
+                                }
                                 alt={product.name}
                                 className="h-full w-full object-contain"
                               />
@@ -327,7 +352,9 @@ export default function InventoryPage() {
                           </div>
 
                           <div className="min-w-0">
-                            <p className="font-bold text-[#1c4f94] leading-snug">{product.name}</p>
+                            <p className="font-bold text-[#1c4f94] leading-snug">
+                              {product.name}
+                            </p>
                           </div>
                         </div>
                       </td>
@@ -335,14 +362,15 @@ export default function InventoryPage() {
                       {/* Stock */}
                       <td className="px-4 py-4 text-center">
                         <span
-                          className={`rounded-lg px-3 py-2 text-xs font-semibold ${outOfStock
-                            ? 'bg-red-100 text-red-700'
-                            : lowStock
-                              ? 'bg-yellow-100 text-yellow-600'
-                              : 'bg-blue-100 text-blue-700'
-                            }`}
+                          className={`rounded-lg px-3 py-2 text-xs font-semibold ${
+                            outOfStock
+                              ? "bg-red-100 text-red-700"
+                              : lowStock
+                                ? "bg-yellow-100 text-yellow-600"
+                                : "bg-blue-100 text-blue-700"
+                          }`}
                         >
-                          {outOfStock ? 'Hết hàng' : stock}
+                          {outOfStock ? "Hết hàng" : stock}
                         </span>
                       </td>
 
@@ -386,7 +414,7 @@ function InventoryCard({
   index,
   onOpenHistory,
 }: {
-  product: any;
+  product: Product;
   index: number;
   onOpenHistory: () => void;
 }) {
@@ -395,7 +423,6 @@ function InventoryCard({
   const lowStock = stock > 0 && stock <= 5;
   const totalText = product.measure_unit;
 
-
   return (
     <div className="rounded-2xl bg-white p-4 shadow-sm border border-gray-100">
       <div className="flex items-start gap-3">
@@ -403,7 +430,7 @@ function InventoryCard({
         <div className="h-24 w-20 shrink-0 overflow-hidden rounded-xl bg-gray-50">
           {product.image ? (
             <img
-              src={getPublicImageUrl('products', product.image) ?? ''}
+              src={getPublicImageUrl("products", product.image) ?? ""}
               alt={product.name}
               className="h-full w-full object-contain"
             />
@@ -431,14 +458,15 @@ function InventoryCard({
               <div className="text-xs text-gray-500">Tồn kho</div>
               <div className="mt-1">
                 <span
-                  className={`inline-flex rounded-lg px-3 py-1 text-xs font-semibold ${outOfStock
-                      ? 'bg-red-100 text-red-700'
+                  className={`inline-flex rounded-lg px-3 py-1 text-xs font-semibold ${
+                    outOfStock
+                      ? "bg-red-100 text-red-700"
                       : lowStock
-                        ? 'bg-yellow-100 text-yellow-600'
-                        : 'bg-blue-100 text-blue-700'
-                    }`}
+                        ? "bg-yellow-100 text-yellow-600"
+                        : "bg-blue-100 text-blue-700"
+                  }`}
                 >
-                  {outOfStock ? 'Hết hàng' : stock}
+                  {outOfStock ? "Hết hàng" : stock}
                 </span>
               </div>
             </div>
