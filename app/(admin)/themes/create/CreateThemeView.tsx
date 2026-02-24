@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import ThemePreview from '@/app/components/ThemePreview';
-import type { ThemeImageType } from '../hooks/useCreateTheme';
+import type { ThemeImageType } from './useCreateTheme';
 
 type CreateThemeViewProps = {
   name: string;
