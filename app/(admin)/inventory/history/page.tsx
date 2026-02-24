@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useEffect, useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { supabase } from '@/app/lib/supabase';
-import { ArrowLeft, Printer, Search } from 'lucide-react';
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/app/lib/supabase";
+import { ArrowLeft, Printer, Search } from "lucide-react";
 
 type ReceiptRow = {
   receipt_id: string;
-  type: 'IN' | 'OUT';
+  type: "IN" | "OUT";
   created_at: string;
   total_lines: number;
   total_qty: number;
@@ -19,8 +19,8 @@ export default function InventoryHistoryPage() {
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<ReceiptRow[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [search, setSearch] = useState('');
-  const [filterType, setFilterType] = useState<'all' | 'IN' | 'OUT'>('all');
+  const [search, setSearch] = useState("");
+  const [filterType, setFilterType] = useState<"all" | "IN" | "OUT">("all");
 
   useEffect(() => {
     let mounted = true;
@@ -31,17 +31,18 @@ export default function InventoryHistoryPage() {
         setError(null);
 
         const { data, error } = await supabase
-          .from('inventory_receipts')
-          .select('receipt_id, type, created_at, total_lines, total_qty, note')
-          .order('created_at', { ascending: false });
+          .from("inventory_receipts")
+          .select("receipt_id, type, created_at, total_lines, total_qty, note")
+          .order("created_at", { ascending: false });
 
         if (error) throw error;
 
         if (!mounted) return;
         setRows((data ?? []) as ReceiptRow[]);
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (!mounted) return;
-        setError(err?.message ?? 'Failed to fetch receipts');
+
+        setError((err as Error)?.message ?? "Failed to fetch receipts");
       } finally {
         if (!mounted) return;
         setLoading(false);
@@ -59,7 +60,7 @@ export default function InventoryHistoryPage() {
     const q = search.trim().toLowerCase();
 
     return rows
-      .filter((r) => (filterType === 'all' ? true : r.type === filterType))
+      .filter((r) => (filterType === "all" ? true : r.type === filterType))
       .filter((r) => {
         if (!q) return true;
         return r.receipt_id.toLowerCase().includes(q);
@@ -67,7 +68,7 @@ export default function InventoryHistoryPage() {
   }, [rows, filterType, search]);
 
   const handlePrint = (receipt: ReceiptRow) => {
-    const typeParam = receipt.type === 'OUT' ? 'out' : 'in';
+    const typeParam = receipt.type === "OUT" ? "out" : "in";
     router.push(`/inventory/print/${receipt.receipt_id}?type=${typeParam}`);
   };
 
@@ -111,24 +112,26 @@ export default function InventoryHistoryPage() {
 
           {/* Type filter */}
           <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-            {([
-              { value: 'all', label: 'Tất cả' },
-              { value: 'IN', label: 'Nhập Kho' },
-              { value: 'OUT', label: 'Xuất Kho' },
-            ] as const).map((item) => (
+            {(
+              [
+                { value: "all", label: "Tất cả" },
+                { value: "IN", label: "Nhập Kho" },
+                { value: "OUT", label: "Xuất Kho" },
+              ] as const
+            ).map((item) => (
               <button
                 key={item.value}
                 onClick={() => setFilterType(item.value)}
-                className={`rounded-full px-4 py-2 text-sm shadow-sm transition ${filterType === item.value
-                  ? 'bg-[#1b4f94] text-white'
-                  : 'bg-gray-100 text-[#1c4273] hover:bg-gray-200'
-                  }`}
+                className={`rounded-full px-4 py-2 text-sm shadow-sm transition ${
+                  filterType === item.value
+                    ? "bg-[#1b4f94] text-white"
+                    : "bg-gray-100 text-[#1c4273] hover:bg-gray-200"
+                }`}
               >
                 {item.label}
               </button>
             ))}
           </div>
-
         </div>
       </div>
 
@@ -163,10 +166,11 @@ export default function InventoryHistoryPage() {
                       </div>
 
                       <span
-                        className={`shrink-0 rounded-lg px-3 py-1 text-xs font-semibold ${r.type === 'IN'
-                            ? 'bg-blue-100 text-blue-700'
-                            : 'bg-red-100 text-red-700'
-                          }`}
+                        className={`shrink-0 rounded-lg px-3 py-1 text-xs font-semibold ${
+                          r.type === "IN"
+                            ? "bg-blue-100 text-blue-700"
+                            : "bg-red-100 text-red-700"
+                        }`}
                       >
                         {r.type}
                       </span>
@@ -198,7 +202,7 @@ export default function InventoryHistoryPage() {
 
                     {/* time */}
                     <div className="mt-3 text-xs text-gray-600">
-                      {new Date(r.created_at).toLocaleString('vi-VN')}
+                      {new Date(r.created_at).toLocaleString("vi-VN")}
                     </div>
 
                     {/* action */}
@@ -214,7 +218,7 @@ export default function InventoryHistoryPage() {
               </div>
             )}
 
-            <div className='hidden md:block'>
+            <div className="hidden md:block">
               <table className="w-full text-sm">
                 <thead className="border-b bg-gray-50 text-gray-600">
                   <tr>
@@ -246,17 +250,18 @@ export default function InventoryHistoryPage() {
 
                       <td className="px-4 py-4">
                         <span
-                          className={`rounded-lg px-3 py-1 text-xs font-semibold ${r.type === 'IN'
-                            ? 'bg-blue-100 text-blue-700'
-                            : 'bg-red-100 text-red-700'
-                            }`}
+                          className={`rounded-lg px-3 py-1 text-xs font-semibold ${
+                            r.type === "IN"
+                              ? "bg-blue-100 text-blue-700"
+                              : "bg-red-100 text-red-700"
+                          }`}
                         >
                           {r.type}
                         </span>
                       </td>
 
                       <td className="px-4 py-4 text-gray-700">
-                        {new Date(r.created_at).toLocaleString('vi-VN')}
+                        {new Date(r.created_at).toLocaleString("vi-VN")}
                       </td>
 
                       <td className="px-4 py-4 text-right font-semibold text-gray-900">
