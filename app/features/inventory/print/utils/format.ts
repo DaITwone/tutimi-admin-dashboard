@@ -2,7 +2,7 @@ import type { TxRow } from "@/app/features/inventory/print/types";
 
 export function formatDateVN(dateStr: string) {
   const date = new Date(dateStr);
-  return `Ngay ${date.getDate()} thang ${date.getMonth() + 1} nam ${date.getFullYear()}`;
+  return `Ngày ${date.getDate()} tháng ${date.getMonth() + 1} năm ${date.getFullYear()}`;
 }
 
 export function getReceiptTitle(type: "in" | "out") {
