@@ -97,7 +97,7 @@ export function DashboardRangeFilter({
               onChange={(e) => {
                 const raw = e.target.value;
 
-                // ✅ user clears input
+                // user clears input
                 if (!raw) {
                   onChange({ ...value, from: null });
                   return;
@@ -122,7 +122,7 @@ export function DashboardRangeFilter({
               onChange={(e) => {
                 const raw = e.target.value;
 
-                // ✅ user clears input
+                // user clears input
                 if (!raw) {
                   onChange({ ...value, to: null });
                   return;
