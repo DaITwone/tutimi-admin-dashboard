@@ -2,13 +2,13 @@
 
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)
 ![React](https://img.shields.io/badge/React-19-61dafb?style=for-the-badge&logo=react)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178c6?style=for-the-badge&logo=typescript)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.0-06b6d4?style=for-the-badge&logo=tailwind-css)
-![Supabase](https://img.shields.io/badge/Supabase-Database-3fcf8e?style=for-the-badge&logo=supabase)
-![TanStack Query](https://img.shields.io/badge/TanStack_Query-FF4154?style=for-the-badge&logo=tanstackquery)
-![Zustand](https://img.shields.io/badge/Zustand-000000?style=for-the-badge&logo=zustand)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?style=for-the-badge&logo=typescript)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-06b6d4?style=for-the-badge&logo=tailwind-css)
+![Supabase](https://img.shields.io/badge/Supabase-Backend-3fcf8e?style=for-the-badge&logo=supabase)
+![TanStack Query](https://img.shields.io/badge/TanStack_Query-5-FF4154?style=for-the-badge&logo=tanstackquery)
+![Vitest](https://img.shields.io/badge/Vitest-Tested-6E9F18?style=for-the-badge&logo=vitest)
 
-A production-grade admin dashboard for a coffee and tea e-commerce platform. The goal is to help admins run daily operations with speed and accuracy: manage products, control inventory, publish news and promotions, configure themes, and monitor sales and orders.
+Production-grade admin dashboard for coffee and tea e-commerce platform. Built to help operators manage products, inventory, promotions, branding, and business monitoring from one unified interface.
 
 # [LINK DEMO🔗](https://tutimi-admin-dashboard.vercel.app/)
 
@@ -16,76 +16,232 @@ A production-grade admin dashboard for a coffee and tea e-commerce platform. The
 
 ## ✨ Highlights
 
-- Full admin workflow across products, inventory, vouchers, news, themes, and users.
-- Realtime data sync with Supabase and TanStack Query cache invalidation.
-- Inventory system with bulk IN/OUT, unit conversion, receipt history, and A4 print-ready receipts.
-- Responsive UI with desktop tables and mobile cards, plus drawer-based editing flows.
-- Analytics dashboard with KPI cards and multiple chart types.
-- AI dashboard assistant with quick actions, chat history, and product card rendering.
+- End-to-end admin workflows across dashboard, products, inventory, vouchers, news, themes, and users.
+- Realtime sync strategy using Supabase channels + TanStack Query invalidation.
+- Inventory operations optimized for throughput: bulk IN/OUT, unit conversion, receipt history, and A4 print flows.
+- Responsive operational UX: desktop data tables, mobile cards, drawer-based edit actions.
+- AI dashboard assistant with quick actions, context-aware responses, and product card rendering.
+- Feature-first code organization with tested hooks/services/components for long-term maintainability.
 
-## Feature Tour
+## 🧠 Architecture Overview
 
-## Dashboard and Analytics
+### High-level architecture
 
-- KPI cards for total orders, revenue, confirmed orders, and low-stock count.
-- Revenue line chart with bucketed ranges (day, week, month, year).
-- Orders status distribution and inventory in/out trends.
-- Recent orders list, top-selling products, and latest news preview.
-- Date range filter with optional manual from/to selection.
-- AI assistant for dashboard insights (revenue, low stock, top products) with Gemini-backed responses.
+```mermaid
 
-## Dashboard AI Assistant
+flowchart LR
 
-- Floating whale button that opens a full chat drawer.
-- Quick actions for overview, revenue summary, low stock alerts, and top products.
-- Uses live dashboard + inventory context and renders product cards in chat.
+  %% ===== FRONTEND =====
+  subgraph Frontend [Admin Client - Next.js App Router]
+    UI[Admin UI<br/>Route Shells]
+    FE[Feature Layer<br/>app/features/*]
+    CACHE[TanStack Query<br/>Client Cache]
+  end
 
-## Inventory Management
+  %% ===== BACKEND =====
+  subgraph Backend [Application & Data Layer]
+    API[API Route<br/>/api/dashboard-ai]
+    SB[Supabase JS Client]
+  end
 
-- Inventory list with category filters, sorting, and search.
-- Low stock state and per-product inventory history drawer.
-- Bulk IN and OUT workflows with unit conversion rules.
-- Receipt history table with search, filters, and reprint actions.
-- Print-ready A4 receipts with company header and signatures.
+  %% ===== DATABASE =====
+  subgraph Database [Supabase Services]
+    DB[(Postgres)]
+    ST[(Storage)]
+    RT[(Realtime Channels)]
+  end
 
-Unit conversion rules implemented in bulk flow:
-- 500 ml -> 1
-- 1 L -> 2
-- 100 g -> 1
-- 1 kg -> 10
-- 1 item -> 1
-- 1 pack -> 6
+  %% ===== EXTERNAL AI =====
+  subgraph External [External Service]
+    GEMINI[Gemini API]
+  end
 
-## Product Management
+  %% ===== FLOWS =====
+  UI --> FE
+  FE --> CACHE
+  CACHE --> SB
+  SB --> DB
+  SB --> ST
+  SB --> RT
+  RT --> CACHE
+
+  FE --> API
+  API --> GEMINI
+
+classDef frontend fill:#e3f2fd,stroke:#1e88e5;
+classDef backend fill:#ede7f6,stroke:#5e35b1;
+classDef database fill:#e8f5e9,stroke:#43a047;
+classDef external fill:#fff3e0,stroke:#fb8c00;
+
+class UI,FE,CACHE frontend;
+class API,SB backend;
+class DB,ST,RT database;
+class GEMINI external;
+style Frontend fill:transparent,stroke-width:0
+style Backend fill:transparent,stroke-width:0
+style Database fill:transparent,stroke-width:0
+style External fill:transparent,stroke-width:0
+```
+
+### Layer responsibilities
+
+- `app/(admin)/*`: route shells and page composition.
+- `app/features/*`: domain logic (services, hooks, components, types).
+- `app/components/*`: shared cross-feature UI elements (drawers, previews, layout).
+- `app/lib/*`: infrastructure utilities (Supabase client, storage helpers, formatters).
+- `app/api/dashboard-ai/*`: AI orchestration and prompt/context assembly.
+
+### Data flow: inventory bulk write path
+
+```mermaid
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "actorBorder": "#1e88e5",
+    "actorBkg": "#e3f2fd",
+    "actorTextColor": "#000000",
+    "signalColor": "#555"
+  }
+}}%%
+sequenceDiagram
+  participant UI as Bulk IN/OUT UI
+  participant SB as Supabase JS
+  participant RPC as create_inventory_in/out
+  participant DB as products + inventory_transactions
+
+  UI->>UI: convert input unit -> quantity
+  UI->>SB: rpc(create_inventory_in/out)
+  SB->>RPC: execute atomic mutation
+  RPC->>DB: update stock + insert transaction
+  DB-->>SB: success/fail
+  SB-->>UI: per-item result
+  UI->>UI: show receipt summary + print option
+```
+
+## 🧭 Feature Tour
+
+### Dashboard and Analytics
+
+- KPI cards for revenue, orders, and low-stock status.
+- Revenue line chart by bucket (day, week, month, year).
+- Orders status and inventory IN/OUT trend charts.
+- Recent orders, top-selling products, and latest news preview.
+- Flexible range filter with manual from/to override.
+
+### Dashboard AI Assistant
+
+- Floating button opens full chat drawer.
+- Quick actions: overview, revenue summary, low-stock alerts, top products.
+- API route: `app/api/dashboard-ai/route.ts`.
+- Context builders: `buildProductsSectionForAI` + `buildInventorySectionForAI`.
+- Structured response capability with product-card JSON block.
+
+### Inventory Management
+
+- Inventory list with category filter, search, sorting, and history drawer.
+- Bulk IN/OUT with reason presets and custom reason.
+- Validation guard for OUT operation (cannot exceed current stock).
+- Receipt lifecycle: generate -> list history -> reprint -> print-ready A4 view.
+
+Unit conversion rules in bulk flow:
+- `500 ml -> 1`
+- `1 L -> 2`
+- `100 g -> 1`
+- `1 kg -> 10`
+- `1 item -> 1`
+- `1 pack -> 6`
+
+### Product Management
 
 - Create, edit, delete products.
-- Manage mode with bulk ON/OFF for visibility.
-- Image upload or image link input.
-- Live product preview for the client app UI.
+- Manage mode with bulk ON/OFF visibility updates.
+- Image upload or image-link input.
+- Live product preview matching client-facing style.
 
-## News and Promotions
+### News and Promotions
 
-- CRUD for news items with type (News or Promotion), tags, and active status.
-- Image upload or image link input.
-- Live news preview card that mirrors the client app layout.
+- CRUD for news entries with type, active status, and media input.
+- Live preview aligned with client card layout.
 
-## Vouchers
+### Vouchers
 
-- Create, edit, delete vouchers.
-- Percent or fixed discounts, minimum order value, and per-user usage limit.
-- Option to restrict vouchers to new users only.
-- Live voucher preview card.
+- CRUD with fixed/percent discount type.
+- Validation fields: minimum order, max usage per user, new-user targeting.
+- Live voucher preview.
 
-## Themes and Branding
+### Themes and Branding
 
-- Switch active app themes.
-- Manage login branding (background and logo).
-- Configure banner sets by theme key.
+- Activate app themes and login branding.
+- Banner switching by theme key.
+- Dedicated create flow for new themes/assets.
 
-## Users
+### Users
 
-- User list from profiles, excluding admins.
-- Realtime updates via Supabase channel subscription.
+- Admin user management from `profiles` (excluding admin accounts).
+- Realtime refresh through Supabase subscription.
+
+## ⚠️ Error Handling Strategy
+
+- Explicit `loading/error` UI states + debounced search.
+- Bulk inventory supports per-item failure visibility.
+- Query/RPC errors surfaced with safe fallbacks.
+- AI route wrapped in `try/catch` to prevent crash cascades.
+- Destructive actions require confirmation.
+- Planned: centralized error boundary + structured logging (e.g., Sentry).
+
+## 🛡️ Security Considerations
+
+- Supabase Auth + admin role gate.
+- RLS enforced on business tables (DB-level protection)
+- Inventory RPC restricted to admin policies.
+- `GEMINI_API_KEY` stored server-side (API route only).
+- Planned: rate limiting + audit logging for destructive actions.
+
+## ⚡ Performance & Scalability Notes
+
+- The dashboard leverages TanStack Query caching with targeted invalidation triggered by Supabase Realtime events.  
+- Search inputs are debounced to reduce unnecessary refetches, and dashboard workloads use aggregated RPC endpoints with bounded reads (top N / recent N) for predictable performance.
+- Currently, most admin lists use full-fetch for simplicity and small-to-medium datasets.  
+- For larger datasets, the architecture can evolve toward server-side pagination, indexed filtering, and table virtualization where needed.
+
+## Technical Decisions and Trade-offs
+
+- **Supabase as unified backend (Auth + DB + Storage + Realtime + RPC)**
+  - Why: accelerate product delivery with fewer moving parts.
+  - Trade-off: tighter coupling to Supabase APIs and schema evolution.
+
+- **TanStack Query + event-driven invalidation**
+  - Why: consistent server-state model with predictable cache behavior.
+  - Trade-off: small eventual-consistency window between event and refetch.
+
+- **RPC functions for inventory write paths**
+  - Why: atomic stock updates and clearer audit trail.
+  - Trade-off: additional backend SQL/RPC maintenance overhead.
+
+- **Feature-first architecture (`app/features/*`)**
+  - Why: scalable ownership boundaries and easier onboarding.
+  - Trade-off: deeper folder structure compared to flat page-based layout.
+
+- **Drawer-based operational UI pattern**
+  - Why: faster edit/delete flows on both desktop and tablet/mobile devices.
+  - Trade-off: increased local UI state complexity.
+
+## 🧪 Engineering Quality & Testing 
+
+- **35 test files** in repository (Vitest + Testing Library).
+- Coverage prorities búiness-critical paths:
+  - Dashboard query/services and AI context builders
+  - Inventory bulk logic and unit conversion rules
+  - Print receipt flow and reusable formatting utils
+  - Core drawer and confirmation patterns.
+- Shared utilities (query keys, storage, formatters) tested independently.
+- Clear separation between route shells, domain services, and UI components to enable isolated testing.
+
+## Business Impact (Product Perspective)
+
+- Reduced manual effort for stock operations via bulk workflows and receipt automation.
+- Improved data reliability using RPC-based inventory mutations and realtime sync.
+- Faster operational decision-making through consolidated dashboard analytics + AI assistant.
 
 ## 🛠️ Tech Stack
 
@@ -99,59 +255,40 @@ Unit conversion rules implemented in bulk flow:
 - Recharts
 - FontAwesome, Lucide
 - Google Gemini (GenAI SDK)
+- Vitest + Testing Library.
 
-## Architecture Notes
-
-- Feature-based structure under `app/features/*` for dashboard and inventory domains.
-- React Query handles server state, with targeted cache invalidation and stale time tuning.
-- Supabase Realtime channels trigger dashboard and inventory refreshes.
-- Inventory writes are implemented via Supabase RPC functions for atomicity.
-- A4 printing uses dedicated print styles in `app/globals.css`.
-- Dashboard AI is served by `app/api/dashboard-ai`, building context from products + inventory and a strict system prompt.
-- AI route flow: `app/api/dashboard-ai/route.ts` builds context via `buildProductsSectionForAI` + `buildInventorySectionForAI`, then injects into `buildSystemPrompt` for Gemini responses.
-- Inventory AI context clamps transaction history to recent 7 days to keep responses relevant and fast.
-
-## Decisions & Trade-offs
-
-- **Supabase for Auth + Data + Realtime**: Chosen to move fast and keep backend ops minimal. The trade-off is tighter coupling to Supabase APIs and RLS rules, but the impact is quicker delivery of production-like features (auth, storage, realtime) without building a separate backend.
-- **React Query + Realtime invalidation instead of custom WebSocket store**: Keeps cache and UI consistent with a small mental model. The trade-off is eventual consistency windows between events and refetch, but the impact is simpler correctness across multiple lists and charts.
-- **RPC functions for inventory writes**: Inventory updates are atomic and audited. The trade-off is added database-side logic to maintain, but the impact is fewer stock inconsistencies and clearer transaction history.
-- **Bulk inventory with unit conversion in UI**: Optimizes for admin speed. The trade-off is more client logic and validation, but the impact is faster stock intake and fewer manual mistakes during warehouse operations.
-- **Drawer-based editing and mobile-first cards**: Improves throughput on small screens. The trade-off is more UI state to manage, but the impact is a smoother workflow for on-site staff using tablets or phones.
-- **Feature-based folder structure**: Easier to scale as features grow. The trade-off is more folder depth, but the impact is clearer ownership boundaries and faster onboarding.
-
-### 📈 Impact summary:
-- Reduced manual steps for inventory operations with bulk IN/OUT and receipt printing.
-- Higher data consistency via RPC-based stock updates and realtime refresh.
-- Faster admin workflows with unified CRUD patterns and preview-driven UI.
 ## Data Model Expectations (Supabase)
 
-Tables used by the app:
-- profiles
-- products
-- categories
-- orders
-- order_items
-- vouchers
-- news
-- app_themes
-- app_brandings
-- banners
-- app_banner_settings
-- inventory_transactions
+Tables:
 
-Views used by the app:
-- inventory_receipts
+- `profiles`
+- `products`
+- `categories`
+- `orders`
+- `order_items`
+- `vouchers`
+- `news`
+- `app_themes`
+- `app_brandings`
+- `banners`
+- `app_banner_settings`
+- `inventory_transactions`
 
-RPC functions called by the app:
-- create_inventory_in
-- create_inventory_out
-- get_revenue_vn
-- get_orders_count_vn
-- get_inventory_in_out_vn
+Views:
 
-Storage buckets used by the app:
-- products (product images, news images, themes, banners, branding assets)
+- `inventory_receipts`
+
+RPC functions:
+
+- `create_inventory_in`
+- `create_inventory_out`
+- `get_revenue_vn`
+- `get_orders_count_vn`
+- `get_inventory_in_out_vn`
+
+Storage buckets used by app:
+
+- `products` (product images, news images, themes, banners, branding assets)
 
 ## Authentication and Authorization
 
@@ -180,36 +317,72 @@ Prerequisites:
 
 ## Scripts
 
-- npm run dev
-- npm run build
-- npm run start
-- npm run lint
+- `npm run dev` - Start development server
+- `npm run build` - Build production bundle
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+- `npm run test` - Run unit/component tests once
+- `npm run test:watch` - Run tests in watch mode
+- `npm run test:coverage` - Run tests with coverage report
+- `npm run test:ui` - Open Vitest UI
 
 ## Project Structure
 
 ```
 app/
-  (admin)/
-    dashboard/
-    products/
-    inventory/
-    users/
-    news/
-    vouchers/
-    themes/
-  (auth)/
-    login/
-  components/
-  features/
-    dashboard/
-    inventory/
-  hooks/
-  lib/
+├── (admin)/                        # Admin routes
+│   ├── dashboard/                  # Admin dashboard
+│   ├── products/                   # Product management
+│   ├── inventory/                  # Inventory module
+│   │   ├── bulk/[type]/            # Bulk import/export
+│   │   ├── history/                # Inventory history
+│   │   └── print/[receiptId]/      # Print receipt
+│   ├── news/
+│   │   └── create/
+│   ├── vouchers/
+│   │   └── create/
+│   ├── themes/
+│   │   └── create/
+│   └── users/
+│
+├── (auth)/
+│   └── login/              # Authentication
+│
+├── api/
+│   └── dashboard-ai/       # AI dashboard endpoint
+│
+├── components/             # Shared layout components
+├── features/               # Business logic by domain
+│   ├── dashboard/
+│   ├── inventory/
+│   ├── products/
+│   ├── news/
+│   ├── vouchers/
+│   ├── themes/
+│   └── users/
+│
+├── hooks/                  # Custom React hooks
+├── lib/                    # Utilities & helpers
+├── store/                  # Global state management
+│
 components/
-  ui/
+└── ui/                     # Reusable UI components (design system)
+│
 public/
-  screenshots/
+├── images/
+└── screenshots/
+│
+test/                       # Unit & integration tests
 ```
+
+## 🧩 Folder Responsibilities
+
+- `app/` → Routing & page structure (Next.js App Router)
+- `features/` → Domain-based business logic
+- `components/ui/` → Reusable UI system
+- `lib/` → Helper functions & external services
+- `store/` → Global state management
+- `test/` → Testing (Vitest + RTL)
 
 ## Screenshots
 
@@ -231,8 +404,6 @@ public/
 ### 🎨 Theme Management
 ![Theme Management](./public/screenshots/theme.png)
 
-
-
 ## 👨‍💻 My Role
 
 - Built the full admin product as a solo developer.
@@ -243,5 +414,5 @@ public/
 
 ## 📝 Notes for Reviewers
 
-- UI text is currently in Vietnamese because the product targets local admins.
-- All data operations are wired to Supabase. Swap the URL and key to point to your own project.
+- Primary UI content is Vietnamese because target operators are local admin users.
+- Replace environment values to connect to your own Supabase project.
