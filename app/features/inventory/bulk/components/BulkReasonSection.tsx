@@ -1,7 +1,7 @@
 import { REASON_PRESETS } from "../bulk.model";
 
 type BulkReasonSectionProps = {
-  reasonPreset: (typeof REASON_PRESETS)[number];
+  reasonPreset: (typeof REASON_PRESETS)[number];  // ["Nhập hàng", "Xuất hàng", "Khác"] -> "Nhập hàng" | "Xuất hàng" | "Khác"
   customReason: string;
   onChangePreset: (value: (typeof REASON_PRESETS)[number]) => void;
   onChangeCustomReason: (value: string) => void;

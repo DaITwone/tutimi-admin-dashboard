@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { useAdminUI } from "./adminUI";
 
 describe("useAdminUI store", () => {
+  // reset state
   beforeEach(() => {
     useAdminUI.setState({ sidebarOpen: false });
   });

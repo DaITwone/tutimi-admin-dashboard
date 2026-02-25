@@ -10,12 +10,12 @@ describe("BulkReasonSection", () => {
       <BulkReasonSection
         reasonPreset={REASON_PRESETS[0]}
         customReason=""
-        onChangePreset={vi.fn()}
+        onChangePreset={vi.fn()} // vi.fn() 'mock function' trong Vitest hàm giả - không làm gì cả - nhưng có khả năng ghi lại lịch sử bị gọi.
         onChangeCustomReason={vi.fn()}
       />
     );
 
-    expect(screen.getByText(/lý do/i)).toBeInTheDocument();
+    expect(screen.getByText(/lý do/i)).toBeInTheDocument(); // i là ignore case (không phân biệt hoa thường)
     REASON_PRESETS.forEach((preset) => {
       expect(screen.getByRole("button", { name: preset })).toBeInTheDocument();
     });
