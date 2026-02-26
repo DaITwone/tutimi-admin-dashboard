@@ -187,25 +187,13 @@ Unit conversion rules in bulk flow:
 
 ## Technical Decisions and Trade-offs
 
-- **Supabase as unified backend (Auth + DB + Storage + Realtime + RPC)**
-  - Why: accelerate product delivery with fewer moving parts.
-  - Trade-off: tighter coupling to Supabase APIs and schema evolution.
-
-- **TanStack Query + event-driven invalidation**
-  - Why: consistent server-state model with predictable cache behavior.
-  - Trade-off: small eventual-consistency window between event and refetch.
-
-- **RPC functions for inventory write paths**
-  - Why: atomic stock updates and clearer audit trail.
-  - Trade-off: additional backend SQL/RPC maintenance overhead.
-
-- **Feature-first architecture (`app/features/*`)**
-  - Why: scalable ownership boundaries and easier onboarding.
-  - Trade-off: deeper folder structure compared to flat page-based layout.
-
-- **Drawer-based operational UI pattern**
-  - Why: faster edit/delete flows on both desktop and tablet/mobile devices.
-  - Trade-off: increased local UI state complexity.
+| Decision                                                         | Why                                                            | Trade-off                                                      |
+| :--------------------------------------------------------------- | :------------------------------------------------------------- | :------------------------------------------------------------- |
+| **Supabase as unified backend** (Auth + DB + Storage + Realtime + RPC) | Accelerate product delivery with fewer moving parts.           | Tighter coupling to Supabase APIs and schema evolution.        |
+| **TanStack Query + event-driven invalidation**                   | Consistent server-state model with predictable cache behavior. | Small eventual-consistency window between event and refetch.   |
+| **RPC functions for inventory write paths**                      | Atomic stock updates and clearer audit trail.                  | Additional backend SQL/RPC maintenance overhead.               |
+| **Feature-first architecture** (`app/features/*`)                | Scalable ownership boundaries and easier onboarding.           | Deeper folder structure compared to flat page-based layout.    |
+| **Drawer-based operational UI pattern**                          | Faster edit/delete flows on both desktop and tablet/mobile devices. | Increased local UI state complexity.                           |
 
 ## 🧪 Engineering Quality & Testing 
 
