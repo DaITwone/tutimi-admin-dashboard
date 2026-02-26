@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { QUICK_ACTIONS, type Message } from "@/app/components/DashboardAIDrawer";
+import {
+  QUICK_ACTIONS,
+  type Message,
+} from "@/app/components/DashboardAIDrawer";
 
 type DashboardAIContext = {
   kpi: unknown;
@@ -30,12 +33,17 @@ export function useDashboardAIChat(dashboardContext: DashboardAIContext) {
     ]);
 
     try {
+      const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL?.trim();
+      const endpoint = apiBase
+        ? `${apiBase}/api/dashboard-ai`
+        : "/api/dashboard-ai";
+
       const history = messages.map((m) => ({
         role: m.role === "user" ? "user" : "model",
         parts: [{ text: m.content }],
       }));
 
-      const response = await fetch("/api/dashboard-ai", {
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -45,12 +53,19 @@ export function useDashboardAIChat(dashboardContext: DashboardAIContext) {
         }),
       });
 
+      if (!response.ok) {
+        const err = await response.json().catch(() => null);
+        throw new Error(err?.message ?? `API error ${response.status}`);
+      }
+
       const data = await response.json();
 
       setMessages((prev) =>
         prev.map((m) =>
-          m.id === typingId ? { ...m, isTyping: false, content: data.content } : m
-        )
+          m.id === typingId
+            ? { ...m, isTyping: false, content: data.content }
+            : m,
+        ),
       );
     } catch (_error) {
       setMessages((prev) =>
@@ -61,8 +76,8 @@ export function useDashboardAIChat(dashboardContext: DashboardAIContext) {
                 isTyping: false,
                 content: "Ket noi that bai, vui long kiem tra API.",
               }
-            : m
-        )
+            : m,
+        ),
       );
     } finally {
       setIsLoading(false);
