@@ -2,13 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { Send, X, RotateCcw, AlertCircle, Minus } from "lucide-react";
+import { Send, RotateCcw, AlertCircle, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import ReactMarkdown from 'react-markdown';
-import { getPublicImageUrl } from "../lib/storage";
 
 export type Message = {
     id: string;

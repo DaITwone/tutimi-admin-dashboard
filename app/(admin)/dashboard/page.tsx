@@ -7,6 +7,7 @@ import { RecentOrders } from "@/app/features/dashboard/components/RecentOrders";
 import { TopSellingProductsTable } from "@/app/features/dashboard/components/TopSellingProductsTable";
 import { LatestNewsPanel } from "@/app/features/dashboard/components/LatestNewsPanel";
 import { useDashboardRealtimeSync } from "@/app/features/dashboard/hooks/useDashboardRealtimeSync";
+import { useDashboardAIChat } from "@/app/features/dashboard/hooks/useDashboardAIChat";
 import { RevenueLineChartCard } from "@/app/features/dashboard/components/RevenueLineChartCard";
 import { OrdersStatusBarChartCard } from "@/app/features/dashboard/components/OrdersStatusBarChartCard";
 import { InventoryInOutChartCard } from "@/app/features/dashboard/components/InventoryInOutChartCard";
@@ -23,11 +24,10 @@ import {
   useLowStockProductsQuery,
 } from "@/app/features/dashboard/api/useDashboardQuery";
 
-import { DashboardAIDrawer, QUICK_ACTIONS, type Message } from "@/app/components/DashboardAIDrawer";
+import { DashboardAIDrawer } from "@/app/components/DashboardAIDrawer";
 import { DashboardAIButton } from "@/app/components/DashboardAIButton";
 
 type BucketType = "day" | "week" | "month" | "year";
-
 
 function getDefaultRangeByBucket(bucket: BucketType) {
   const now = new Date();
@@ -84,73 +84,20 @@ export default function DashboardPage() {
   const ordersChartQuery = useOrdersCountChartQuery(effectiveRange);
   const inventoryChartQuery = useInventoryInOutChartQuery(effectiveRange);
 
-  const [aiOpen, setAiOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-
-  // Hàm trung tâm để gọi Gemini API
-  const askGemini = async (userText: string) => {
-    setIsLoading(true);
-    const typingId = crypto.randomUUID();
-
-    // 1. Thêm tin nhắn user và loading state vào UI
-    setMessages((prev) => [
-      ...prev,
-      { id: crypto.randomUUID(), role: "user", content: userText },
-      { id: typingId, role: "assistant", content: "", isTyping: true },
-    ]);
-
-    try {
-      // 2. Gom dữ liệu hiện tại làm context
-      const dashboardContext = {
-        kpi: kpisQuery.data,
-        lowStock: lowStockQuery.data,
-        topProducts: topProductsQuery.data,
-        currentRange: effectiveRange,
-      };
-
-      // 3. Chuẩn bị lịch sử chat theo định dạng của Gemini SDK
-      const history = messages.map(m => ({
-        role: m.role === "user" ? "user" : "model",
-        parts: [{ text: m.content }]
-      }));
-
-      // 4. Gọi API Route
-      const response = await fetch("/api/dashboard-ai", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt: userText,
-          history,
-          dashboardContext,
-        }),
-      });
-
-      const data = await response.json();
-
-      // 5. Cập nhật kết quả thật từ AI
-      setMessages((prev) => prev.map((m) => m.id === typingId ? { ...m, isTyping: false, content: data.content } : m));
-
-    } catch (error) {
-      setMessages((prev) => prev.map((m) => m.id === typingId ? { ...m, isTyping: false, content: "Lỗi kết nối rồi bạn ơi, check lại API nhé!" } : m));
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleQuickAction = (id: string) => {
-    const action = QUICK_ACTIONS.find(a => a.id === id);
-    if (action) askGemini(action.label);
-  };
-
-  const handleSendMessage = (text: string) => {
-    askGemini(text);
-  };
-
-  function handleResetChart() {
-    setMessages([]);
-    setIsLoading(false);
-  }
+  const {
+    aiOpen,
+    setAiOpen,
+    messages,
+    isLoading,
+    handleQuickAction,
+    handleSendMessage,
+    handleResetChat,
+  } = useDashboardAIChat({
+    kpi: kpisQuery.data,
+    lowStock: lowStockQuery.data,
+    topProducts: topProductsQuery.data,
+    currentRange: effectiveRange,
+  });
 
   return (
     <div className="space-y-6">
@@ -210,7 +157,7 @@ export default function DashboardPage() {
               onClose={() => setAiOpen(false)}
               onQuickAction={handleQuickAction}
               onSendMessage={handleSendMessage}
-              onReset={handleResetChart}
+              onReset={handleResetChat}
               messages={messages}
               isLoading={isLoading}
             />

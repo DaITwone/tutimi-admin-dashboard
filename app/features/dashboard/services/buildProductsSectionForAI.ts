@@ -65,9 +65,7 @@ export async function buildProductsSectionForAI() {
         active: summary.active,
         inactive: summary.inactive,
         inactive_products: summary.inactive_products,
-
         top_selling: getTopSellingProducts(products, 10),
-
         by_category: groupProductsByCategory(products),
     };
 }

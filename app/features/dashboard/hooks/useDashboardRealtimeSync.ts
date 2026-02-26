@@ -6,6 +6,7 @@ import { supabase } from "@/app/lib/supabase";
 import { dashboardQueryKeys } from "../api/dashboardQueryKeys";
 
 export function useDashboardRealtimeSync() {
+  // lấy QueryClient từ context để điều khiển cache/refetch toàn dashboard.
   const queryClient = useQueryClient();
 
   useEffect(() => {
