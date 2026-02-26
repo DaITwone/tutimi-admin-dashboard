@@ -9,7 +9,30 @@
 ![Express.js](https://img.shields.io/badge/Express.js-API-000000?style=for-the-badge&logo=express)
 ![Vitest](https://img.shields.io/badge/Vitest-Tested-6E9F18?style=for-the-badge&logo=vitest)
 
-Tutimi Admin Dashboard — production-grade admin for coffee & tea e-commerce. Built with Next.js + Supabase + TanStack Query, it supports realtime inventory operations (atomic RPCs), bulk IN/OUT with unit conversion, receipt printing (A4), and an AI assistant for operational insights. Designed for operators: responsive UX, drawer-first edit flows, and enforced admin/RLS rules.
+The Tutimi Admin Dashboard is a robust, production-grade administrative interface specifically designed for coffee & tea e-commerce businesses. Leveraging the power of Next.js, Supabase, and TanStack Query, it delivers a comprehensive suite of tools for efficient store management. From real-time inventory operations with atomic RPCs, bulk IN/OUT functionalities, and integrated receipt printing, to an intelligent AI assistant for actionable insights, Tutimi is built to empower operators with a responsive, intuitive, and secure experience. It features drawer-first edit flows and strictly enforced admin/RLS rules, ensuring seamless and protected administrative control.
+
+## Table of Contents
+- [✨ Highlights](#-highlights)
+- [📈 Features at a Glance](#-features-at-a-glance)
+- [🧠 Architecture Overview](#-architecture-overview)
+- [🧭 Feature Tour](#-feature-tour)
+- [⚠️ Error Handling Strategy](#-error-handling-strategy)
+- [🛡️ Security Considerations](#-security-considerations)
+- [⚡ Performance & Scalability Notes](#-performance--scalability-notes)
+- [Technical Decisions and Trade-offs](#technical-decisions-and-trade-offs)
+- [🧪 Engineering Quality & Testing](#-engineering-quality--testing)
+- [Business Impact (Product Perspective)](#business-impact-product-perspective)
+- [🛠️ Tech Stack](#-tech-stack)
+- [Data Model Expectations (Supabase)](#data-model-expectations-supabase)
+- [Authentication and Authorization](#authentication-and-authorization)
+- [🚀 Local Setup](#-local-setup)
+- [Scripts](#scripts)
+- [Project Structure](#project-structure)
+- [🧩 Folder Responsibilities](#-folder-responsibilities)
+- [👨‍💻 Key Contributions](#-key-contributions)
+- [🔮 Future Enhancements](#-future-enhancements)
+- [📝 Notes for Reviewers](#-notes-for-reviewers)
+- [Screenshots](#screenshots)
 
 # [LINK DEMO🔗](https://tutimi-admin-dashboard.vercel.app/)
 
@@ -24,6 +47,15 @@ Tutimi Admin Dashboard — production-grade admin for coffee & tea e-commerce. B
 - AI dashboard assistant with quick actions, context-aware responses, and product card rendering.
 - Feature-first code organization with tested hooks/services/components for long-term maintainability.
 - Express.js API service for backend orchestration and typed request/response contracts.
+
+## 📈 Features at a Glance
+- **Comprehensive Admin Workflows:** Manage products, inventory, vouchers, news, themes, and users end-to-end.
+- **Real-time Data Sync:** Powered by Supabase channels and TanStack Query for always up-to-date information.
+- **Advanced Inventory Management:** Bulk IN/OUT with unit conversion, detailed history, and A4 receipt printing.
+- **AI-Powered Assistant:** Gain operational insights and perform quick actions with an intelligent dashboard AI.
+- **Optimized User Experience:** Responsive design with intuitive drawer-based edit flows for desktop and mobile.
+- **Robust Security:** Supabase Auth, Row Level Security (RLS), and admin role gating ensure data protection.
+- **Scalable Architecture:** Designed with feature-first organization and performance considerations for long-term growth.
 
 ## 🧠 Architecture Overview
 
@@ -367,13 +399,21 @@ test/                       # Unit & integration tests
 ### 🎨 Theme Management
 ![Theme Management](./public/screenshots/theme.png)
 
-## 👨‍💻 My Role
+## 👨‍💻 Key Contributions
 
-- Built the full admin product as a solo developer.
-- Implemented inventory and receipt workflows end to end.
-- Designed responsive UI with reusable drawer patterns and previews.
-- Integrated Supabase services (Auth, Realtime, RPC, Storage).
-- Structured the codebase for maintainability and fast iteration.
+- **End-to-End Product Development:** Architected and implemented the entire admin dashboard as a solo developer.
+- **Core Inventory Workflows:** Developed robust inventory management, including bulk operations, unit conversion, and A4 receipt printing.
+- **Responsive UI/UX Design:** Crafted an intuitive and responsive user experience with reusable drawer patterns and live previews for efficient workflows.
+- **Full-stack Integration:** Seamlessly integrated Supabase services (Authentication, Realtime Database, RPC functions, Storage) across the application.
+- **Maintainable Codebase:** Established a clear, feature-first codebase structure (`app/features/*`) promoting modularity, testability, and long-term maintainability.
+
+## 🔮 Future Enhancements
+- **Centralized Notification System:** Implement an in-app notification system for critical events (e.g., low stock alerts, new orders).
+- **Advanced Analytics & Reporting:** Expand dashboard analytics with more granular reporting options and customizable dashboards.
+- **Multi-language Support:** Add internationalization (i18n) to support multiple languages for a broader user base.
+- **User Role Management:** Implement more granular user roles and permissions beyond basic admin/non-admin.
+- **Third-Party Integrations:** Explore integrations with payment gateways, shipping providers, or other e-commerce tools.
+- **Improved AI Assistant Capabilities:** Enhance the AI assistant with more proactive suggestions, predictive analytics, and conversational capabilities.
 
 ## 📝 Notes for Reviewers
 
