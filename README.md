@@ -1,4 +1,4 @@
-# TUTIMI ADMIN DASHBOARD
+﻿# TUTIMI ADMIN DASHBOARD
 
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)
 ![React](https://img.shields.io/badge/React-19-61dafb?style=for-the-badge&logo=react)
@@ -6,9 +6,10 @@
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-06b6d4?style=for-the-badge&logo=tailwind-css)
 ![Supabase](https://img.shields.io/badge/Supabase-Backend-3fcf8e?style=for-the-badge&logo=supabase)
 ![TanStack Query](https://img.shields.io/badge/TanStack_Query-5-FF4154?style=for-the-badge&logo=tanstackquery)
+![Express.js](https://img.shields.io/badge/Express.js-API-000000?style=for-the-badge&logo=express)
 ![Vitest](https://img.shields.io/badge/Vitest-Tested-6E9F18?style=for-the-badge&logo=vitest)
 
-Production-grade admin dashboard for coffee and tea e-commerce platform. Built to help operators manage products, inventory, promotions, branding, and business monitoring from one unified interface.
+Tutimi Admin Dashboard — production-grade admin for coffee & tea e-commerce. Built with Next.js + Supabase + TanStack Query, it supports realtime inventory operations (atomic RPCs), bulk IN/OUT with unit conversion, receipt printing (A4), and an AI assistant for operational insights. Designed for operators: responsive UX, drawer-first edit flows, and enforced admin/RLS rules.
 
 # [LINK DEMO🔗](https://tutimi-admin-dashboard.vercel.app/)
 
@@ -22,66 +23,13 @@ Production-grade admin dashboard for coffee and tea e-commerce platform. Built t
 - Responsive operational UX: desktop data tables, mobile cards, drawer-based edit actions.
 - AI dashboard assistant with quick actions, context-aware responses, and product card rendering.
 - Feature-first code organization with tested hooks/services/components for long-term maintainability.
+- Express.js API service for backend orchestration and typed request/response contracts.
 
 ## 🧠 Architecture Overview
 
 ### High-level architecture
 
-```mermaid
-
-flowchart LR
-
-  %% ===== FRONTEND =====
-  subgraph Frontend [Admin Client - Next.js App Router]
-    UI[Admin UI<br/>Route Shells]
-    FE[Feature Layer<br/>app/features/*]
-    CACHE[TanStack Query<br/>Client Cache]
-  end
-
-  %% ===== BACKEND =====
-  subgraph Backend [Application & Data Layer]
-    API[API Route<br/>/api/dashboard-ai]
-    SB[Supabase JS Client]
-  end
-
-  %% ===== DATABASE =====
-  subgraph Database [Supabase Services]
-    DB[(Postgres)]
-    ST[(Storage)]
-    RT[(Realtime Channels)]
-  end
-
-  %% ===== EXTERNAL AI =====
-  subgraph External [External Service]
-    GEMINI[Gemini API]
-  end
-
-  %% ===== FLOWS =====
-  UI --> FE
-  FE --> CACHE
-  CACHE --> SB
-  SB --> DB
-  SB --> ST
-  SB --> RT
-  RT --> CACHE
-
-  FE --> API
-  API --> GEMINI
-
-classDef frontend fill:#e3f2fd,stroke:#1e88e5;
-classDef backend fill:#ede7f6,stroke:#5e35b1;
-classDef database fill:#e8f5e9,stroke:#43a047;
-classDef external fill:#fff3e0,stroke:#fb8c00;
-
-class UI,FE,CACHE frontend;
-class API,SB backend;
-class DB,ST,RT database;
-class GEMINI external;
-style Frontend fill:transparent,stroke-width:0
-style Backend fill:transparent,stroke-width:0
-style Database fill:transparent,stroke-width:0
-style External fill:transparent,stroke-width:0
-```
+![High-level architecture](./public/screenshots/architecture.png)
 
 ### Layer responsibilities
 
@@ -90,6 +38,7 @@ style External fill:transparent,stroke-width:0
 - `app/components/*`: shared cross-feature UI elements (drawers, previews, layout).
 - `app/lib/*`: infrastructure utilities (Supabase client, storage helpers, formatters).
 - `app/api/dashboard-ai/*`: AI orchestration and prompt/context assembly.
+- `server/src/*`: Express.js API server (routes, repositories, validation, types).
 
 ### Data flow: inventory bulk write path
 
@@ -248,6 +197,7 @@ Unit conversion rules in bulk flow:
 - Next.js 16 (App Router)
 - React 19
 - TypeScript
+- Express.js
 - Tailwind CSS 4
 - TanStack Query 5
 - Zustand
@@ -301,6 +251,7 @@ Storage buckets used by app:
 Prerequisites:
 - Node.js 18+
 - Supabase project
+- Express.js runtime (Node server)
 
 1. Install dependencies
    - npm install
@@ -314,12 +265,15 @@ Prerequisites:
 
 3. Run the app
    - npm run dev
+   - npm run server:dev
 
 ## Scripts
 
 - `npm run dev` - Start development server
+- `npm run server:dev` - Start Express API server (watch mode)
 - `npm run build` - Build production bundle
 - `npm run start` - Start production server
+- `npm run server:start` - Start Express API server (production)
 - `npm run lint` - Run ESLint
 - `npm run test` - Run unit/component tests once
 - `npm run test:watch` - Run tests in watch mode
@@ -328,11 +282,14 @@ Prerequisites:
 
 ## Project Structure
 
+Note: backend service lives in `server/` (Express.js API).
+
 ```
 app/
 ├── (admin)/                        # Admin routes
 │   ├── dashboard/                  # Admin dashboard
-│   ├── products/                   # Product management
+│   ├── products/
+│   │   └── create/                 # Product management
 │   ├── inventory/                  # Inventory module
 │   │   ├── bulk/[type]/            # Bulk import/export
 │   │   ├── history/                # Inventory history
@@ -362,11 +319,16 @@ app/
 │   └── users/
 │
 ├── hooks/                  # Custom React hooks
-├── lib/                    # Utilities & helpers
+├── lib/                    # App-level utilities (Supabase, query keys, formatters)
 ├── store/                  # Global state management
 │
 components/
 └── ui/                     # Reusable UI components (design system)
+│
+lib/                        # Shared root utilities
+│
+server/
+└── src/                    # Express API (routes/controllers/services/repositories)
 │
 public/
 ├── images/
@@ -377,12 +339,13 @@ test/                       # Unit & integration tests
 
 ## 🧩 Folder Responsibilities
 
-- `app/` → Routing & page structure (Next.js App Router)
-- `features/` → Domain-based business logic
-- `components/ui/` → Reusable UI system
-- `lib/` → Helper functions & external services
-- `store/` → Global state management
-- `test/` → Testing (Vitest + RTL)
+- `app/(admin)/`, `app/(auth)/`, `app/api/` → Route groups and API endpoints (App Router)
+- `app/features/` → Domain modules (api/services/hooks/components/types)
+- `app/components/` → Shared admin UI blocks (drawers, previews, layout pieces)
+- `app/lib/` + `app/hooks/` + `app/store/` → Client infrastructure (helpers, custom hooks, global UI state)
+- `components/ui/` + `lib/` → Reusable base UI primitives and root shared utilities
+- `server/src/` → Express backend layers (routes, controllers, services, repositories, providers, middlewares)
+- `test/` + `*.test.ts(x)` → Test setup and unit/component coverage
 
 ## Screenshots
 
