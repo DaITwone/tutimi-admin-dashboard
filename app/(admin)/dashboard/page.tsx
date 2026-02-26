@@ -24,8 +24,8 @@ import {
   useLowStockProductsQuery,
 } from "@/app/features/dashboard/api/useDashboardQuery";
 
-import { DashboardAIDrawer } from "@/app/components/DashboardAIDrawer";
-import { DashboardAIButton } from "@/app/components/DashboardAIButton";
+import { DashboardAIDrawer } from "@/app/features/dashboard/components/DashboardAIDrawer";
+import { DashboardAIButton } from "@/app/features/dashboard/components/DashboardAIButton";
 
 type BucketType = "day" | "week" | "month" | "year";
 

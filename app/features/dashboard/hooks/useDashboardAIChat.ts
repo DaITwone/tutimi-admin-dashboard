@@ -4,7 +4,7 @@ import { useState } from "react";
 import {
   QUICK_ACTIONS,
   type Message,
-} from "@/app/components/DashboardAIDrawer";
+} from "@/app/features/dashboard/components/DashboardAIDrawer";
 
 type DashboardAIContext = {
   kpi: unknown;
