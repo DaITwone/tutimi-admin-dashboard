@@ -14,3 +14,11 @@ export const useAdminUI = create<AdminUIState>((set) => ({
     toggleSidebar: () =>
         set((state) => ({ sidebarOpen: !state.sidebarOpen })),
 }));
+
+// set(object) -> cập nhật trực tiếp.
+// set(fn) -> tính toán dựa trên state hiện tại.
+
+/* 
+    set is the function used to update Zustand state.
+    It can receive an object or a function.
+*/

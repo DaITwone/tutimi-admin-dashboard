@@ -102,7 +102,7 @@ export default function InventoryHistoryDrawer() {
           'id,product_id,receipt_id,type,requested_quantity,applied_quantity,delta,note,input_value,input_unit,created_at'
         )
         .eq('product_id', productId!)
-        .in('type', ['IN', 'OUT']) // ✅ remove ADJUST from results
+        .in('type', ['IN', 'OUT'])
         .order('created_at', { ascending: false });
 
       if (error) throw error;
