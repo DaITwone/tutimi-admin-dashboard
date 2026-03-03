@@ -53,18 +53,15 @@ export default function CreateNewsForm({
   onOpenPreview,
 }: CreateNewsFormProps) {
   return (
-    <form
-      onSubmit={onSubmit}
-      className="space-y-6 rounded-2xl bg-white p-6 shadow-sm"
-    >
+    <form onSubmit={onSubmit} className="space-y-6 rounded-2xl border border-border bg-card p-6 shadow-sm">
       <div className="space-y-3">
-        <div className="flex gap-6 text-sm font-semibold text-[#1b4f94]">
+        <div className="flex gap-6 text-sm font-semibold text-brand-2">
           <label className="flex cursor-pointer items-center gap-2">
             <input
               type="radio"
               checked={imageType === 'upload'}
               onChange={() => setImageType('upload')}
-              className="accent-[#1b4f94]"
+              className="accent-brand-2"
             />
             Upload ảnh
           </label>
@@ -74,40 +71,30 @@ export default function CreateNewsForm({
               type="radio"
               checked={imageType === 'link'}
               onChange={() => setImageType('link')}
-              className="accent-[#1b4f94]"
+              className="accent-brand-2"
             />
             Dán link
           </label>
         </div>
 
         <div className="flex gap-4">
-          <div className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-xl border border-dashed border-gray-400 bg-gray-50">
+          <div className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-xl border border-dashed border-border bg-muted/30">
             {previewImage ? (
-              <img
-                src={previewImage}
-                className="h-full w-full object-cover"
-                alt="news-preview"
-              />
+              <img src={previewImage} className="h-full w-full object-cover" alt="news-preview" />
             ) : (
-              <span className="text-xs text-gray-400">No image</span>
+              <span className="text-xs text-muted-foreground">No image</span>
             )}
           </div>
 
           <div className="flex-1">
             {imageType === 'upload' ? (
-              <label className="inline-block cursor-pointer rounded-lg border border-gray-400 px-4 py-2 text-sm hover:bg-gray-50">
+              <label className="inline-block cursor-pointer rounded-lg border border-border px-4 py-2 text-sm text-foreground transition hover:bg-muted/50">
                 Chọn ảnh
                 <input
                   type="file"
                   hidden
                   accept="image/*"
-                  onChange={(e) =>
-                    setNewImage(
-                      e.target.files
-                        ? e.target.files[0]
-                        : null
-                    )
-                  }
+                  onChange={(e) => setNewImage(e.target.files ? e.target.files[0] : null)}
                 />
               </label>
             ) : (
@@ -115,57 +102,39 @@ export default function CreateNewsForm({
                 value={imageLink}
                 onChange={(e) => setImageLink(e.target.value)}
                 placeholder="https://..."
-                className="w-full rounded-lg border border-gray-400 px-3 py-2 text-sm focus:border-[#1b4f94] focus:outline-none focus:ring-2 focus:ring-[#1b4f94]/20"
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-brand-2 focus:ring-2 focus:ring-brand-2/20"
               />
             )}
           </div>
         </div>
       </div>
 
-      <Field
-        label="Tiêu đề"
-        value={title}
-        required
-        onChange={setTitle}
-      />
+      <Field label="Tiêu đề" value={title} required onChange={setTitle} />
 
-      <Field
-        label="Mô tả ngắn"
-        value={description}
-        onChange={setDescription}
-      />
+      <Field label="Mô tả ngắn" value={description} onChange={setDescription} />
 
       <div className="space-y-1">
-        <label className="text-sm font-semibold text-[#1b4f94]">
-          Nội dung
-        </label>
+        <label className="text-sm font-semibold text-brand-2">Nội dung</label>
         <textarea
           rows={6}
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          className="w-full rounded-lg border border-gray-400 px-3 py-2 text-sm focus:ring-2 focus:ring-[#1b4f94]/20"
+          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-brand-2 focus:ring-2 focus:ring-brand-2/20"
         />
       </div>
 
-      <Field
-        label="Hashtag"
-        value={hashtag}
-        placeholder="VD: sale, update"
-        onChange={setHashtag}
-      />
+      <Field label="Hashtag" value={hashtag} placeholder="VD: sale, update" onChange={setHashtag} />
 
       <div className="space-y-1">
-        <label className="text-sm font-semibold text-[#1b4f94]">
-          Loại tin
-        </label>
+        <label className="text-sm font-semibold text-brand-2">Loại tin</label>
         <div className="flex gap-4 text-sm font-semibold">
           <button
             type="button"
             onClick={() => setType('Tin Tức')}
-            className={`rounded-lg border px-4 py-2 ${
+            className={`rounded-lg border px-4 py-2 transition ${
               type === 'Tin Tức'
-                ? 'border-[#1b4f94] bg-[#1b4f94]/10 text-[#1b4f94]'
-                : 'border-gray-300 text-gray-500 hover:bg-gray-50'
+                ? 'border-brand-2 bg-brand-2/10 text-brand-2'
+                : 'border-border text-muted-foreground hover:bg-muted/50'
             }`}
           >
             Tin tức
@@ -174,10 +143,10 @@ export default function CreateNewsForm({
           <button
             type="button"
             onClick={() => setType('Khuyến Mãi')}
-            className={`rounded-lg border px-4 py-2 ${
+            className={`rounded-lg border px-4 py-2 transition ${
               type === 'Khuyến Mãi'
-                ? 'border-[#1b4f94] bg-[#1b4f94]/10 text-[#1b4f94]'
-                : 'border-gray-300 text-gray-500 hover:bg-gray-50'
+                ? 'border-brand-2 bg-brand-2/10 text-brand-2'
+                : 'border-border text-muted-foreground hover:bg-muted/50'
             }`}
           >
             Khuyến mãi
@@ -185,12 +154,12 @@ export default function CreateNewsForm({
         </div>
       </div>
 
-      <label className="flex items-center gap-2 text-sm font-semibold text-[#1b4f94]">
+      <label className="flex items-center gap-2 text-sm font-semibold text-brand-2">
         <input
           type="checkbox"
           checked={isActive}
           onChange={(e) => setIsActive(e.target.checked)}
-          className="accent-[#1b4f94]"
+          className="accent-brand-2"
         />
         Hiển thị tin tức
       </label>
@@ -198,7 +167,7 @@ export default function CreateNewsForm({
       <button
         type="button"
         onClick={onOpenPreview}
-        className="w-full rounded-xl border border-[#1b4f94] bg-white px-4 py-2 text-sm font-semibold text-[#1b4f94] hover:bg-blue-50 lg:hidden"
+        className="w-full rounded-xl border border-brand-2 bg-card px-4 py-2 text-sm font-semibold text-brand-2 transition hover:bg-muted/50 lg:hidden"
       >
         Xem Preview
       </button>
@@ -207,7 +176,7 @@ export default function CreateNewsForm({
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-lg border border-gray-400 px-4 py-2 text-sm hover:bg-gray-50"
+          className="rounded-lg border border-border px-4 py-2 text-sm text-foreground transition hover:bg-muted/50"
         >
           Hủy
         </button>
@@ -215,7 +184,7 @@ export default function CreateNewsForm({
         <button
           type="submit"
           disabled={saving}
-          className="rounded-lg bg-[#1c4273] px-4 py-2 text-sm font-medium text-white hover:bg-[#1b4f94] disabled:opacity-50"
+          className="rounded-lg bg-brand-1 px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-2 disabled:opacity-50"
         >
           {saving ? 'Đang lưu...' : 'Tạo tin tức'}
         </button>
@@ -239,15 +208,13 @@ function Field({
 }) {
   return (
     <div className="space-y-1">
-      <label className="text-sm font-semibold text-[#1b4f94]">
-        {label}
-      </label>
+      <label className="text-sm font-semibold text-brand-2">{label}</label>
       <input
         value={value}
         required={required}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-gray-400 px-3 py-2 text-sm focus:ring-2 focus:ring-[#1b4f94]/20"
+        className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-brand-2 focus:ring-2 focus:ring-brand-2/20"
       />
     </div>
   );

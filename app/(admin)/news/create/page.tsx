@@ -76,24 +76,19 @@ export default function CreateNewsPage() {
 
       {previewOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          <div
-            className="absolute inset-0 bg-black/40"
-            onClick={() => setPreviewOpen(false)}
-          />
+          <div className="absolute inset-0 bg-black/40" onClick={() => setPreviewOpen(false)} />
 
-          <div className="absolute inset-x-0 bottom-0 rounded-t-3xl bg-[#F7F8FB] p-4 shadow-2xl">
+          <div className="absolute inset-x-0 bottom-0 rounded-t-3xl border border-border bg-card p-4 shadow-2xl">
             <div className="flex justify-center">
-              <div className="h-1.5 w-10 rounded-full bg-gray-200" />
+              <div className="h-1.5 w-10 rounded-full bg-muted" />
             </div>
 
             <div className="mb-3 flex items-center justify-between">
-              <div className="text-sm font-semibold text-[#1b4f94]">
-                Tin tức - Ưu đãi
-              </div>
+              <div className="text-sm font-semibold text-brand-2">Tin tức - ưu đãi</div>
 
               <button
                 onClick={() => setPreviewOpen(false)}
-                className="rounded-xl border border-gray-300 bg-white px-3 py-1 text-sm text-gray-700"
+                className="rounded-xl border border-border bg-background px-3 py-1 text-sm text-foreground"
               >
                 X
               </button>
