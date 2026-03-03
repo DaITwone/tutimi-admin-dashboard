@@ -22,7 +22,7 @@ export default function NewsTable({
   return (
     <div className="hidden md:block">
       <table className="mt-2 mb-3 w-full text-sm">
-        <thead className="border-b text-gray-500">
+        <thead className="border-b border-border text-muted-foreground">
           <tr>
             <th className="p-4 text-left">Tin tức</th>
             <th className="p-4 text-left">Loại tin</th>
@@ -36,7 +36,7 @@ export default function NewsTable({
             <TableSkeleton rows={skeletonRows} />
           ) : news.length === 0 ? (
             <tr>
-              <td colSpan={4} className="p-6 text-center text-gray-500">
+              <td colSpan={4} className="p-6 text-center text-muted-foreground">
                 Chưa có tin tức nào
               </td>
             </tr>
@@ -66,10 +66,10 @@ function NewsRow({
   onDelete: () => void;
 }) {
   return (
-    <tr className="hover:bg-gray-50">
+    <tr className="border-b border-border last:border-b-0 hover:bg-muted/30">
       <td className="px-3 pt-3">
         <div className="flex gap-3">
-          <div className="relative h-36 w-28 overflow-hidden rounded bg-gray-50">
+          <div className="relative h-36 w-28 overflow-hidden rounded bg-muted/30">
             {item.image ? (
               <Image
                 src={getPublicImageUrl('products', item.image) ?? ''}
@@ -79,23 +79,23 @@ function NewsRow({
                 sizes="112px"
               />
             ) : (
-              <div className="flex h-full items-center justify-center text-xs text-gray-400">
+              <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
                 No image
               </div>
             )}
           </div>
 
           <div className="space-y-1">
-            <p className="font-semibold text-[#1c4f94]">{item.title}</p>
+            <p className="font-semibold text-brand-2">{item.title}</p>
 
             {item.description && (
-              <p className="max-w-lg text-sm text-gray-500 line-clamp-2">{item.description}</p>
+              <p className="max-w-lg text-sm text-muted-foreground line-clamp-2">{item.description}</p>
             )}
           </div>
         </div>
       </td>
 
-      <td className="p-4 text-gray-500">
+      <td className="p-4 text-foreground/80">
         {item.type && (
           <span
             className={`inline-block rounded-lg px-2 py-0.5 text-sm text-white ${
@@ -110,7 +110,9 @@ function NewsRow({
       <td className="p-4">
         <span
           className={`rounded-lg px-3 py-1 text-sm ${
-            item.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-500'
+            item.is_active
+              ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300'
+              : 'bg-muted text-muted-foreground'
           }`}
         >
           {item.is_active ? 'Đang hiển thị' : 'Ẩn'}
@@ -121,7 +123,7 @@ function NewsRow({
         <div className="flex justify-end gap-2">
           <button
             onClick={onEdit}
-            className="rounded-md border border-gray-400 px-3 py-1 text-sm hover:bg-gray-50"
+            className="rounded-md border border-border px-3 py-1 text-sm text-foreground transition hover:bg-muted/50"
           >
             Sửa
           </button>
@@ -145,21 +147,21 @@ function TableSkeleton({ rows = 5 }: { rows?: number }) {
         <tr key={i} className="animate-pulse">
           <td className="px-3 pt-3">
             <div className="flex gap-3">
-              <div className="h-20 w-28 rounded bg-gray-200" />
+              <div className="h-20 w-28 rounded bg-muted" />
               <div className="space-y-2">
-                <div className="h-4 w-48 rounded bg-gray-200" />
-                <div className="h-3 w-32 rounded bg-gray-200" />
+                <div className="h-4 w-48 rounded bg-muted" />
+                <div className="h-3 w-32 rounded bg-muted" />
               </div>
             </div>
           </td>
           <td className="p-4">
-            <div className="h-4 w-20 rounded bg-gray-200" />
+            <div className="h-4 w-20 rounded bg-muted" />
           </td>
           <td className="p-4">
-            <div className="h-4 w-24 rounded bg-gray-200" />
+            <div className="h-4 w-24 rounded bg-muted" />
           </td>
           <td className="px-8 text-right">
-            <div className="h-7 w-20 rounded bg-gray-200 ml-auto" />
+            <div className="ml-auto h-7 w-20 rounded bg-muted" />
           </td>
         </tr>
       ))}

@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import type { Voucher } from '../types';
+import type { Voucher } from "../types";
 
 type VouchersTableProps = {
   vouchers: Voucher[];
@@ -20,7 +20,7 @@ export default function VouchersTable({
   return (
     <div className="hidden md:block">
       <table className="mt-3 w-full text-sm">
-        <thead className="border-b text-gray-500">
+        <thead className="border-b border-border text-muted-foreground">
           <tr>
             <th className="p-4 text-left">Code</th>
             <th className="p-4 text-left">Tiêu đề</th>
@@ -38,17 +38,17 @@ export default function VouchersTable({
             <TableSkeleton rows={skeletonRows} />
           ) : vouchers.length === 0 ? (
             <tr>
-              <td colSpan={7} className="p-6 text-center text-gray-500">
+              <td colSpan={7} className="p-6 text-center text-muted-foreground">
                 Chưa có voucher nào
               </td>
             </tr>
           ) : (
-            vouchers.map((v) => (
+            vouchers.map((voucher) => (
               <VoucherRow
-                key={v.code}
-                voucher={v}
-                onEdit={() => onEdit(v.code)}
-                onDelete={() => onDelete(v.code)}
+                key={voucher.code}
+                voucher={voucher}
+                onEdit={() => onEdit(voucher.code)}
+                onDelete={() => onDelete(voucher.code)}
               />
             ))
           )}
@@ -67,40 +67,40 @@ function VoucherRow({
   onEdit: () => void;
   onDelete: () => void;
 }) {
+  const discountText =
+    voucher.discount_type === "percent"
+      ? `${voucher.discount_value}%`
+      : `${voucher.discount_value.toLocaleString()}d`;
+
+  const minOrderText = voucher.min_order_value
+    ? `${voucher.min_order_value.toLocaleString()}d`
+    : "--";
+  const maxUsageText = voucher.max_usage_per_user ?? "--";
+
   return (
-    <tr className="border-t border-gray-300 hover:bg-gray-50">
-      <td className="p-4 font-mono font-extrabold text-[#1c4273]">
+    <tr className="border-t border-border hover:bg-muted/30">
+      <td className="p-4 font-mono font-extrabold text-brand-1 dark:text-brand-2">
         {voucher.code}
       </td>
 
       <td className="p-4">
-        <p className="font-bold text-[#1b4f94]">{voucher.title}</p>
+        <p className="font-bold text-brand-2">{voucher.title}</p>
         {voucher.description && (
-          <p className="text-xs text-gray-400">{voucher.description}</p>
+          <p className="text-xs text-muted-foreground">{voucher.description}</p>
         )}
       </td>
 
-      <td className="p-4">
-        {voucher.discount_type === 'percent'
-          ? `${voucher.discount_value}%`
-          : `${voucher.discount_value.toLocaleString()}đ`}
-      </td>
-
-      <td className="p-4">
-        {voucher.min_order_value
-          ? `${voucher.min_order_value.toLocaleString()}đ`
-          : '—'}
-      </td>
-
-      <td className="p-4">{voucher.max_usage_per_user ?? '—'}</td>
+      <td className="p-4 text-foreground/80">{discountText}</td>
+      <td className="p-4 text-foreground/80">{minOrderText}</td>
+      <td className="p-4 text-foreground/80">{maxUsageText}</td>
 
       <td className="p-4">
         {voucher.for_new_user ? (
-          <span className="rounded-lg bg-blue-100 px-3 py-1 text-sm text-blue-700">
+          <span className="rounded-lg bg-blue-100 px-3 py-1 text-sm text-blue-700 dark:bg-blue-500/20 dark:text-blue-300">
             Khách mới
           </span>
         ) : (
-          <span className="rounded-lg bg-gray-200 px-3 py-1 text-sm text-gray-600">
+          <span className="rounded-lg bg-muted px-3 py-1 text-sm text-muted-foreground">
             Tất cả
           </span>
         )}
@@ -110,11 +110,11 @@ function VoucherRow({
         <span
           className={`rounded-lg px-3 py-1 text-sm ${
             voucher.is_active
-              ? 'bg-green-100 text-green-700'
-              : 'bg-gray-200 text-gray-500'
+              ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300"
+              : "bg-muted text-muted-foreground"
           }`}
         >
-          {voucher.is_active ? 'Hoạt động' : 'Tắt'}
+         {voucher.is_active ? 'Hoạt động' : 'Tắt'}
         </span>
       </td>
 
@@ -122,14 +122,14 @@ function VoucherRow({
         <div className="flex justify-end gap-2">
           <button
             onClick={onEdit}
-            className="rounded-md border border-gray-400 px-3 py-1 text-sm hover:bg-gray-50"
+            className="rounded-md border border-border px-3 py-1 text-sm text-foreground transition hover:bg-muted/50"
           >
             Sửa
           </button>
 
           <button
             onClick={onDelete}
-            className="rounded-md border border-red-200 px-3 py-1 text-sm text-red-600 hover:bg-red-50"
+            className="rounded-md border border-red-200 px-3 py-1 text-sm text-red-600 transition hover:bg-red-50 dark:border-red-500/40 dark:text-red-300 dark:hover:bg-red-500/10"
           >
             Xóa
           </button>
@@ -145,31 +145,31 @@ function TableSkeleton({ rows = 5 }: { rows?: number }) {
       {Array.from({ length: rows }).map((_, i) => (
         <tr key={i} className="animate-pulse">
           <td className="p-4">
-            <div className="h-4 w-24 rounded bg-gray-200" />
+            <div className="h-4 w-24 rounded bg-muted" />
           </td>
-          <td className="p-4 space-y-2">
-            <div className="h-4 w-40 rounded bg-gray-200" />
-            <div className="h-3 w-28 rounded bg-gray-200" />
-          </td>
-          <td className="p-4">
-            <div className="h-4 w-16 rounded bg-gray-200" />
+          <td className="space-y-2 p-4">
+            <div className="h-4 w-40 rounded bg-muted" />
+            <div className="h-3 w-28 rounded bg-muted" />
           </td>
           <td className="p-4">
-            <div className="h-4 w-20 rounded bg-gray-200" />
+            <div className="h-4 w-16 rounded bg-muted" />
           </td>
           <td className="p-4">
-            <div className="h-4 w-12 rounded bg-gray-200" />
+            <div className="h-4 w-20 rounded bg-muted" />
           </td>
           <td className="p-4">
-            <div className="h-6 w-20 rounded-full bg-gray-200" />
+            <div className="h-4 w-12 rounded bg-muted" />
           </td>
           <td className="p-4">
-            <div className="h-6 w-20 rounded-full bg-gray-200" />
+            <div className="h-6 w-20 rounded-full bg-muted" />
+          </td>
+          <td className="p-4">
+            <div className="h-6 w-20 rounded-full bg-muted" />
           </td>
           <td className="p-4 text-right">
             <div className="flex justify-end gap-2">
-              <div className="h-7 w-12 rounded bg-gray-200" />
-              <div className="h-7 w-12 rounded bg-gray-200" />
+              <div className="h-7 w-12 rounded bg-muted" />
+              <div className="h-7 w-12 rounded bg-muted" />
             </div>
           </td>
         </tr>

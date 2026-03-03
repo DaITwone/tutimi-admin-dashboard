@@ -8,50 +8,41 @@ export default function UsersMobile({
   loading: boolean
 }) {
   return (
-    <div className="md:hidden space-y-3">
+    <div className="space-y-3 md:hidden">
       {loading && <UsersMobileSkeleton count={5} />}
 
-      {!loading && users.length === 0 && (
-        <MobileEmptyState text="No users found" />
-      )}
+      {!loading && users.length === 0 && <MobileEmptyState text="No users found" />}
 
-      {!loading &&
-        users.map((user) => (
-          <UserCard key={user.id} user={user} active />
-        ))}
+      {!loading && users.map((user) => <UserCard key={user.id} user={user} active />)}
     </div>
   )
 }
 
-/* ================= COMPONENTS ================= */
-
 function UserCard({ user, active }: { user: User; active: boolean }) {
   const displayName = user.full_name || user.username || 'Unnamed'
-  const usernameText = user.username ? `@${user.username}` : '—'
+  const usernameText = user.username ? `@${user.username}` : '--'
 
   return (
-    <div className="rounded-2xl bg-white p-4 shadow-sm border border-gray-100">
+    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
       <div className="flex items-center gap-3">
-        <div className="border rounded-full border-gray-300 shrink-0">
+        <div className="shrink-0 rounded-full border border-border">
           <img
             src={user.avatar_url || '/images/avt.png'}
             alt=""
-            className="h-12 w-12 rounded-full shadow-sm object-cover"
+            className="h-12 w-12 rounded-full object-cover shadow-sm"
           />
         </div>
 
         <div className="min-w-0 flex-1">
-          <div className="font-semibold text-gray-900 truncate">
-            {displayName}
-          </div>
-          <div className="text-xs text-gray-500 truncate">{usernameText}</div>
+          <div className="truncate font-semibold text-foreground">{displayName}</div>
+          <div className="truncate text-xs text-muted-foreground">{usernameText}</div>
         </div>
 
         <span
           className={`inline-flex shrink-0 rounded-full px-2 py-1 text-xs font-medium ${
             active
-              ? 'bg-green-100 text-green-700'
-              : 'bg-gray-100 text-gray-500'
+              ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300'
+              : 'bg-muted text-muted-foreground'
           }`}
         >
           {active ? 'Active' : 'Disabled'}
@@ -60,17 +51,13 @@ function UserCard({ user, active }: { user: User; active: boolean }) {
 
       <div className="mt-3 grid grid-cols-1 gap-2 text-sm">
         <div className="flex items-center justify-between gap-3">
-          <span className="text-gray-500">Phone</span>
-          <span className="text-gray-800 truncate">
-            {user.phone ?? '—'}
-          </span>
+          <span className="text-muted-foreground">Phone</span>
+          <span className="truncate text-foreground/80">{user.phone ?? '--'}</span>
         </div>
 
         <div className="flex items-center justify-between gap-3">
-          <span className="text-gray-500">Address</span>
-          <span className="text-gray-800 truncate">
-            {user.address ?? '—'}
-          </span>
+          <span className="text-muted-foreground">Address</span>
+          <span className="truncate text-foreground/80">{user.address ?? '--'}</span>
         </div>
       </div>
     </div>
@@ -79,7 +66,7 @@ function UserCard({ user, active }: { user: User; active: boolean }) {
 
 function MobileEmptyState({ text }: { text: string }) {
   return (
-    <div className="rounded-xl bg-white p-4 text-center text-sm text-gray-400 shadow-sm">
+    <div className="rounded-xl border border-border bg-card p-4 text-center text-sm text-muted-foreground shadow-sm">
       {text}
     </div>
   )
@@ -97,25 +84,25 @@ function UsersMobileSkeleton({ count = 5 }: { count?: number }) {
 
 function UserCardSkeleton() {
   return (
-    <div className="rounded-2xl bg-white p-4 shadow-sm border border-gray-100">
+    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
       <div className="flex items-center gap-3">
-        <div className="h-12 w-12 rounded-full bg-gray-200 animate-pulse shrink-0" />
+        <div className="h-12 w-12 shrink-0 animate-pulse rounded-full bg-muted" />
         <div className="min-w-0 flex-1">
-          <div className="h-4 w-2/3 rounded bg-gray-200 animate-pulse" />
-          <div className="mt-2 h-3 w-1/3 rounded bg-gray-200 animate-pulse" />
+          <div className="h-4 w-2/3 animate-pulse rounded bg-muted" />
+          <div className="mt-2 h-3 w-1/3 animate-pulse rounded bg-muted" />
         </div>
-        <div className="h-6 w-16 rounded-full bg-gray-200 animate-pulse shrink-0" />
+        <div className="h-6 w-16 shrink-0 animate-pulse rounded-full bg-muted" />
       </div>
 
       <div className="mt-4 grid grid-cols-1 gap-3">
         <div className="flex items-center justify-between gap-3">
-          <div className="h-3 w-16 rounded bg-gray-200 animate-pulse" />
-          <div className="h-3 w-40 rounded bg-gray-200 animate-pulse" />
+          <div className="h-3 w-16 animate-pulse rounded bg-muted" />
+          <div className="h-3 w-40 animate-pulse rounded bg-muted" />
         </div>
 
         <div className="flex items-center justify-between gap-3">
-          <div className="h-3 w-16 rounded bg-gray-200 animate-pulse" />
-          <div className="h-3 w-52 rounded bg-gray-200 animate-pulse" />
+          <div className="h-3 w-16 animate-pulse rounded bg-muted" />
+          <div className="h-3 w-52 animate-pulse rounded bg-muted" />
         </div>
       </div>
     </div>

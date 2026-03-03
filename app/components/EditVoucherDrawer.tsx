@@ -134,20 +134,20 @@ export default function EditVoucherDrawer({
             />
 
             {/* DRAWER */}
-            <div className="fixed right-0 top-0 z-50 h-full w-120 bg-white shadow-2xl animate-slide-in">
+            <div className="fixed right-0 top-0 z-50 h-full w-120 border-l border-border bg-card text-card-foreground shadow-2xl animate-slide-in">
                 <div
                     className={`h-full overflow-y-auto px-6 py-5 ${loading ? 'pointer-events-none opacity-50' : ''
                         }`}
                 >
                     {/* HEADER */}
                     <div className="mb-4 flex items-center justify-between">
-                        <h2 className="text-lg font-semibold text-[#1c4273]">
+                        <h2 className="text-lg font-semibold text-brand-1 dark:text-brand-2">
                             CẬP NHẬT VOUCHER
                         </h2>
 
                         <button
                             onClick={onClose}
-                            className="rounded-full px-2 py-1 text-lg hover:bg-gray-100"
+                            className="rounded-full px-2 py-1 text-lg text-muted-foreground transition hover:bg-muted/60"
                         >
                             ✕
                         </button>
@@ -180,7 +180,7 @@ export default function EditVoucherDrawer({
 
                         {/* DISCOUNT TYPE */}
                         <div className="space-y-1">
-                            <label className="text-sm font-semibold text-[#1b4f94]">
+                            <label className="text-sm font-semibold text-brand-2">
                                 Loại giảm
                             </label>
                             <select
@@ -193,7 +193,7 @@ export default function EditVoucherDrawer({
                                             | 'fixed',
                                     })
                                 }
-                                className="w-full rounded-lg border border-gray-400 px-3 py-2 text-sm"
+                                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-brand-2"
                             >
                                 <option value="percent">%</option>
                                 <option value="fixed">Số tiền</option>
@@ -267,14 +267,14 @@ export default function EditVoucherDrawer({
                         <button
                             onClick={handleSubmit}
                             disabled={saving}
-                            className="flex-1 rounded-lg bg-[#1b4f94] px-4 py-2 text-sm text-white hover:bg-[#1c4273] disabled:opacity-50"
+                            className="flex-1 rounded-lg bg-brand-2 px-4 py-2 text-sm text-white transition hover:bg-brand-1 disabled:opacity-50"
                         >
                             {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
                         </button>
 
                         <button
                             onClick={onClose}
-                            className="rounded-lg border px-4 py-2 text-sm hover:bg-gray-50"
+                            className="rounded-lg border border-border px-4 py-2 text-sm text-foreground transition hover:bg-muted/50"
                         >
                             Hủy
                         </button>
@@ -304,7 +304,7 @@ function Field({
 }: FieldProps) {
     return (
         <div className="space-y-1">
-            <label className="text-sm font-semibold text-[#1b4f94]">
+            <label className="text-sm font-semibold text-brand-2">
                 {label}
             </label>
             <input
@@ -312,7 +312,7 @@ function Field({
                 value={value}
                 disabled={disabled}
                 onChange={(e) => onChange(e.target.value)}
-                className="w-full rounded-lg border border-gray-400 px-3 py-2 text-sm disabled:bg-gray-100"
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-brand-2 disabled:bg-muted disabled:text-muted-foreground"
             />
         </div>
     );
@@ -331,14 +331,14 @@ function Textarea({
 }: TextareaProps) {
     return (
         <div className="space-y-1">
-            <label className="text-sm font-semibold text-[#1b4f94]">
+            <label className="text-sm font-semibold text-brand-2">
                 {label}
             </label>
             <textarea
                 rows={3}
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
-                className="w-full rounded-lg border border-gray-400 px-3 py-2 text-sm"
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-brand-2"
             />
         </div>
     );
@@ -356,14 +356,14 @@ function Checkbox({
     onChange,
 }: CheckboxProps) {
     return (
-        <label className="flex items-center gap-2 text-sm font-semibold text-[#1b4f94]">
+        <label className="flex items-center gap-2 text-sm font-semibold text-brand-2">
             <input
                 type="checkbox"
                 checked={checked}
                 onChange={(e) =>
                     onChange(e.target.checked)
                 }
-                className="accent-[#1b4f94]"
+                className="accent-brand-2"
             />
             {label}
         </label>

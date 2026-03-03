@@ -60,7 +60,7 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
         className={`
           fixed left-0 top-0 z-50 h-dvh flex flex-col
           transition-all duration-300
-          bg-[#1c4273] text-white w-64 
+          bg-brand-1 text-white w-64 dark:bg-brand-2
           ${collapsed ? 'lg:w-14' : 'lg:w-64'} 
           lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}

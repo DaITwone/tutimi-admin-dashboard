@@ -46,10 +46,14 @@ export default function NewsView({
   onConfirmDelete,
 }: NewsViewProps) {
   return (
-    <div className="space-y-3 mt-6">
-      {error && <div className="rounded-lg bg-red-50 p-4 text-red-600">{error}</div>}
+    <div className="mt-6 space-y-3">
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-600 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-300">
+          {error}
+        </div>
+      )}
 
-      <div className="overflow-hidden rounded-xl bg-white shadow-sm">
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
         <NewsHeader search={search} onSearchChange={onSearchChange} onCreate={onCreate} />
 
         <NewsMobileList news={news} loading={loading} onEdit={onEdit} onDelete={onDelete} />

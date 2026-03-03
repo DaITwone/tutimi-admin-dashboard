@@ -8,9 +8,9 @@ export default function UsersTable({
   loading: boolean
 }) {
   return (
-    <div className="hidden md:block overflow-hidden rounded-xl bg-white shadow-sm">
+    <div className="hidden overflow-hidden rounded-xl border border-border bg-card shadow-sm md:block">
       <table className="w-full text-sm">
-        <thead className="border-b bg-gray-50 text-gray-500">
+        <thead className="border-b border-border bg-muted/40 text-muted-foreground">
           <tr>
             <th className="p-4 text-left">User</th>
             <th className="p-4 text-left">Username</th>
@@ -25,7 +25,7 @@ export default function UsersTable({
 
           {!loading && users.length === 0 && (
             <tr>
-              <td colSpan={5} className="p-6 text-center text-gray-400">
+              <td colSpan={5} className="p-6 text-center text-muted-foreground">
                 No users found
               </td>
             </tr>
@@ -49,8 +49,6 @@ export default function UsersTable({
   )
 }
 
-/* ===================== DESKTOP ROW ===================== */
-
 function UserRow({
   avatarUrl,
   username,
@@ -66,48 +64,44 @@ function UserRow({
   address: string | null
   active: boolean
 }) {
+  const usernameValue = username ?? '--'
+  const secondaryUsername = fullName ? `@${usernameValue}` : username ? `@${username}` : '--'
+
   return (
-    <tr className="hover:bg-gray-50">
+    <tr className="border-b border-border last:border-b-0 hover:bg-muted/30">
       <td className="p-4">
         <div className="flex items-center gap-3">
-          <div className="border rounded-full border-gray-300">
+          <div className="rounded-full border border-border">
             <img
               src={avatarUrl || '/images/avt.png'}
               alt=""
-              className="h-12 w-12 rounded-full shadow-sm object-cover"
+              className="h-12 w-12 rounded-full object-cover shadow-sm"
             />
           </div>
           <div>
-            <div className="font-medium text-gray-900">
+            <div className="font-medium text-foreground">
               {fullName || username || 'Unnamed'}
             </div>
-            <div className="text-xs text-gray-500">
-              {fullName
-                ? `@${username ?? '—'}`
-                : username
-                ? `@${username}`
-                : '—'}
-            </div>
+            <div className="text-xs text-muted-foreground">{secondaryUsername}</div>
           </div>
         </div>
       </td>
 
-      <td className="p-4 text-gray-700">
-        <span className="inline-flex rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700">
-          @{username ?? '—'}
+      <td className="p-4 text-foreground/80">
+        <span className="inline-flex rounded-full bg-muted px-2 py-1 text-xs font-medium text-foreground/80">
+          @{usernameValue}
         </span>
       </td>
 
-      <td className="p-4 text-gray-600">{phone ?? '—'}</td>
-
-      <td className="p-4 text-gray-600">{address ?? '—'}</td>
+      <td className="p-4 text-foreground/80">{phone ?? '--'}</td>
+      <td className="p-4 text-foreground/80">{address ?? '--'}</td>
 
       <td className="p-4">
         <span
           className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
             active
-              ? 'bg-green-100 text-green-700'
-              : 'bg-gray-100 text-gray-500'
+              ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300'
+              : 'bg-muted text-muted-foreground'
           }`}
         >
           {active ? 'Active' : 'Disabled'}
@@ -117,8 +111,6 @@ function UserRow({
   )
 }
 
-/* ===================== SKELETON ===================== */
-
 function UsersTableSkeletonRows({ rows = 6 }: { rows?: number }) {
   return (
     <>
@@ -126,28 +118,25 @@ function UsersTableSkeletonRows({ rows = 6 }: { rows?: number }) {
         <tr key={idx} className="border-b last:border-b-0">
           <td className="p-4">
             <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-full bg-gray-200 animate-pulse" />
+              <div className="h-12 w-12 animate-pulse rounded-full bg-muted" />
               <div className="min-w-0">
-                <div className="h-4 w-40 rounded bg-gray-200 animate-pulse" />
-                <div className="mt-2 h-3 w-24 rounded bg-gray-200 animate-pulse" />
+                <div className="h-4 w-40 animate-pulse rounded bg-muted" />
+                <div className="mt-2 h-3 w-24 animate-pulse rounded bg-muted" />
               </div>
             </div>
           </td>
 
           <td className="p-4">
-            <div className="h-6 w-24 rounded-full bg-gray-200 animate-pulse" />
+            <div className="h-6 w-24 animate-pulse rounded-full bg-muted" />
           </td>
-
           <td className="p-4">
-            <div className="h-4 w-28 rounded bg-gray-200 animate-pulse" />
+            <div className="h-4 w-28 animate-pulse rounded bg-muted" />
           </td>
-
           <td className="p-4">
-            <div className="h-4 w-56 rounded bg-gray-200 animate-pulse" />
+            <div className="h-4 w-56 animate-pulse rounded bg-muted" />
           </td>
-
           <td className="p-4">
-            <div className="h-6 w-20 rounded-full bg-gray-200 animate-pulse" />
+            <div className="h-6 w-20 animate-pulse rounded-full bg-muted" />
           </td>
         </tr>
       ))}

@@ -20,11 +20,7 @@ type NewsForm = {
   image: string | null;
 };
 
-export default function EditNewsDrawer({
-  newsId,
-  onClose,
-  onUpdated,
-}: Props) {
+export default function EditNewsDrawer({ newsId, onClose, onUpdated }: Props) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -46,9 +42,7 @@ export default function EditNewsDrawer({
     const fetchNews = async () => {
       const { data } = await supabase
         .from('news')
-        .select(
-          'title, description, content, type, hashtag, is_active, image'
-        )
+        .select('title, description, content, type, hashtag, is_active, image')
         .eq('id', newsId)
         .single();
 
@@ -80,24 +74,15 @@ export default function EditNewsDrawer({
 
   const handleSubmit = async () => {
     setSaving(true);
-
-    let imagePath = form.image; // mặc định giữ ảnh cũ
+    let imagePath = form.image;
 
     try {
-      const hasNewUpload =
-        imageType === 'upload' && newImage;
-
-      const hasNewLink =
-        imageType === 'link' && imageLink.trim();
+      const hasNewUpload = imageType === 'upload' && newImage;
+      const hasNewLink = imageType === 'link' && imageLink.trim();
 
       if (hasNewUpload || hasNewLink) {
         const fileName = `news-${newsId}`;
-
-        imagePath = await uploadImageUnified(
-          'products',
-          hasNewUpload ? newImage : imageLink,
-          fileName
-        );
+        imagePath = await uploadImageUnified('products', hasNewUpload ? newImage : imageLink, fileName);
       }
 
       const { error } = await supabase
@@ -127,56 +112,41 @@ export default function EditNewsDrawer({
 
   return (
     <>
-      {/* Overlay */}
-      <div
-        className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
-      {/* Drawer */}
       <div
         className="
-          fixed z-50 bg-white shadow-2xl animate-slide-in
+          fixed z-50 border border-border bg-card text-card-foreground shadow-2xl animate-slide-in
           inset-x-0 bottom-0 h-[92vh] w-full rounded-t-3xl
-          md:inset-y-0 md:right-0 md:left-auto md:h-full md:w-130 md:rounded-none
+          md:inset-y-0 md:right-0 md:left-auto md:h-full md:w-130 md:rounded-none md:border-l
         "
       >
         <div className="flex h-full flex-col">
-          {/* Header */}
-          <div className="flex items-center justify-between border-b px-4 py-3 md:px-6">
-            <h2 className="text-lg font-semibold text-[#1c4273]">
-              CẬP NHẬT TIN TỨC
-            </h2>
+          <div className="flex items-center justify-between border-b border-border px-4 py-3 md:px-6">
+            <h2 className="text-lg font-semibold text-brand-1 dark:text-brand-2">CẬP NHẬT TIN TỨC</h2>
 
-            <button
-              onClick={onClose}
-              className="rounded-full p-2 hover:bg-gray-100"
-            >
+            <button onClick={onClose} className="rounded-full p-2 text-muted-foreground transition hover:bg-muted/60">
               ✕
             </button>
           </div>
 
-          {/* Content */}
           <div
-            className={`flex-1 space-y-6 overflow-y-auto px-4 py-4 md:px-6 md:py-5 ${loading ? 'pointer-events-none opacity-50' : ''}`}
+            className={`flex-1 space-y-6 overflow-y-auto px-4 py-4 md:px-6 md:py-5 ${
+              loading ? 'pointer-events-none opacity-50' : ''
+            }`}
           >
             {loading ? (
-              <p className="text-sm text-gray-500">
-                Đang tải...
-              </p>
+              <p className="text-sm text-muted-foreground">Đang tải...</p>
             ) : (
               <>
-                {/* IMAGE */}
                 <div className="space-y-3">
-                  <div className="flex gap-6 text-sm font-semibold text-[#1b4f94]">
+                  <div className="flex gap-6 text-sm font-semibold text-brand-2">
                     <label className="flex cursor-pointer items-center gap-2">
                       <input
                         type="radio"
                         checked={imageType === 'upload'}
-                        onChange={() =>
-                          setImageType('upload')
-                        }
-                        className="accent-[#1b4f94]"
+                        onChange={() => setImageType('upload')}
+                        className="accent-brand-2"
                       />
                       Upload ảnh
                     </label>
@@ -185,172 +155,105 @@ export default function EditNewsDrawer({
                       <input
                         type="radio"
                         checked={imageType === 'link'}
-                        onChange={() =>
-                          setImageType('link')
-                        }
-                        className="accent-[#1b4f94]"
+                        onChange={() => setImageType('link')}
+                        className="accent-brand-2"
                       />
                       Dán link
                     </label>
                   </div>
 
                   <div className="flex gap-3">
-                    <div className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-xl border border-dashed border-gray-400 bg-gray-50">
-                      {imageType === 'upload' &&
-                        newImage ? (
-                        <img
-                          src={URL.createObjectURL(
-                            newImage
-                          )}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : imageType === 'link' &&
-                        imageLink ? (
-                        <img
-                          src={imageLink}
-                          className="h-full w-full object-cover"
-                        />
+                    <div className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-xl border border-dashed border-border bg-muted/30">
+                      {imageType === 'upload' && newImage ? (
+                        <img src={URL.createObjectURL(newImage)} className="h-full w-full object-cover" />
+                      ) : imageType === 'link' && imageLink ? (
+                        <img src={imageLink} className="h-full w-full object-cover" />
                       ) : form.image ? (
                         <img
-                          src={
-                            getPublicImageUrl(
-                              'products',
-                              form.image
-                            ) ?? ''
-                          }
+                          src={getPublicImageUrl('products', form.image) ?? ''}
                           className="h-full w-full object-cover"
                         />
                       ) : (
-                        <span className="text-xs text-gray-400">
-                          No image
-                        </span>
+                        <span className="text-xs text-muted-foreground">No image</span>
                       )}
                     </div>
 
                     <div className="flex-1">
                       {imageType === 'upload' ? (
-                        <label className="inline-block cursor-pointer rounded-lg border border-gray-400 px-4 py-2 text-sm hover:bg-gray-50">
+                        <label className="inline-block cursor-pointer rounded-lg border border-border px-4 py-2 text-sm text-foreground transition hover:bg-muted/50">
                           Chọn ảnh mới
                           <input
                             type="file"
                             hidden
                             accept="image/*"
-                            onChange={(e) =>
-                              setNewImage(
-                                e.target.files
-                                  ? e.target.files[0]
-                                  : null
-                              )
-                            }
+                            onChange={(e) => setNewImage(e.target.files ? e.target.files[0] : null)}
                           />
                         </label>
                       ) : (
                         <input
                           value={imageLink}
-                          onChange={(e) =>
-                            setImageLink(e.target.value)
-                          }
+                          onChange={(e) => setImageLink(e.target.value)}
                           placeholder="https://..."
-                          className="w-full rounded-lg border border-gray-400 px-3 py-2 text-sm"
+                          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-brand-2"
                         />
                       )}
                     </div>
                   </div>
                 </div>
 
-                {/* TITLE */}
-                <Input
-                  label="Tiêu đề"
-                  value={form.title}
-                  onChange={(v) =>
-                    setForm({ ...form, title: v })
-                  }
-                />
+                <Input label="Tiêu đề" value={form.title} onChange={(v) => setForm({ ...form, title: v })} />
 
-                {/* DESCRIPTION */}
                 <Input
                   label="Mô tả ngắn"
                   value={form.description}
-                  onChange={(v) =>
-                    setForm({
-                      ...form,
-                      description: v,
-                    })
-                  }
+                  onChange={(v) => setForm({ ...form, description: v })}
                 />
 
-                {/* CONTENT */}
-                <Textarea
-                  label="Nội dung"
-                  value={form.content}
-                  onChange={(v) =>
-                    setForm({ ...form, content: v })
-                  }
-                />
+                <Textarea label="Nội dung" value={form.content} onChange={(v) => setForm({ ...form, content: v })} />
 
-                {/* HASHTAG */}
                 <Input
                   label="Hashtag"
                   value={form.hashtag}
-                  onChange={(v) =>
-                    setForm({
-                      ...form,
-                      hashtag: v,
-                    })
-                  }
+                  onChange={(v) => setForm({ ...form, hashtag: v })}
                   placeholder="VD: sale, update"
                 />
 
-                {/* TYPE */}
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-[#1b4f94]">
-                    Loại tin
-                  </label>
+                  <label className="text-sm font-semibold text-brand-2">Loại tin</label>
 
                   <div className="flex gap-3">
                     <button
                       type="button"
-                      onClick={() =>
-                        setForm({ ...form, type: 'Tin Tức' })
-                      }
-                      className={`rounded-lg border px-4 py-2 text-sm font-semibold
-                        border-gray-300 text-gray-500 hover:bg-gray-50
-                        ${form.type === 'Tin Tức' &&
-                        'border-[#1b4f94] bg-[#1b4f94]/10 text-[#1b4f94]'}
-                      `}
+                      onClick={() => setForm({ ...form, type: 'Tin Tức' })}
+                      className={`rounded-lg border px-4 py-2 text-sm font-semibold transition ${
+                        form.type === 'Tin Tức'
+                          ? 'border-brand-2 bg-brand-2/10 text-brand-2'
+                          : 'border-border text-muted-foreground hover:bg-muted/50'
+                      }`}
                     >
                       Tin tức
                     </button>
 
                     <button
                       type="button"
-                      onClick={() =>
-                        setForm({ ...form, type: 'Khuyến Mãi' })
-                      }
-                      className={`rounded-lg border px-4 py-2 text-sm font-semibold transition
-                        border-gray-300 text-gray-500 hover:bg-gray-50
-                        ${form.type === 'Khuyến Mãi' &&
-                        'border-[#1b4f94] bg-[#1b4f94]/10 text-[#1b4f94]'}
-                      `}
+                      onClick={() => setForm({ ...form, type: 'Khuyến Mãi' })}
+                      className={`rounded-lg border px-4 py-2 text-sm font-semibold transition ${
+                        form.type === 'Khuyến Mãi'
+                          ? 'border-brand-2 bg-brand-2/10 text-brand-2'
+                          : 'border-border text-muted-foreground hover:bg-muted/50'
+                      }`}
                     >
                       Khuyến mãi
                     </button>
                   </div>
                 </div>
 
-
-                {/* ACTIVE */}
-                <label className="flex items-center gap-2 text-sm font-semibold text-[#1b4f94]">
+                <label className="flex items-center gap-2 text-sm font-semibold text-brand-2">
                   <input
                     type="checkbox"
                     checked={form.is_active}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        is_active: e.target.checked,
-                      })
-                    }
-                    className="accent-[#1b4f94]"
+                    onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
+                    className="accent-brand-2"
                   />
                   Hiển thị tin tức
                 </label>
@@ -358,19 +261,18 @@ export default function EditNewsDrawer({
             )}
           </div>
 
-          {/* Footer */}
-          <div className="flex gap-3 border-t px-4 py-4 md:px-6">
+          <div className="flex gap-3 border-t border-border px-4 py-4 md:px-6">
             <button
               onClick={handleSubmit}
               disabled={saving}
-              className="flex-1 rounded-lg bg-[#163f78] px-4 py-2 text-sm font-medium text-white hover:bg-[#1b4f94] disabled:opacity-50"
+              className="flex-1 rounded-lg bg-brand-1 px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-2 disabled:opacity-50"
             >
               {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
             </button>
 
             <button
               onClick={onClose}
-              className="flex-1 md:flex-none rounded-lg border px-4 py-2 text-sm hover:bg-gray-50"
+              className="flex-1 rounded-lg border border-border px-4 py-2 text-sm text-foreground transition hover:bg-muted/50 md:flex-none"
             >
               Hủy
             </button>
@@ -381,7 +283,6 @@ export default function EditNewsDrawer({
   );
 }
 
-/* ===================== SMALL UI ===================== */
 type InputProps = {
   label: string;
   value: string;
@@ -389,22 +290,15 @@ type InputProps = {
   onChange: (value: string) => void;
 };
 
-function Input({
-  label,
-  value,
-  onChange,
-  placeholder,
-}: InputProps) {
+function Input({ label, value, onChange, placeholder }: InputProps) {
   return (
     <div className="space-y-1">
-      <label className="text-sm font-semibold text-[#1b4f94]">
-        {label}
-      </label>
+      <label className="text-sm font-semibold text-brand-2">{label}</label>
       <input
         value={value}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-gray-400 px-3 py-2 text-sm"
+        className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-brand-2"
       />
     </div>
   );
@@ -416,22 +310,15 @@ type TextareaProps = {
   onChange: (value: string) => void;
 };
 
-
-function Textarea({
-  label,
-  value,
-  onChange,
-}: TextareaProps) {
+function Textarea({ label, value, onChange }: TextareaProps) {
   return (
     <div className="space-y-1">
-      <label className="text-sm font-semibold text-[#1b4f94]">
-        {label}
-      </label>
+      <label className="text-sm font-semibold text-brand-2">{label}</label>
       <textarea
         value={value}
         rows={4}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-gray-400 px-3 py-2 text-sm"
+        className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-brand-2"
       />
     </div>
   );

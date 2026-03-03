@@ -46,14 +46,14 @@ export default function VouchersView({
   onConfirmDelete,
 }: VouchersViewProps) {
   return (
-    <div className="space-y-3 mt-6">
+    <div className="mt-6 space-y-3">
       {error && (
-        <div className="rounded-lg bg-red-50 p-4 text-red-600">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-600 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-300">
           {error}
         </div>
       )}
 
-      <div className="overflow-hidden rounded-xl bg-white shadow-sm">
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
         <VouchersHeader
           search={search}
           onSearchChange={onSearchChange}

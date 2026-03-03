@@ -16,20 +16,20 @@ export default function VouchersMobileList({
   onDelete,
 }: VouchersMobileListProps) {
   return (
-    <div className="md:hidden px-4 pb-4 pt-3 space-y-3">
+    <div className="space-y-3 px-4 pb-4 pt-3 md:hidden">
       {loading ? (
         <VouchersMobileSkeleton count={5} />
       ) : vouchers.length === 0 ? (
-        <div className="rounded-xl bg-white p-4 text-center text-sm text-gray-400 shadow-sm">
-          Chưa có voucher nào
+        <div className="rounded-xl border border-border bg-card p-4 text-center text-sm text-muted-foreground shadow-sm">
+          Chua co voucher nao
         </div>
       ) : (
-        vouchers.map((v) => (
+        vouchers.map((voucher) => (
           <VoucherCard
-            key={v.code}
-            voucher={v}
-            onEdit={() => onEdit(v.code)}
-            onDelete={() => onDelete(v.code)}
+            key={voucher.code}
+            voucher={voucher}
+            onEdit={() => onEdit(voucher.code)}
+            onDelete={() => onDelete(voucher.code)}
           />
         ))
       )}
@@ -49,22 +49,27 @@ function VoucherCard({
   const discountText =
     voucher.discount_type === 'percent'
       ? `${voucher.discount_value}%`
-      : `${voucher.discount_value.toLocaleString()}đ`;
+      : `${voucher.discount_value.toLocaleString()}d`;
+
+  const minOrderText = voucher.min_order_value
+    ? `${voucher.min_order_value.toLocaleString()}d`
+    : '--';
+  const maxUsageText = voucher.max_usage_per_user ?? '--';
 
   return (
-    <div className="rounded-2xl bg-white p-4 shadow-sm border border-gray-100">
+    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="font-mono font-extrabold text-[#1c4273] truncate">
+          <p className="truncate font-mono font-extrabold text-brand-1 dark:text-brand-2">
             {voucher.code}
           </p>
 
-          <p className="mt-1 font-bold text-[#1b4f94] leading-snug line-clamp-2">
+          <p className="mt-1 line-clamp-2 font-bold leading-snug text-brand-2">
             {voucher.title}
           </p>
 
           {voucher.description ? (
-            <p className="mt-1 text-sm text-gray-500 line-clamp-2">
+            <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
               {voucher.description}
             </p>
           ) : null}
@@ -73,46 +78,40 @@ function VoucherCard({
         <span
           className={`shrink-0 rounded-lg px-3 py-1 text-xs font-semibold ${
             voucher.is_active
-              ? 'bg-green-100 text-green-700'
-              : 'bg-gray-200 text-gray-600'
+              ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300'
+              : 'bg-muted text-muted-foreground'
           }`}
         >
-          {voucher.is_active ? 'Hoạt động' : 'Tắt'}
+          {voucher.is_active ? 'Hoat dong' : 'Tat'}
         </span>
       </div>
 
       <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
-        <div className="rounded-xl bg-gray-50 p-3">
-          <div className="text-xs text-gray-500">Giảm</div>
-          <div className="mt-1 font-semibold text-gray-800">{discountText}</div>
+        <div className="rounded-xl bg-muted/50 p-3">
+          <div className="text-xs text-muted-foreground">Giam</div>
+          <div className="mt-1 font-semibold text-foreground/90">{discountText}</div>
         </div>
 
-        <div className="rounded-xl bg-gray-50 p-3">
-          <div className="text-xs text-gray-500">Đơn tối thiểu</div>
-          <div className="mt-1 font-semibold text-gray-800">
-            {voucher.min_order_value
-              ? `${voucher.min_order_value.toLocaleString()}đ`
-              : '—'}
-          </div>
+        <div className="rounded-xl bg-muted/50 p-3">
+          <div className="text-xs text-muted-foreground">Don toi thieu</div>
+          <div className="mt-1 font-semibold text-foreground/90">{minOrderText}</div>
         </div>
 
-        <div className="rounded-xl bg-gray-50 p-3">
-          <div className="text-xs text-gray-500">Giới hạn</div>
-          <div className="mt-1 font-semibold text-gray-800">
-            {voucher.max_usage_per_user ?? '—'}
-          </div>
+        <div className="rounded-xl bg-muted/50 p-3">
+          <div className="text-xs text-muted-foreground">Gioi han</div>
+          <div className="mt-1 font-semibold text-foreground/90">{maxUsageText}</div>
         </div>
 
-        <div className="rounded-xl bg-gray-50 p-3">
-          <div className="text-xs text-gray-500">Đối tượng</div>
+        <div className="rounded-xl bg-muted/50 p-3">
+          <div className="text-xs text-muted-foreground">Doi tuong</div>
           <div className="mt-1">
             {voucher.for_new_user ? (
-              <span className="rounded-lg bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">
-                Khách mới
+              <span className="rounded-lg bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700 dark:bg-blue-500/20 dark:text-blue-300">
+                Khach moi
               </span>
             ) : (
-              <span className="rounded-lg bg-gray-200 px-3 py-1 text-xs font-medium text-gray-600">
-                Tất cả
+              <span className="rounded-lg bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+                Tat ca
               </span>
             )}
           </div>
@@ -122,16 +121,16 @@ function VoucherCard({
       <div className="mt-3 grid grid-cols-2 gap-2">
         <button
           onClick={onEdit}
-          className="rounded-xl border border-gray-300 px-3 py-2 text-sm hover:bg-gray-50"
+          className="rounded-xl border border-border px-3 py-2 text-sm text-foreground transition hover:bg-muted/50"
         >
-          Sửa
+          Sua
         </button>
 
         <button
           onClick={onDelete}
-          className="rounded-xl border border-red-200 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+          className="rounded-xl border border-red-200 px-3 py-2 text-sm text-red-600 transition hover:bg-red-50 dark:border-red-500/40 dark:text-red-300 dark:hover:bg-red-500/10"
         >
-          Xóa
+          Xoa
         </button>
       </div>
     </div>
@@ -144,28 +143,27 @@ function VouchersMobileSkeleton({ count = 5 }: { count?: number }) {
       {Array.from({ length: count }).map((_, idx) => (
         <div
           key={idx}
-          className="rounded-2xl bg-white p-4 shadow-sm border border-gray-100 animate-pulse"
+          className="animate-pulse rounded-2xl border border-border bg-card p-4 shadow-sm"
         >
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 space-y-2">
-              <div className="h-4 w-32 rounded bg-gray-200" />
-              <div className="h-4 w-2/3 rounded bg-gray-200" />
-              <div className="h-3 w-full rounded bg-gray-200" />
+              <div className="h-4 w-32 rounded bg-muted" />
+              <div className="h-4 w-2/3 rounded bg-muted" />
+              <div className="h-3 w-full rounded bg-muted" />
             </div>
-
-            <div className="h-6 w-20 rounded bg-gray-200" />
+            <div className="h-6 w-20 rounded bg-muted" />
           </div>
 
           <div className="mt-3 grid grid-cols-2 gap-3">
-            <div className="h-16 rounded-xl bg-gray-200" />
-            <div className="h-16 rounded-xl bg-gray-200" />
-            <div className="h-16 rounded-xl bg-gray-200" />
-            <div className="h-16 rounded-xl bg-gray-200" />
+            <div className="h-16 rounded-xl bg-muted" />
+            <div className="h-16 rounded-xl bg-muted" />
+            <div className="h-16 rounded-xl bg-muted" />
+            <div className="h-16 rounded-xl bg-muted" />
           </div>
 
           <div className="mt-3 grid grid-cols-2 gap-2">
-            <div className="h-10 rounded-xl bg-gray-200" />
-            <div className="h-10 rounded-xl bg-gray-200" />
+            <div className="h-10 rounded-xl bg-muted" />
+            <div className="h-10 rounded-xl bg-muted" />
           </div>
         </div>
       ))}
