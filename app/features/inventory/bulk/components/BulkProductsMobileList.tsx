@@ -26,7 +26,9 @@ export function BulkProductsMobileList({
       {isLoading ? (
         <BulkMobileSkeleton count={6} />
       ) : products.length === 0 ? (
-        <div className="rounded-xl bg-white p-4 text-center text-sm text-gray-400 shadow-sm">Không có sản phẩm</div>
+        <div className="rounded-xl border border-border bg-card p-4 text-center text-sm text-muted-foreground shadow-sm">
+          Không có sản phẩm
+        </div>
       ) : (
         products.map((p) => {
           const stock = p.stock_quantity ?? 0;

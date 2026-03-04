@@ -37,7 +37,7 @@ export function BulkInventoryPageView({ type }: { type: BulkType }) {
         onChangeSearch={state.setSearch}
       />
 
-      <div className="overflow-hidden rounded-xl bg-white shadow-sm">
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
         <BulkProductsMobileList
           type={type}
           products={state.sortedProducts}
