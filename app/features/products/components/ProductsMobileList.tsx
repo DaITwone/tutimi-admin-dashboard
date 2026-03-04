@@ -33,7 +33,7 @@ export default function ProductsMobileList({
         {loading ? (
           <ProductsMobileSkeleton count={5} manageMode={manageMode} />
         ) : products.length === 0 ? (
-          <div className="rounded-xl bg-white p-4 text-center text-sm text-gray-400 shadow-sm">
+          <div className="rounded-xl border border-border bg-card p-4 text-center text-sm text-muted-foreground shadow-sm">
             Chưa có sản phẩm nào
           </div>
         ) : (
@@ -52,9 +52,9 @@ export default function ProductsMobileList({
       </div>
 
       {manageMode && (
-        <div className="sticky bottom-0 z-20 -mx-4 bg-[#F7F8FB] px-4 pb-3 pt-2 md:hidden">
-          <div className="flex items-center justify-between gap-3 rounded-2xl border border-gray-200 bg-white p-3 shadow-lg">
-            <div className="text-sm text-gray-700">
+        <div className="sticky bottom-0 z-20 -mx-4 bg-muted/30 px-4 pb-3 pt-2 md:hidden">
+          <div className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-card p-3 shadow-lg">
+            <div className="text-sm text-foreground/80">
               Đã chọn <b>{selectedIds.length}</b>
             </div>
 
