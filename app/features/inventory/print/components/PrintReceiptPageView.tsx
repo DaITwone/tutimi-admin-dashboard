@@ -71,7 +71,7 @@ export function PrintReceiptPageView({
       <StateCard
         title="Loi"
         description={error}
-        actionLabel="Quay lai"
+        actionLabel="Quay lại"
         onAction={onBack}
         danger
       />
@@ -81,9 +81,9 @@ export function PrintReceiptPageView({
   if (rows.length === 0) {
     return (
       <StateCard
-        title="Khong tim thay phieu"
-        description="Phieu nay khong co du lieu hoac da bi xoa."
-        actionLabel="Quay lai"
+        title="Không tìm thấy phiếu"
+        description="Phiếu này không có dữ liệu hoặc đã bị xóa."
+        actionLabel="Quay lại"
         onAction={onBack}
       />
     );
@@ -109,7 +109,7 @@ export function PrintReceiptPageView({
         </button>
       </div>
 
-      <div className="min-h-screen bg-gray-100 px-3 py-6 print:bg-white print:px-0 print:py-0 md:px-0 md:py-10">
+      <div className="min-h-screen bg-muted/40 px-3 py-6 print:bg-white print:px-0 print:py-0 md:px-0 md:py-10">
         <div className="flex justify-center overflow-x-auto">
           <div className="origin-top scale-[0.46] print:scale-100 sm:scale-[0.62] md:scale-100">
             <div
@@ -242,4 +242,3 @@ export function PrintReceiptPageView({
     </div>
   );
 }
-
