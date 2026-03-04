@@ -42,7 +42,7 @@ export default function ProductsPageView() {
 
   return (
     <div className="space-y-3">
-      <div className="sticky top-0 z-10 -mx-6 bg-muted/30 px-6">
+      <div className="sticky top-0 z-10 -mx-6 px-6">
         <div className="flex gap-2 overflow-x-auto py-2">
           <button
             onClick={() => handleCategoryChange('all')}

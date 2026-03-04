@@ -15,11 +15,11 @@ export function InventoryMobileList({
   onOpenHistory,
 }: InventoryMobileListProps) {
   return (
-    <div className="md:hidden px-4 pb-4 pt-3 space-y-3">
+    <div className="space-y-3 px-4 pb-4 pt-3 md:hidden">
       {loading ? (
         <InventoryMobileSkeleton count={5} />
       ) : rows.length === 0 ? (
-        <div className="rounded-xl bg-white p-4 text-center text-sm text-gray-400 shadow-sm">
+        <div className="rounded-xl border border-border bg-card p-4 text-center text-sm text-muted-foreground shadow-sm">
           Chưa có sản phẩm nào
         </div>
       ) : (
@@ -51,9 +51,9 @@ function InventoryCard({
   const totalText = product.measure_unit;
 
   return (
-    <div className="rounded-2xl bg-white p-4 shadow-sm border border-gray-100">
+    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
       <div className="flex items-start gap-3">
-        <div className="h-24 w-20 shrink-0 overflow-hidden rounded-xl bg-gray-50">
+        <div className="h-24 w-20 shrink-0 overflow-hidden rounded-xl bg-muted/50">
           {product.image ? (
             <img
               src={getPublicImageUrl("products", product.image) ?? ""}
@@ -61,7 +61,7 @@ function InventoryCard({
               className="h-full w-full object-contain"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-xs text-gray-400">
+            <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
               No image
             </div>
           )}
@@ -69,25 +69,21 @@ function InventoryCard({
 
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-3">
-            <p className="text-sm font-bold text-[#1c4f94] line-clamp-2">
-              {product.name}
-            </p>
+            <p className="line-clamp-2 text-sm font-bold text-brand-2">{product.name}</p>
 
-            <span className="text-xs font-semibold text-gray-400">
-              #{index + 1}
-            </span>
+            <span className="text-xs font-semibold text-muted-foreground">#{index + 1}</span>
           </div>
 
           <div className="mt-3 grid grid-cols-2 gap-2">
-            <div className="rounded-xl bg-gray-50 p-3">
-              <div className="text-xs text-gray-500">Tồn kho</div>
+            <div className="rounded-xl bg-muted/50 p-3">
+              <div className="text-xs text-muted-foreground">Tồn kho</div>
               <div className="mt-1">
                 <span
                   className={`inline-flex rounded-lg px-3 py-1 text-xs font-semibold ${
                     outOfStock
                       ? "bg-red-100 text-red-700"
                       : lowStock
-                        ? "bg-yellow-100 text-yellow-600"
+                        ? "bg-yellow-100 text-yellow-700"
                         : "bg-blue-100 text-blue-700"
                   }`}
                 >
@@ -96,10 +92,10 @@ function InventoryCard({
               </div>
             </div>
 
-            <div className="rounded-xl bg-gray-50 p-3">
-              <div className="text-xs text-gray-500">Tổng định lượng</div>
+            <div className="rounded-xl bg-muted/50 p-3">
+              <div className="text-xs text-muted-foreground">Tổng định lượng</div>
               <div className="mt-1">
-                <span className="inline-flex rounded-lg bg-gray-200 px-3 py-1 text-xs font-semibold text-gray-700">
+                <span className="inline-flex rounded-lg bg-muted px-3 py-1 text-xs font-semibold text-foreground">
                   {totalText}
                 </span>
               </div>
@@ -108,7 +104,7 @@ function InventoryCard({
 
           <button
             onClick={onOpenHistory}
-            className="mt-3 w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+            className="mt-3 w-full rounded-xl border border-border bg-background px-4 py-2 text-sm text-foreground transition hover:bg-muted/50"
           >
             Lịch sử
           </button>
@@ -124,21 +120,21 @@ function InventoryMobileSkeleton({ count = 5 }: { count?: number }) {
       {Array.from({ length: count }).map((_, idx) => (
         <div
           key={idx}
-          className="rounded-2xl bg-white p-4 shadow-sm border border-gray-100 animate-pulse"
+          className="animate-pulse rounded-2xl border border-border bg-card p-4 shadow-sm"
         >
           <div className="flex items-start gap-3">
-            <div className="h-24 w-20 rounded-xl bg-gray-200 shrink-0" />
+            <div className="h-24 w-20 shrink-0 rounded-xl bg-muted" />
 
             <div className="flex-1 space-y-2">
-              <div className="h-4 w-3/4 rounded bg-gray-200" />
-              <div className="h-3 w-1/2 rounded bg-gray-200" />
+              <div className="h-4 w-3/4 rounded bg-muted" />
+              <div className="h-3 w-1/2 rounded bg-muted" />
 
               <div className="mt-3 grid grid-cols-2 gap-2">
-                <div className="h-16 rounded-xl bg-gray-200" />
-                <div className="h-16 rounded-xl bg-gray-200" />
+                <div className="h-16 rounded-xl bg-muted" />
+                <div className="h-16 rounded-xl bg-muted" />
               </div>
 
-              <div className="h-10 rounded-xl bg-gray-200 mt-3" />
+              <div className="mt-3 h-10 rounded-xl bg-muted" />
             </div>
           </div>
         </div>

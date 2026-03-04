@@ -42,14 +42,14 @@ export function InventoryPageView({
 }: InventoryPageViewProps) {
   return (
     <div className="space-y-3">
-      <div className="sticky top-0 z-10 -mx-6 bg-gray-50 px-6">
+      <div className="sticky top-0 z-10 -mx-6 bg-muted/30 px-6">
         <div className="flex gap-2 overflow-x-auto py-2">
           <button
             onClick={() => onCategoryChange("all")}
-            className={`whitespace-nowrap rounded-full px-4 py-2 text-sm shadow-sm ${
+            className={`whitespace-nowrap rounded-full px-4 py-2 text-sm shadow-sm transition ${
               activeCategory === "all"
-                ? "bg-[#1b4f94] text-white"
-                : "bg-gray-100 text-[#1c4273]"
+                ? "bg-brand-2 text-white"
+                : "bg-muted text-brand-1 dark:text-brand-2"
             }`}
           >
             Tất cả
@@ -59,10 +59,10 @@ export function InventoryPageView({
             <button
               key={cat.id}
               onClick={() => onCategoryChange(cat.id)}
-              className={`whitespace-nowrap rounded-full px-4 py-2 text-sm shadow-sm ${
+              className={`whitespace-nowrap rounded-full px-4 py-2 text-sm shadow-sm transition ${
                 activeCategory === cat.id
-                  ? "bg-[#1b4f94] text-white"
-                  : "bg-gray-100 text-[#1c4273]"
+                  ? "bg-brand-2 text-white"
+                  : "bg-muted text-brand-1 dark:text-brand-2"
               }`}
             >
               {cat.title}
@@ -71,9 +71,13 @@ export function InventoryPageView({
         </div>
       </div>
 
-      {error && <div className="rounded-lg bg-red-50 p-4 text-red-600">{error}</div>}
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-600 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-300">
+          {error}
+        </div>
+      )}
 
-      <div className="overflow-hidden rounded-xl bg-white shadow-sm">
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
         <InventoryToolbar
           search={search}
           onSearchChange={onSearchChange}
@@ -82,11 +86,7 @@ export function InventoryPageView({
           onOpenHistoryPage={onOpenHistoryPage}
         />
 
-        <InventoryMobileList
-          loading={loading}
-          rows={rows}
-          onOpenHistory={onOpenHistory}
-        />
+        <InventoryMobileList loading={loading} rows={rows} onOpenHistory={onOpenHistory} />
 
         <InventoryDesktopTable
           loading={loading}

@@ -30,7 +30,7 @@ export default function ProductsToolbar({
   onBulkOff,
 }: ProductsToolbarProps) {
   return (
-    <div className="mx-4 mt-4.5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+    <div className="mx-4 mb-4.5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <div className="mt-4.5 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
         <button
           onClick={onAdd}
