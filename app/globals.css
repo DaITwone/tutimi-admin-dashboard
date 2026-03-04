@@ -149,14 +149,14 @@ body {
     padding: 0 !important;
   }
 
-  /* ✅ Nếu main wrapper của bạn là div có ml-64/ml-14 */
+  /* Nếu main wrapper của bạn là div có ml-64/ml-14 */
   main {
     margin: 0 !important;
     padding: 0 !important;
     overflow: visible !important;
   }
 
-  /* ✅ Quan trọng nhất: khi in, bỏ margin-left */
+  /* Quan trọng nhất: khi in, bỏ margin-left */
   [class*="ml-64"],
   [class*="ml-14"] {
     margin-left: 0 !important;
