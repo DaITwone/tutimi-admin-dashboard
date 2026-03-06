@@ -21,7 +21,7 @@ export default function VouchersMobileList({
         <VouchersMobileSkeleton count={5} />
       ) : vouchers.length === 0 ? (
         <div className="rounded-xl border border-border bg-card p-4 text-center text-sm text-muted-foreground shadow-sm">
-          Chua co voucher nao
+          Chưa có voucher nào
         </div>
       ) : (
         vouchers.map((voucher) => (
@@ -82,36 +82,36 @@ function VoucherCard({
               : 'bg-muted text-muted-foreground'
           }`}
         >
-          {voucher.is_active ? 'Hoat dong' : 'Tat'}
+          {voucher.is_active ? 'Hoạt động' : 'Tắt'}
         </span>
       </div>
 
       <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
         <div className="rounded-xl bg-muted/50 p-3">
-          <div className="text-xs text-muted-foreground">Giam</div>
+          <div className="text-xs text-muted-foreground">Giảm</div>
           <div className="mt-1 font-semibold text-foreground/90">{discountText}</div>
         </div>
 
         <div className="rounded-xl bg-muted/50 p-3">
-          <div className="text-xs text-muted-foreground">Don toi thieu</div>
+          <div className="text-xs text-muted-foreground">Đơn tối thiểu</div>
           <div className="mt-1 font-semibold text-foreground/90">{minOrderText}</div>
         </div>
 
         <div className="rounded-xl bg-muted/50 p-3">
-          <div className="text-xs text-muted-foreground">Gioi han</div>
+          <div className="text-xs text-muted-foreground">Giới hạn</div>
           <div className="mt-1 font-semibold text-foreground/90">{maxUsageText}</div>
         </div>
 
         <div className="rounded-xl bg-muted/50 p-3">
-          <div className="text-xs text-muted-foreground">Doi tuong</div>
+          <div className="text-xs text-muted-foreground">Đối tượng</div>
           <div className="mt-1">
             {voucher.for_new_user ? (
               <span className="rounded-lg bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700 dark:bg-blue-500/20 dark:text-blue-300">
-                Khach moi
+                Khách mới
               </span>
             ) : (
               <span className="rounded-lg bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
-                Tat ca
+                Tất cả
               </span>
             )}
           </div>
@@ -123,14 +123,14 @@ function VoucherCard({
           onClick={onEdit}
           className="rounded-xl border border-border px-3 py-2 text-sm text-foreground transition hover:bg-muted/50"
         >
-          Sua
+          Sửa
         </button>
 
         <button
           onClick={onDelete}
           className="rounded-xl border border-red-200 px-3 py-2 text-sm text-red-600 transition hover:bg-red-50 dark:border-red-500/40 dark:text-red-300 dark:hover:bg-red-500/10"
         >
-          Xoa
+          Xóa
         </button>
       </div>
     </div>
