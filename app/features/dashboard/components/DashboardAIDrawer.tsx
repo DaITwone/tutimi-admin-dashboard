@@ -87,8 +87,10 @@ export function DashboardAIDrawer({
         }
     };
 
+    // h-dvh = 100% dynamic viewport height
+
     return (
-        <div className="fixed bottom-0 right-0 z-50 w-full h-dvh md:bottom-20 md:right-8 md:w-96 md:h-125 lg:h-150 flex flex-col bg-white shadow-2xl md:rounded-2xl animate-in slide-in-from-bottom-5">
+        <div className="fixed bottom-0 right-0 z-50 w-full h-dvh md:bottom-20 md:right-8 md:w-96 md:h-125 lg:h-127 flex flex-col bg-white shadow-2xl md:rounded-2xl animate-in slide-in-from-bottom-5">
             {/* Header */}
             <CardHeader className="flex flex-row items-center justify-between py-3 px-4 bg-blue2 text-primary-foreground md:rounded-t-xl shrink-0">
                 <div className="flex items-center gap-2">
@@ -98,7 +100,7 @@ export function DashboardAIDrawer({
                         {/* Nút tròn chính */}
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                     </span>
-                    <CardTitle className="text-sm font-bold">TUTIMI Assistant</CardTitle>
+                    <CardTitle className="text-sm text-white font-bold">TUTIMI Assistant</CardTitle>
                 </div>
                 <div className="flex items-center gap-1">
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-primary-foreground hover:bg-primary-foreground/20" onClick={handleResetRequest}>
@@ -236,7 +238,7 @@ export function DashboardAIDrawer({
                         className="flex-1 bg-slate-100 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                         disabled={isLoading}
                     />
-                    <Button type="submit" size="icon" className="rounded-full shrink-0 bg-blue2" disabled={isLoading}>
+                    <Button type="submit" size="icon" className="rounded-full shrink-0 bg-blue2 text-white" disabled={isLoading}>
                         <Send className="h-4 w-4" />
                     </Button>
                 </form>
